@@ -176,6 +176,12 @@
   #loginGate .g-submit-btn:hover{ background:#222; }
   #loginGate .g-submit-btn svg{ width:18px; height:18px; stroke:#fff; fill:none; stroke-width:2; }
   #loginGate #loginError{ min-height:20px; margin:10px 0 0; color:#a40000; text-align:center; font-size:12px; }
+  #loginGate .auth-mode-switch{ display:grid; grid-template-columns:1fr 1fr; gap:4px; margin:0 0 26px; padding:4px; border:1px solid #ddd; border-radius:8px; background:#eee; }
+  #loginGate .auth-mode-btn{ padding:10px 12px; border:0; border-radius:5px; background:transparent; color:#666; cursor:pointer; font:600 12px inherit; letter-spacing:.06em; text-transform:uppercase; }
+  #loginGate .auth-mode-btn.active{ background:#fff; color:#111; box-shadow:0 1px 5px rgba(0,0,0,.12); }
+  #loginGate .signup-only{ display:none; }
+  #loginGate.signup-mode .signup-only{ display:block; }
+  #loginGate .auth-note{ margin:-10px 0 18px; color:#777; text-align:center; font-size:11px; line-height:1.5; }
   #loginGate .g-light-divider{ display:flex; align-items:center; width:100%; margin:28px 0; }
   #loginGate .g-light-divider::before,#loginGate .g-light-divider::after{ content:""; flex:1; height:1px; background:#e0e0e0; }
   #loginGate .g-light-divider .g-diamond{ border-color:#888; }
@@ -205,6 +211,7 @@
   body.employee-mode .mgmt-panel{ display:none !important; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -227,22 +234,41 @@
           <h2 class="g-welcome-title" id="loginTitle">Welcome back</h2>
           <p class="g-welcome-sub">Enter your credentials to continue to your workspace.</p>
         </div>
+        <div class="auth-mode-switch" aria-label="Choose sign in or sign up">
+          <button type="button" class="auth-mode-btn active" id="showSignIn">Sign In</button>
+          <button type="button" class="auth-mode-btn" id="showSignUp">New Employee</button>
+        </div>
         <form id="loginForm">
-          <div class="g-form-group">
-            <label for="loginUser">User ID</label>
+          <div class="g-form-group signup-only">
+            <label for="signupName">Employee name</label>
             <div class="g-input-container">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              <input id="loginUser" type="text" value="Rugs Creation" autocomplete="username" required>
+              <input id="signupName" type="text" autocomplete="name" placeholder="Your full name">
+            </div>
+          </div>
+          <div class="g-form-group">
+            <label for="loginUser">Company email</label>
+            <div class="g-input-container">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4z"></path><path d="m4 6 8 6 8-6"></path></svg>
+              <input id="loginUser" type="email" autocomplete="username" placeholder="name@rugscreation.com" required>
+            </div>
+          </div>
+          <div class="g-form-group signup-only">
+            <label for="signupPhone">Phone number</label>
+            <div class="g-input-container">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8 9.73a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92z"></path></svg>
+              <input id="signupPhone" type="tel" autocomplete="tel" placeholder="Employee phone number">
             </div>
           </div>
           <div class="g-form-group">
             <label for="loginPassword">Password</label>
             <div class="g-input-container">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required autofocus>
+              <input id="loginPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Minimum 6 characters" required autofocus>
             </div>
           </div>
-          <button type="submit" class="g-submit-btn">Sign In To Calculator <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+          <p class="auth-note signup-only">Only <strong>@rugscreation.com</strong> email addresses are allowed. A confirmation email may be required.</p>
+          <button type="submit" class="g-submit-btn" id="authSubmitBtn">Sign In To Calculator <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
           <div id="loginError" role="alert"></div>
         </form>
         <div class="g-light-divider" aria-hidden="true"><span class="g-diamond"></span></div>
@@ -1442,9 +1468,13 @@ function flashInlineSavedBadge(){
 }
 
 /* ================= LOGIN & ROLE ACCESS ================= */
-const LOGIN_USER_ID = "Rugs Creation";
-const EMPLOYEE_PASSWORD = "1234";
-const ADMIN_PASSWORD = "5678";
+const SUPABASE_URL = "https://ywkwwlqbegkwybgvhxrc.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_nAgoeXzLVWhOjG_L2W_lNg_vwn4TOyF";
+const COMPANY_EMAIL_DOMAIN = "@rugscreation.com";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let CURRENT_USER = null;
+let CURRENT_PROFILE = null;
+let AUTH_MODE = "signin";
 
 function openCalculatorView(){
   document.querySelectorAll(".tab-btn").forEach(btn=>btn.classList.toggle("active", btn.dataset.tab === "calc"));
@@ -1459,7 +1489,8 @@ function applyUserRole(role){
   document.getElementById("logoutBtn").style.display = "block";
 
   document.querySelectorAll(".tab-btn").forEach(btn=>{
-    btn.style.display = (isAdmin || btn.dataset.tab === "calc") ? "" : "none";
+    const employeeAllowed = btn.dataset.tab === "calc" || btn.dataset.tab === "history";
+    btn.style.display = (isAdmin || employeeAllowed) ? "" : "none";
   });
 
   const managementControl = document.getElementById("mgmtToggle").closest(".toggle-row");
@@ -1470,40 +1501,116 @@ function applyUserRole(role){
   }
 }
 
-document.getElementById("loginForm").addEventListener("submit", event=>{
+function setAuthMode(mode){
+  AUTH_MODE = mode;
+  const isSignup = mode === "signup";
+  const gate = document.getElementById("loginGate");
+  gate.classList.toggle("signup-mode", isSignup);
+  document.getElementById("showSignIn").classList.toggle("active", !isSignup);
+  document.getElementById("showSignUp").classList.toggle("active", isSignup);
+  document.getElementById("signupName").required = isSignup;
+  document.getElementById("signupPhone").required = isSignup;
+  document.getElementById("loginPassword").autocomplete = isSignup ? "new-password" : "current-password";
+  document.getElementById("authSubmitBtn").childNodes[0].nodeValue = isSignup ? "Create Employee Account " : "Sign In To Calculator ";
+  document.getElementById("loginTitle").textContent = isSignup ? "Create your account" : "Welcome back";
+  document.querySelector(".g-welcome-sub").textContent = isSignup
+    ? "Register with your Rugs Creation company details."
+    : "Enter your credentials to continue to your workspace.";
+  document.getElementById("loginError").style.color = "#a40000";
+  document.getElementById("loginError").textContent = "";
+}
+
+document.getElementById("showSignIn").addEventListener("click", ()=>setAuthMode("signin"));
+document.getElementById("showSignUp").addEventListener("click", ()=>setAuthMode("signup"));
+
+async function finishAuthenticatedSession(user){
+  if (!user) return;
+  const {data:profile, error} = await supabaseClient
+    .from("profiles")
+    .select("id, full_name, email, phone, role")
+    .eq("id", user.id)
+    .single();
+  if (error || !profile) throw new Error("Your employee profile could not be loaded. Please contact the administrator.");
+
+  CURRENT_USER = user;
+  CURRENT_PROFILE = profile;
+  const staffField = document.getElementById("staffName");
+  staffField.value = profile.full_name || user.email || "Employee";
+  staffField.readOnly = true;
+  staffField.title = "This name comes from the signed-in employee account.";
+  applyUserRole(profile.role || "employee");
+  await loadHistory();
+  renderHistoryTable(document.getElementById("historySearch").value);
+}
+
+document.getElementById("loginForm").addEventListener("submit", async event=>{
   event.preventDefault();
-  const userId = document.getElementById("loginUser").value.trim();
+  const email = document.getElementById("loginUser").value.trim().toLowerCase();
   const password = document.getElementById("loginPassword").value;
   const error = document.getElementById("loginError");
+  const submitButton = document.getElementById("authSubmitBtn");
 
-  if (userId.toLowerCase() !== LOGIN_USER_ID.toLowerCase()){
-    error.textContent = "Incorrect User ID or password.";
+  if (!email.endsWith(COMPANY_EMAIL_DOMAIN)){
+    error.textContent = "Please use your @rugscreation.com company email.";
     return;
   }
-
-  const role = password === ADMIN_PASSWORD ? "admin" : password === EMPLOYEE_PASSWORD ? "employee" : "";
-  if (!role){
-    error.textContent = "Incorrect User ID or password.";
+  if (password.length < 6){
+    error.textContent = "Password must contain at least 6 characters.";
     return;
   }
-
-  error.textContent = "";
-  sessionStorage.setItem("rugsCreationRole", role);
-  applyUserRole(role);
+  submitButton.disabled = true;
+  error.textContent = AUTH_MODE === "signup" ? "Creating account..." : "Signing in...";
+  try{
+    if (AUTH_MODE === "signup"){
+      const fullName = document.getElementById("signupName").value.trim();
+      const phone = document.getElementById("signupPhone").value.trim();
+      const {data, error:signupError} = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options:{data:{full_name:fullName, phone}}
+      });
+      if (signupError) throw signupError;
+      if (!data.session){
+        setAuthMode("signin");
+        error.style.color = "#146b2e";
+        error.textContent = "Account created. Please check your company email and confirm it, then sign in.";
+        document.getElementById("loginUser").value = email;
+        return;
+      }
+      await finishAuthenticatedSession(data.user);
+    }else{
+      const {data, error:signinError} = await supabaseClient.auth.signInWithPassword({email, password});
+      if (signinError) throw signinError;
+      await finishAuthenticatedSession(data.user);
+    }
+    error.textContent = "";
+  }catch(authError){
+    error.style.color = "#a40000";
+    error.textContent = authError.message || "Unable to sign in. Please check your details.";
+  }finally{
+    submitButton.disabled = false;
+  }
 });
 
-document.getElementById("logoutBtn").addEventListener("click", ()=>{
-  sessionStorage.removeItem("rugsCreationRole");
+document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+  await supabaseClient.auth.signOut();
   location.reload();
 });
 
-const savedUserRole = sessionStorage.getItem("rugsCreationRole");
-if (savedUserRole === "admin" || savedUserRole === "employee") applyUserRole(savedUserRole);
+async function restoreAuthenticatedSession(){
+  const {data:{session}} = await supabaseClient.auth.getSession();
+  if (!session) return;
+  try{ await finishAuthenticatedSession(session.user); }
+  catch(error){
+    document.getElementById("loginError").textContent = error.message;
+    await supabaseClient.auth.signOut();
+  }
+}
 
 /* ================= TAB NAV ================= */
 document.querySelectorAll(".tab-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
-    if (document.body.classList.contains("employee-mode") && btn.dataset.tab !== "calc") return;
+    if (document.body.classList.contains("employee-mode") && !["calc","history"].includes(btn.dataset.tab)) return;
     document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
@@ -2799,7 +2906,7 @@ function downloadQuote(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  saveToHistory(); // keep a record even though the Save button is gone — download implies "this quote is final"
+  void saveToHistory(); // download implies this quote is final, so also save it to the shared history
 }
 
 function savePackagingCard(){
@@ -3520,31 +3627,38 @@ document.getElementById("excelImport").addEventListener("change", (e)=>{
 });
 
 /* ================= QUOTE HISTORY ================= */
-const HISTORY_KEY = "quote_history_v1";
-const STAFF_NAME_KEY = "staff_name_v1";
 let HISTORY = [];
 
 async function loadHistory(){
-  try{
-    const res = await storageGet(HISTORY_KEY, true);
-    HISTORY = JSON.parse(res.value);
-  }catch(e){ HISTORY = []; }
+  if (!CURRENT_USER){ HISTORY = []; return; }
+  const {data, error} = await supabaseClient
+    .from("costing_history")
+    .select("id, user_id, employee_name, article_no, customer, product, quote_data, created_at")
+    .order("created_at", {ascending:true})
+    .limit(1000);
+  if (error){
+    console.error("Shared history load failed", error);
+    HISTORY = [];
+    return;
+  }
+  HISTORY = (data || []).map(row=>({
+    ...(row.quote_data || {}),
+    id: row.id,
+    userId: row.user_id,
+    ts: row.created_at,
+    staff: row.employee_name,
+    articleNo: row.article_no || "",
+    customer: row.customer || "—",
+    product: row.product || ""
+  }));
 }
-async function saveHistoryToStorage(){
-  try{ await storageSet(HISTORY_KEY, JSON.stringify(HISTORY.slice(-1000)), true); }
-  catch(e){ console.error("History save failed", e); }
-}
-async function loadStaffName(){
-  try{
-    const res = await storageGet(STAFF_NAME_KEY, false);
-    document.getElementById("staffName").value = res.value || "";
-  }catch(e){ /* no name saved yet */ }
-}
-document.getElementById("staffName").addEventListener("change", async (e)=>{
-  try{ await storageSet(STAFF_NAME_KEY, e.target.value, false); }catch(err){}
-});
 
-function saveToHistory(){
+async function saveToHistory(){
+  const note = document.getElementById("historySaveNote");
+  if (!CURRENT_USER || !CURRENT_PROFILE){
+    note.textContent = "Please sign in before saving history.";
+    return;
+  }
   const staff = document.getElementById("staffName").value.trim() || "Unnamed";
   const cust = getCustomer() || {name:"—", category:"—"};
   const product = document.getElementById("product").value;
@@ -3563,12 +3677,32 @@ function saveToHistory(){
     visibleCostInr: document.getElementById("mVisible").textContent,
     marginPct: document.getElementById("mCat").textContent,
   };
-  HISTORY.push(record);
-  saveHistoryToStorage();
+  note.textContent = "Saving...";
+  const {data, error} = await supabaseClient
+    .from("costing_history")
+    .insert({
+      user_id: CURRENT_USER.id,
+      employee_name: staff,
+      article_no: record.articleNo,
+      customer: record.customer,
+      product: record.product,
+      quote_data: record
+    })
+    .select("id, created_at")
+    .single();
+  if (error){
+    console.error("Shared history save failed", error);
+    note.textContent = "History was not saved — check your connection.";
+    return;
+  }
+  HISTORY.push({...record, id:data.id, ts:data.created_at, userId:CURRENT_USER.id});
   renderHistoryTable(document.getElementById("historySearch").value);
-  const note = document.getElementById("historySaveNote");
   note.textContent = "Saved ✓";
   setTimeout(()=>{ note.textContent = ""; }, 1800);
+}
+
+function escapeHistoryText(value){
+  return String(value ?? "").replace(/[&<>"']/g, char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
 }
 
 function renderHistoryTable(filter=""){
@@ -3576,18 +3710,18 @@ function renderHistoryTable(filter=""){
   if (!tbl) return;
   const f = (filter||"").toLowerCase();
   const mgmtOn = document.getElementById("mgmtToggle").checked;
-  const rows = HISTORY.filter(r => r.staff.toLowerCase().includes(f) || r.customer.toLowerCase().includes(f)).slice().reverse();
+  const rows = HISTORY.filter(r => String(r.staff||"").toLowerCase().includes(f) || String(r.customer||"").toLowerCase().includes(f)).slice().reverse();
   let html = `<tr><th>When</th><th>Staff</th><th>Customer</th><th>Product</th><th>Size</th><th>Qty</th><th>FOB USD/pc</th><th>Total USD</th>`;
   if (mgmtOn) html += `<th>Visible Cost ₹</th><th>Margin %</th>`;
   html += `</tr>`;
   rows.forEach(r=>{
     const when = new Date(r.ts).toLocaleString();
     html += `<tr>
-      <td style="font-family:var(--mono); font-size:0.72rem;">${when}</td>
-      <td>${r.staff}</td><td>${r.customer}</td><td>${r.product.replace('_',' ')}</td>
-      <td>${r.length}×${r.width}cm</td><td>${r.qty}</td>
-      <td>$${r.fobUsd.toFixed(2)}</td><td>${r.totalUsd}</td>`;
-    if (mgmtOn) html += `<td>${r.visibleCostInr}</td><td>${r.marginPct}</td>`;
+      <td style="font-family:var(--mono); font-size:0.72rem;">${escapeHistoryText(when)}</td>
+      <td>${escapeHistoryText(r.staff)}</td><td>${escapeHistoryText(r.customer)}</td><td>${escapeHistoryText(String(r.product||"").replace('_',' '))}</td>
+      <td>${Number(r.length)||0}×${Number(r.width)||0}cm</td><td>${Number(r.qty)||0}</td>
+      <td>$${(Number(r.fobUsd)||0).toFixed(2)}</td><td>${escapeHistoryText(r.totalUsd)}</td>`;
+    if (mgmtOn) html += `<td>${escapeHistoryText(r.visibleCostInr)}</td><td>${escapeHistoryText(r.marginPct)}</td>`;
     html += `</tr>`;
   });
   tbl.innerHTML = html || "<tr><td>No quotes saved yet.</td></tr>";
@@ -3605,8 +3739,6 @@ function exportHistoryToExcel(){
 /* ================= INIT ================= */
 (async function init(){
   await loadDB();
-  await loadHistory();
-  await loadStaffName();
   populateCalculatorDropdowns();
   addProcessRow('stitched');
   addProcessRow('area');
@@ -3614,6 +3746,7 @@ function exportHistoryToExcel(){
   renderAllMasterTables();
   renderHistoryTable();
   calculate();
+  await restoreAuthenticatedSession();
   if (usingLocalFallback){
     const banner = document.getElementById("localFallbackBanner");
     if (banner){
