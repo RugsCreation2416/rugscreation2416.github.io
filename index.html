@@ -2100,7 +2100,7 @@ function toggleProductFields(){
       ? "Choose one of the two options to continue."
       : bottomSame
         ? (isBox ? `All sides (including bottom) use the same material — priced as one panel × ${panelCountDefault(isBox, isRound, true)}.`
-                 : `Back material cost equals the front material cost exactly — no separate back fabric or extra process is added.`)
+                 : `Back material and its construction/weaving cost equal the front panel exactly — no separate back details are required.`)
         : `Calculate the back/bottom separately below — its own fabric-or-yarn choice, independent of the front.`;
   }
   const backModeFabricChecked = document.getElementById("backModeFabric").checked;
@@ -2744,9 +2744,10 @@ function calculate(){
       cutArea = ((L+cutAllow)*(W+cutAllow))/10000;
     }
 
-    // Track front material separately. When "Front & Back Same" is chosen,
-    // only this material amount is copied to the back — never construction or other processes.
+    // Track the front panel's material and construction separately. When
+    // "Front & Back Same" is chosen, both are copied to the back as clear line items.
     let frontMaterialCost = 0;
+    let frontConstructionCost = 0;
 
     if (frontIsYarn){
       document.getElementById("fabricConsumptionHint").textContent = "";
@@ -2778,6 +2779,7 @@ function calculate(){
       if (fc){
         fcCost = fcBasis === "sqm" ? fcRate * totalFrontArea : fcRate * panelCount;
         processCost += fcCost;
+        frontConstructionCost += fcCost;
         if (fcCost>0) lineItems.push({label:`Front construction — ${fc.name}`, amount:fcCost});
       }
       document.getElementById("frontConstructionAreaHint").textContent = fcBasis === "sqm"
@@ -2805,12 +2807,14 @@ function calculate(){
       }
     }
 
-    // Back / bottom: "same" copies only the front material cost. Construction,
-    // stitching, zipper and other processes remain single charges elsewhere.
+    // Back / bottom: "same" copies the front panel's material and its
+    // construction/weaving. Stitching, zipper and unrelated processes stay single charges.
     if (!NO_BACK_FABRIC.includes(product)){
       if (bottomSame){
         rawMaterial += frontMaterialCost;
         if (frontMaterialCost>0) lineItems.push({label:`Back material — same as front`, amount:frontMaterialCost});
+        processCost += frontConstructionCost;
+        if (frontConstructionCost>0) lineItems.push({label:`Back construction/weaving — same as front`, amount:frontConstructionCost});
       } else {
         const backIsYarn = document.getElementById("backModeYarn").checked;
         if (backIsYarn){
