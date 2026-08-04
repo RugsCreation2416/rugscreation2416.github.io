@@ -2099,7 +2099,7 @@ function toggleProductFields(){
       ? "Choose one of the two options to continue."
       : bottomSame
         ? (isBox ? `All sides (including bottom) use the same material — priced as one panel × ${panelCountDefault(isBox, isRound, true)}.`
-                 : `Back is priced as the front's cost × 2 — nothing more to fill in below.`)
+                 : `Back material cost equals the front material cost exactly — no separate back fabric or extra process is added.`)
         : `Calculate the back/bottom separately below — its own fabric-or-yarn choice, independent of the front.`;
   }
   const backModeFabricChecked = document.getElementById("backModeFabric").checked;
@@ -2743,7 +2743,9 @@ function calculate(){
       cutArea = ((L+cutAllow)*(W+cutAllow))/10000;
     }
 
-    let frontTotalCost = 0; // raw material + construction, tracked separately so "same as front" can double it
+    // Track front material separately. When "Front & Back Same" is chosen,
+    // only this material amount is copied to the back — never construction or other processes.
+    let frontMaterialCost = 0;
 
     if (frontIsYarn){
       document.getElementById("fabricConsumptionHint").textContent = "";
@@ -2752,7 +2754,7 @@ function calculate(){
       const panelCount = isBox ? (parseFloat(document.getElementById("frontPanelCount").value)||1) : 1;
       const frontYarnCost = t.totalCost * panelCount;
       rawMaterial += frontYarnCost;
-      frontTotalCost += frontYarnCost;
+      frontMaterialCost += frontYarnCost;
       yarnMix.front.forEach(row=>{
         if (!row.grams) return;
         const masterRate = row.yarnIdx==="custom" ? (row.customRate||0) : (DB.yarns[row.yarnIdx]?.rate||0);
@@ -2775,7 +2777,6 @@ function calculate(){
       if (fc){
         fcCost = fcBasis === "sqm" ? fcRate * totalFrontArea : fcRate * panelCount;
         processCost += fcCost;
-        frontTotalCost += fcCost;
         if (fcCost>0) lineItems.push({label:`Front construction — ${fc.name}`, amount:fcCost});
       }
       document.getElementById("frontConstructionAreaHint").textContent = fcBasis === "sqm"
@@ -2790,7 +2791,7 @@ function calculate(){
       if (front && !frontRComputed.ok && priceOverride.front === null) warnings.push(`Front fabric "${front.name}": ${frontRComputed.reason} — enter it just above.`);
       if (front){
         const c = frontR.value * (isBox ? (bottomSame ? (topArea+sideArea+bottomArea) : (topArea+sideArea)) : cutArea);
-        rawMaterial += c; frontTotalCost += c;
+        rawMaterial += c; frontMaterialCost += c;
         lineItems.push({label:`Front fabric — ${front.name}${bottomSame?" (incl. bottom, same material)":""}${priceOverride.front!==null?" (price overridden for this quote)":""}`, amount:c});
       }
       syncPriceDisplay("front");
@@ -2803,11 +2804,12 @@ function calculate(){
       }
     }
 
-    // Back / bottom: skip entirely for products with no back; "same" charges the back at the same price as the front; else calculate independently.
+    // Back / bottom: "same" copies only the front material cost. Construction,
+    // stitching, zipper and other processes remain single charges elsewhere.
     if (!NO_BACK_FABRIC.includes(product)){
       if (bottomSame){
-        rawMaterial += frontTotalCost;
-        if (frontTotalCost>0) lineItems.push({label:`Back — same as front`, amount:frontTotalCost});
+        rawMaterial += frontMaterialCost;
+        if (frontMaterialCost>0) lineItems.push({label:`Back material — same as front`, amount:frontMaterialCost});
       } else {
         const backIsYarn = document.getElementById("backModeYarn").checked;
         if (backIsYarn){
