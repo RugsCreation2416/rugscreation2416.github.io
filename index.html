@@ -237,21 +237,32 @@
           <p class="g-welcome-sub">Enter your credentials to continue to your workspace.</p>
         </div>
         <form id="loginForm">
+          <div class="auth-mode-switch" role="tablist" aria-label="Authentication mode">
+            <button type="button" class="auth-mode-btn active" id="showLoginBtn">Sign In</button>
+            <button type="button" class="auth-mode-btn" id="showSignupBtn">Register</button>
+          </div>
           <div class="g-form-group">
-            <label for="loginUser">User ID</label>
+            <label for="loginUser" id="loginUserLabel">Username</label>
             <div class="g-input-container">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              <input id="loginUser" type="text" autocomplete="username" value="Rugs Creation" readonly required>
+              <input id="loginUser" type="text" autocomplete="username" value="Rugs Creation" placeholder="Enter your username" maxlength="60" required>
             </div>
           </div>
           <div class="g-form-group">
             <label for="loginPassword">Password</label>
             <div class="g-input-container">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              <input id="loginPassword" type="password" autocomplete="current-password" inputmode="numeric" maxlength="4" placeholder="Enter 4-digit password" required autofocus>
+              <input id="loginPassword" type="password" autocomplete="current-password" maxlength="64" placeholder="Enter your password" required autofocus>
             </div>
           </div>
-          <p class="auth-note">Use the password assigned for Admin or Employee access.</p>
+          <div class="g-form-group signup-only">
+            <label for="confirmPassword">Confirm password</label>
+            <div class="g-input-container">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <input id="confirmPassword" type="password" autocomplete="new-password" maxlength="64" placeholder="Enter the password again">
+            </div>
+          </div>
+          <p class="auth-note" id="authNote">Sign in with your username. New users can register and wait for admin approval.</p>
           <button type="submit" class="g-submit-btn" id="authSubmitBtn">Sign In To Calculator <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
           <div id="loginError" role="alert"></div>
         </form>
@@ -802,6 +813,7 @@
   <div class="card">
     <div class="master-tabs">
       <button class="mtab-btn active" data-m="customers">Customers</button>
+      <button class="mtab-btn" data-m="users">User Approvals</button>
       <button class="mtab-btn" data-m="fabrics">Fabrics</button>
       <button class="mtab-btn" data-m="yarns">Yarns</button>
       <button class="mtab-btn" data-m="techniques">Techniques</button>
@@ -826,6 +838,13 @@
     <input class="search" type="text" id="custSearch" placeholder="Search customer name...">
     <div class="tablewrap"><table id="tbl-customers"></table></div>
     <button class="addrow" onclick="addCustomer()">+ Add customer</button>
+  </div>
+
+  <div class="card mastersection" id="master-users">
+    <h2>User Registrations</h2>
+    <div class="hint">Approve new registrations before they can access the calculator. Passwords are securely handled by Firebase and are never shown here.</div>
+    <div class="tablewrap"><table id="tbl-users"></table></div>
+    <div class="save-note" id="userApprovalNote">Waiting for registrations.</div>
   </div>
 
   <div class="card mastersection" id="master-fabrics">
@@ -1515,10 +1534,39 @@ function flashInlineSavedBadge(){
   badge._timer = setTimeout(()=>{ badge.style.opacity = "0"; }, 1100);
 }
 
-/* ================= LOCAL LOGIN & ROLE ACCESS ================= */
-const FIXED_USER_ID = "Rugs Creation";
+/* ================= FIREBASE LOGIN, REGISTRATION & ROLE ACCESS ================= */
+const LEGACY_USER_ID = "Rugs Creation";
+const USER_EMAIL_DOMAIN = "users.rugscreation.com";
 let CURRENT_USER = null;
 let CURRENT_PROFILE = null;
+let AUTH_MODE = "login";
+
+function normalizeUsername(name){
+  return String(name || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, ".").replace(/^\.+|\.+$/g, "");
+}
+function usernameEmail(username){ return normalizeUsername(username) + "@" + USER_EMAIL_DOMAIN; }
+
+function setAuthMode(mode){
+  AUTH_MODE = mode;
+  const signup = mode === "signup";
+  const gate = document.getElementById("loginGate");
+  gate.classList.toggle("signup-mode", signup);
+  document.getElementById("showLoginBtn").classList.toggle("active", !signup);
+  document.getElementById("showSignupBtn").classList.toggle("active", signup);
+  document.getElementById("loginTitle").textContent = signup ? "Create your account" : "Welcome back";
+  document.querySelector(".g-welcome-sub").textContent = signup ? "Register your name and password, then wait for admin approval." : "Enter your credentials to continue to your workspace.";
+  document.getElementById("loginUserLabel").textContent = signup ? "Your name (this becomes your username)" : "Username";
+  document.getElementById("authNote").textContent = signup ? "Use at least 6 characters for your password. Your password is never visible to the admin." : "New users can register here. Access starts after admin approval.";
+  document.getElementById("authSubmitBtn").childNodes[0].nodeValue = signup ? "Register Account " : "Sign In To Calculator ";
+  document.getElementById("confirmPassword").required = signup;
+  document.getElementById("loginUser").readOnly = false;
+  if (signup && document.getElementById("loginUser").value === LEGACY_USER_ID) document.getElementById("loginUser").value = "";
+  document.getElementById("loginPassword").value = "";
+  document.getElementById("confirmPassword").value = "";
+  document.getElementById("loginError").textContent = "";
+}
+document.getElementById("showLoginBtn").addEventListener("click", ()=>setAuthMode("login"));
+document.getElementById("showSignupBtn").addEventListener("click", ()=>setAuthMode("signup"));
 
 function openCalculatorView(){
   document.querySelectorAll(".tab-btn").forEach(btn=>btn.classList.toggle("active", btn.dataset.tab === "calc"));
@@ -1531,12 +1579,10 @@ function applyUserRole(role){
   document.body.classList.toggle("admin-mode", isAdmin);
   document.getElementById("loginGate").style.display = "none";
   document.getElementById("logoutBtn").style.display = "block";
-
   document.querySelectorAll(".tab-btn").forEach(btn=>{
     const employeeAllowed = btn.dataset.tab === "calc" || btn.dataset.tab === "history" || btn.dataset.tab === "profile";
     btn.style.display = (isAdmin || employeeAllowed) ? "" : "none";
   });
-
   const managementControl = document.getElementById("mgmtToggle").closest(".toggle-row");
   managementControl.style.display = isAdmin ? "flex" : "none";
   if (!isAdmin){
@@ -1545,18 +1591,19 @@ function applyUserRole(role){
   }
 }
 
-async function finishAuthenticatedSession(role){
+async function finishAuthenticatedSession(role, cloudProfile=null, firebaseUser=null){
   let savedProfile = {};
-  try{ savedProfile = JSON.parse(localStorage.getItem("rc_profile_" + role) || "{}"); }catch(e){}
-  CURRENT_USER = {id:role, userId:FIXED_USER_ID};
+  try{ savedProfile = JSON.parse(localStorage.getItem("rc_profile_" + (firebaseUser?.uid || role)) || "{}"); }catch(e){}
+  const username = cloudProfile?.username || LEGACY_USER_ID;
+  CURRENT_USER = {id:firebaseUser?.uid || role, uid:firebaseUser?.uid || null, userId:username};
   CURRENT_PROFILE = {
     role,
-    full_name:savedProfile.full_name || (role === "admin" ? "Administrator" : "Employee"),
-    phone:savedProfile.phone || ""
+    full_name:cloudProfile?.fullName || savedProfile.full_name || (role === "admin" ? "Administrator" : "Employee"),
+    phone:cloudProfile?.phone || savedProfile.phone || ""
   };
   applyUserRole(role);
   document.getElementById("profileFullName").value = CURRENT_PROFILE.full_name;
-  document.getElementById("profileEmail").value = FIXED_USER_ID + " (" + (role === "admin" ? "Admin" : "Employee") + ")";
+  document.getElementById("profileEmail").value = username + " (" + (role === "admin" ? "Admin" : "Employee") + ")";
   document.getElementById("profileMobile").value = CURRENT_PROFILE.phone;
   const staffField = document.getElementById("staffName");
   if (!staffField.value) staffField.value = CURRENT_PROFILE.full_name;
@@ -1568,7 +1615,9 @@ async function finishAuthenticatedSession(role){
   renderHistoryTable(document.getElementById("historySearch").value);
   startMasterRealtime();
   startHistoryRealtime();
+  if (role === "admin") startUserDirectoryRealtime();
 }
+
 async function saveMyProfile(){
   const noteEl = document.getElementById("profileSaveNote");
   if (!CURRENT_USER){ noteEl.style.display="block"; noteEl.textContent="Not logged in."; return; }
@@ -1577,47 +1626,80 @@ async function saveMyProfile(){
   if (!fullName){ noteEl.style.display="block"; noteEl.textContent="Please enter your name."; return; }
   noteEl.style.display = "block";
   try{
-    localStorage.setItem("rc_profile_" + CURRENT_PROFILE.role, JSON.stringify({full_name:fullName, phone}));
+    localStorage.setItem("rc_profile_" + CURRENT_USER.id, JSON.stringify({full_name:fullName, phone}));
+    if (CURRENT_USER.uid && CURRENT_PROFILE.role !== "admin"){
+      await FIRESTORE.collection("users").doc(CURRENT_USER.uid).update({fullName, phone, updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    }
     CURRENT_PROFILE.full_name = fullName;
     CURRENT_PROFILE.phone = phone;
-    noteEl.textContent = "✓ Saved. This name will fill in automatically next time you log in.";
+    noteEl.textContent = "✓ Profile saved.";
     setTimeout(()=>{ noteEl.style.display = "none"; }, 3000);
-  }catch(error){
-    noteEl.textContent = "Save failed: " + error.message;
-  }
+  }catch(error){ noteEl.textContent = "Save failed: " + error.message; }
 }
 
 document.getElementById("loginForm").addEventListener("submit", async event=>{
   event.preventDefault();
-  const userId = document.getElementById("loginUser").value.trim();
+  const enteredName = document.getElementById("loginUser").value.trim();
   const password = document.getElementById("loginPassword").value;
   const error = document.getElementById("loginError");
   const submitButton = document.getElementById("authSubmitBtn");
+  error.style.color = "#a40000";
+  if (!FIREBASE_AUTH || !FIRESTORE){ error.textContent = "Firebase is unavailable. Check your internet connection."; return; }
 
-  if (userId.toLowerCase() !== FIXED_USER_ID.toLowerCase()){
-    error.textContent = "User ID must be Rugs Creation.";
-    return;
-  }
-  const role = password === "1234" ? "admin" : password === "5678" ? "employee" : "";
-  if (!role){
-    error.textContent = "Incorrect password.";
-    return;
-  }
   submitButton.disabled = true;
-  error.textContent = "Signing in...";
   try{
-    if (!FIREBASE_AUTH) throw new Error("Firebase is unavailable. Check your internet connection.");
-    const firebaseEmail = role === "admin" ? "admin@rugscreation.com" : "employee@rugscreation.com";
-    const firebasePassword = role === "admin" ? "RC1234" : "RC5678";
-    await FIREBASE_AUTH.signInWithEmailAndPassword(firebaseEmail, firebasePassword);
-    await finishAuthenticatedSession(role);
+    if (AUTH_MODE === "signup"){
+      const username = normalizeUsername(enteredName);
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      if (username.length < 3) throw new Error("Please enter a name containing at least 3 letters or numbers.");
+      if (password.length < 6) throw new Error("Password must contain at least 6 characters.");
+      if (password !== confirmPassword) throw new Error("The two passwords do not match.");
+      error.textContent = "Creating your registration...";
+      const credential = await FIREBASE_AUTH.createUserWithEmailAndPassword(usernameEmail(username), password);
+      await FIRESTORE.collection("users").doc(credential.user.uid).set({
+        fullName:enteredName,
+        username,
+        role:"employee",
+        status:"pending",
+        phone:"",
+        createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await FIREBASE_AUTH.signOut();
+      setAuthMode("login");
+      document.getElementById("loginUser").value = username;
+      error.style.color = "#0a7a2f";
+      error.textContent = "Registration sent. Your username is " + username + ". You can sign in after the admin approves it.";
+      return;
+    }
+
+    error.textContent = "Signing in...";
+    const legacyLogin = enteredName.toLowerCase() === LEGACY_USER_ID.toLowerCase();
+    if (legacyLogin){
+      const role = password === "1234" ? "admin" : password === "5678" ? "employee" : "";
+      if (!role) throw new Error("Incorrect password.");
+      const firebaseEmail = role === "admin" ? "admin@rugscreation.com" : "employee@rugscreation.com";
+      const firebasePassword = role === "admin" ? "RC1234" : "RC5678";
+      const credential = await FIREBASE_AUTH.signInWithEmailAndPassword(firebaseEmail, firebasePassword);
+      await finishAuthenticatedSession(role, null, credential.user);
+    } else {
+      const username = normalizeUsername(enteredName);
+      if (!username) throw new Error("Please enter your username.");
+      const credential = await FIREBASE_AUTH.signInWithEmailAndPassword(usernameEmail(username), password);
+      const profileSnapshot = await FIRESTORE.collection("users").doc(credential.user.uid).get();
+      if (!profileSnapshot.exists){ await FIREBASE_AUTH.signOut(); throw new Error("Your registration record is missing. Please contact the admin."); }
+      const profile = profileSnapshot.data();
+      if (profile.status === "pending"){ await FIREBASE_AUTH.signOut(); throw new Error("Your registration is waiting for admin approval."); }
+      if (profile.status !== "approved"){ await FIREBASE_AUTH.signOut(); throw new Error("This account is disabled. Please contact the admin."); }
+      await finishAuthenticatedSession("employee", profile, credential.user);
+    }
     error.textContent = "";
   }catch(authError){
     error.style.color = "#a40000";
-    error.textContent = authError.message || "Unable to sign in. Please check your details.";
-  }finally{
-    submitButton.disabled = false;
-  }
+    const duplicate = authError.code === "auth/email-already-in-use";
+    const invalidLogin = authError.code === "auth/invalid-credential" || authError.code === "auth/wrong-password" || authError.code === "auth/user-not-found";
+    error.textContent = duplicate ? "That username is already registered. Please choose another name." : invalidLogin ? "Incorrect username or password." : (authError.message || "Unable to continue.");
+  }finally{ submitButton.disabled = false; }
 });
 
 document.getElementById("logoutBtn").addEventListener("click", async ()=>{
@@ -1643,6 +1725,54 @@ document.querySelectorAll(".mtab-btn").forEach(btn=>{
     document.getElementById("master-"+btn.dataset.m).classList.add("active");
   });
 });
+
+/* ================= ADMIN USER APPROVALS ================= */
+let USER_DIRECTORY = [];
+let userDirectoryUnsubscribe = null;
+function escapeUserText(value){
+  return String(value ?? "").replace(/[&<>"']/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+}
+function renderUserDirectory(){
+  const table = document.getElementById("tbl-users");
+  if (!table) return;
+  const rows = USER_DIRECTORY.slice().sort((a,b)=>(b.createdMillis||0)-(a.createdMillis||0));
+  let html = "<tr><th>Name</th><th>Username</th><th>Status</th><th>Registered</th><th>Action</th></tr>";
+  rows.forEach(user=>{
+    const action = user.status === "approved"
+      ? `<button class="del-btn" onclick="setUserStatus('${user.id}','disabled')">Disable</button>`
+      : `<button class="save-btn" onclick="setUserStatus('${user.id}','approved')">${user.status === "pending" ? "Approve" : "Enable"}</button>`;
+    html += `<tr><td>${escapeUserText(user.fullName)}</td><td>${escapeUserText(user.username)}</td><td>${escapeUserText(user.status)}</td><td>${escapeUserText(user.createdLabel)}</td><td>${action}</td></tr>`;
+  });
+  table.innerHTML = rows.length ? html : html + "<tr><td colspan='5'>No user registrations yet.</td></tr>";
+  const note = document.getElementById("userApprovalNote");
+  if (note){
+    const pendingCount = rows.filter(user=>user.status === "pending").length;
+    note.textContent = pendingCount ? pendingCount + " registration(s) waiting for approval." : "No registrations are waiting for approval.";
+  }
+}
+function startUserDirectoryRealtime(){
+  if (!FIRESTORE || userDirectoryUnsubscribe || CURRENT_PROFILE?.role !== "admin") return;
+  userDirectoryUnsubscribe = FIRESTORE.collection("users").onSnapshot(snapshot=>{
+    USER_DIRECTORY = snapshot.docs.map(doc=>{
+      const data = doc.data();
+      const date = data.createdAt?.toDate ? data.createdAt.toDate() : null;
+      return {...data, id:doc.id, createdMillis:date ? date.getTime() : 0, createdLabel:date ? date.toLocaleString() : "Just now"};
+    });
+    renderUserDirectory();
+  }, error=>{
+    const note = document.getElementById("userApprovalNote");
+    if (note) note.textContent = "Unable to load registrations: " + error.message;
+  });
+}
+async function setUserStatus(uid, status){
+  if (CURRENT_PROFILE?.role !== "admin" || !["approved","disabled"].includes(status)) return;
+  const note = document.getElementById("userApprovalNote");
+  try{
+    if (note) note.textContent = "Saving...";
+    await FIRESTORE.collection("users").doc(uid).update({status, updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    if (note) note.textContent = status === "approved" ? "User approved ✓" : "User disabled ✓";
+  }catch(error){ if (note) note.textContent = "Could not update user: " + error.message; }
+}
 
 /* ================= MASTER TABLE RENDERING ================= */
 function addRow(key, obj){
