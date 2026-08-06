@@ -1486,7 +1486,8 @@ async function saveDB(){
       }
     }
     flashInlineSavedBadge();
-  }catch(e){ console.error("Save failed", e); if (n) n.textContent = "Save failed — see console for details. Use 'Download all masters as Excel' to save your work as a real file instead."; }
+    return cloudOk;
+  }catch(e){ console.error("Save failed", e); if (n) n.textContent = "Save failed — see console for details. Use 'Download all masters as Excel' to save your work as a real file instead."; return false; }
 }
 function flashInlineSavedBadge(){
   // Every Master Data field already saves the instant it changes (no Save button needed) —
@@ -1817,7 +1818,7 @@ function renderAllMasterTables(){
 /* ---- Card-by-card save/edit workflow: collapse a finished card, reveal the next one(s) ----
    Uses a CSS class (not inline style) to lock cards, so it layers cleanly on top of the
    existing product-type show/hide logic (toggleProductFields) without fighting it. */
-function saveCustomerCard(){
+async function saveCustomerCard(){
   const warnEl = document.getElementById("customerSegmentWarn");
   const staff = document.getElementById("staffName").value.trim();
   const custVal = document.getElementById("customer").value;
@@ -1829,6 +1830,43 @@ function saveCustomerCard(){
     warnEl.textContent = "Please fill in: " + missing.join(" and ") + " before continuing.";
     return;
   }
+
+  if (custVal === "custom"){
+    const customerName = customEntries.customer.name.trim();
+    if (!customerName || customerName.toLowerCase() === "new customer"){
+      warnEl.style.display = "block";
+      warnEl.textContent = "Please enter the new buyer name before continuing.";
+      return;
+    }
+
+    let customerIndex = DB.customers.findIndex(c => String(c.name || "").trim().toLowerCase() === customerName.toLowerCase());
+    if (customerIndex < 0){
+      customerIndex = DB.customers.length;
+      DB.customers.push({
+        name: customerName,
+        category: "B",
+        commissionPct: customEntries.customer.commissionPct || 0,
+        buyingAgencyPct: customEntries.customer.buyingAgencyPct || 0,
+        marginOverridePct: customEntries.customer.marginPct || null,
+        testingCost: 0,
+        active: true
+      });
+      const cloudSaved = await saveDB();
+      if (!cloudSaved){
+        DB.customers.splice(customerIndex, 1);
+        warnEl.style.display = "block";
+        warnEl.textContent = "The buyer could not be synced to Customer Master. Please check the internet connection and try again.";
+        return;
+      }
+    }
+
+    populateCalculatorDropdowns();
+    document.getElementById("customer").value = String(customerIndex);
+    document.getElementById("customerSearchInput").value = DB.customers[customerIndex].name;
+    renderCustomCustomerUI();
+    renderCustomerTable();
+  }
+
   warnEl.style.display = "none";
   saveCard("cardCustomer", ["cardProduct"]);
 }
@@ -1887,7 +1925,7 @@ function appendCustomOption(id, label){
   el.appendChild(o);
 }
 
-/* Quote-only custom entries — never written to DB, never saved */
+/* Custom material entries remain quote-only; a new customer is saved to Customer Master on continue. */
 const customEntries = { front:{name:"Custom fabric", sourceUnit:"SQMTR", sourceRate:0, widthInches:null, gsm:null},
                          back:{name:"Custom fabric", sourceUnit:"SQMTR", sourceRate:0, widthInches:null, gsm:null},
                          yarn:{name:"Custom yarn", rate:0},
@@ -2071,7 +2109,7 @@ function updateCustomFabric(prefix){
 
 function populateCalculatorDropdowns(){
   fillSelect("customer", DB.customers, c=>`${c.name} [${c.category}]`);
-  appendCustomOption("customer", "＋ New customer, not in database (this quote only)");
+  appendCustomOption("customer", "＋ Add new buyer to Customer Master");
   fillSelect("frontFabric", DB.fabrics, f=>{ const r=fabricRatePerSqm(f); return `${f.name}${r.ok?"":" ⚠"}`; });
   appendCustomOption("frontFabric", "＋ Custom fabric (this quote only)");
   fillSelect("backFabric", DB.fabrics, f=>{ const r=fabricRatePerSqm(f); return `${f.name}${r.ok?"":" ⚠"}`; });
@@ -2100,7 +2138,7 @@ function populateCalculatorDropdowns(){
 function syncCustomerSearchDisplay(){
   const sel = document.getElementById("customer");
   const input = document.getElementById("customerSearchInput");
-  if (sel.value === "custom"){ input.value = "＋ New customer, not in database"; return; }
+  if (sel.value === "custom"){ input.value = "＋ Add new buyer to Customer Master"; return; }
   const cust = DB.customers[sel.value];
   input.value = cust ? `${cust.name} [${cust.category}]` : "";
 }
@@ -2122,7 +2160,7 @@ function renderCustomerSuggestions(query){
   let html = matches.map(({c,i})=>
     `<div class="suggestion-row" onclick="selectCustomerByIndex(${i})" style="padding:8px 10px; cursor:pointer; border-bottom:1px solid #eee; font-size:0.88rem;" onmouseover="this.style.background='#f2f2f2'" onmouseout="this.style.background='#fff'">${c.name} <span style="color:#888; font-family:var(--mono); font-size:0.75rem;">[${c.category}]</span></div>`
   ).join("");
-  html += `<div class="suggestion-row" onclick="selectCustomerByIndex('custom')" style="padding:8px 10px; cursor:pointer; font-family:var(--mono); font-size:0.8rem; color:var(--thread);" onmouseover="this.style.background='#f2f2f2'" onmouseout="this.style.background='#fff'">＋ New customer, not in database (this quote only)</div>`;
+  html += `<div class="suggestion-row" onclick="selectCustomerByIndex('custom')" style="padding:8px 10px; cursor:pointer; font-family:var(--mono); font-size:0.8rem; color:var(--thread);" onmouseover="this.style.background='#f2f2f2'" onmouseout="this.style.background='#fff'">＋ Add new buyer to Customer Master</div>`;
   box.innerHTML = html || `<div style="padding:8px 10px; color:#888; font-size:0.85rem;">No match — try a different spelling, or <span style="text-decoration:underline; cursor:pointer;" onclick="selectCustomerByIndex('custom')">add as a new customer</span>.</div>`;
   box.style.display = "block";
 }
