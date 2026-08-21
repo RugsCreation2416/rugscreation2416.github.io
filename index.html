@@ -224,6 +224,24 @@
   body.employee-mode .mgmt-panel{ display:none !important; }
   .view button, .view table, .view .hint, .view .warn, .view .out-line{ font-family:var(--font-ui); }
   .view button, table th, legend, .master-tabs button{ font-weight:700; }
+  .admin-hero{background:linear-gradient(135deg,#151719,#343a40);color:#fff;border:0;border-left:5px solid var(--spool);padding:24px 26px;}
+  .admin-hero h2{color:#fff;margin-bottom:7px;letter-spacing:.04em;}
+  .admin-hero .hint{color:#dfe3e6;margin:0;}
+  .admin-tabs{display:grid;grid-template-columns:repeat(4,minmax(145px,1fr));gap:10px;margin:0;}
+  .admin-tabs button{border:1px solid #c6cbd0;background:#fff;color:#25282b;border-radius:8px;padding:14px 12px;cursor:pointer;text-align:left;box-shadow:0 4px 12px rgba(20,24,27,.08);transition:transform .15s,box-shadow .15s,background .15s;}
+  .admin-tabs button:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(20,24,27,.14);}
+  .admin-tabs button.active{background:#25282b;color:#fff;border-color:#25282b;}
+  .adminsection{display:none;}
+  .adminsection.active{display:block;}
+  .admin-note{padding:10px 12px;border-radius:6px;background:#fff7e9;border:1px solid #e7c986;color:#5b451b;margin:10px 0 14px;line-height:1.45;}
+  .user-actions{display:flex;gap:6px;flex-wrap:wrap;min-width:205px;}
+  .history-panel{display:none;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:7px;background:#fff;}
+  .history-panel.active{display:block;}
+  input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid rgba(255,91,0,.28);outline-offset:2px;}
+  .tablewrap table tbody tr:nth-child(even){background:rgba(222,226,230,.38);}
+  .tablewrap table tbody tr:hover{background:rgba(255,91,0,.07);}
+  @media(max-width:850px){.admin-tabs{grid-template-columns:repeat(2,minmax(130px,1fr));}}
+  @media(max-width:520px){.admin-tabs{grid-template-columns:1fr;}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -265,8 +283,16 @@
               <input id="loginUser" type="text" autocomplete="username" value="Rugs Creation" placeholder="Enter your username" maxlength="60" required>
             </div>
           </div>
+          <div class="g-form-group signup-only">
+            <label for="signupEmail">Email address</label>
+            <div class="g-input-container"><input id="signupEmail" type="email" autocomplete="email" maxlength="120" placeholder="Enter your email address"></div>
+          </div>
+          <div class="g-form-group signup-only">
+            <label for="signupPhone">Mobile number</label>
+            <div class="g-input-container"><input id="signupPhone" type="tel" autocomplete="tel" maxlength="24" placeholder="Enter your mobile number"></div>
+          </div>
           <div class="g-form-group">
-            <label for="loginPassword">Password</label>
+            <label for="loginPassword" id="loginPasswordLabel">Password</label>
             <div class="g-input-container">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
               <input id="loginPassword" type="password" autocomplete="current-password" maxlength="64" placeholder="Enter your password" required autofocus>
@@ -315,6 +341,7 @@
 <nav>
   <button class="tab-btn active" data-tab="calc">Calculator</button>
   <button class="tab-btn" data-tab="masters">Master Data</button>
+  <button class="tab-btn" data-tab="admin">Admin</button>
   <button class="tab-btn" data-tab="quick">Quick Quote (type &amp; get price)</button>
   <button class="tab-btn" data-tab="history">History</button>
   <button class="tab-btn" data-tab="profile">My Profile</button>
@@ -828,9 +855,7 @@
 
   <div class="card">
     <div class="master-tabs">
-      <button class="mtab-btn active" data-m="customers">Customers</button>
-      <button class="mtab-btn" data-m="users">User Approvals</button>
-      <button class="mtab-btn" data-m="fabrics">Fabrics</button>
+      <button class="mtab-btn active" data-m="fabrics">Fabrics</button>
       <button class="mtab-btn" data-m="yarns">Yarns</button>
       <button class="mtab-btn" data-m="techniques">Techniques</button>
       <button class="mtab-btn" data-m="processes">Processes</button>
@@ -838,32 +863,32 @@
       <button class="mtab-btn" data-m="backings">Backings</button>
       <button class="mtab-btn" data-m="cartonBoards">Carton Boards</button>
       <button class="mtab-btn" data-m="zipperTypes">Zippers</button>
-      <button class="mtab-btn" data-m="articleMaster">Locked Quotes</button>
       <button class="mtab-btn" data-m="stitchingCuttingPrices">Stitching &amp; Cutting</button>
       <button class="mtab-btn" data-m="packaging">Packaging</button>
       <button class="mtab-btn" data-m="forwardingRates">Forwarding</button>
       <button class="mtab-btn" data-m="qtyBufferPiece">Qty Buffer</button>
-      <button class="mtab-btn" data-m="settings">Settings</button>
     </div>
     <div class="save-note" id="saveNote">All edits save automatically and sync with the team.</div>
     <div class="warn" id="localFallbackBanner" style="display:none; padding:10px 12px; border:1px solid var(--spool); margin-top:8px;"></div>
   </div>
 
-  <div class="card mastersection active" id="master-customers">
+  <div class="card adminsection" id="master-customers">
     <h2>Customer Master</h2>
     <input class="search" type="text" id="custSearch" placeholder="Search buyer code or name...">
     <div class="tablewrap"><table id="tbl-customers"></table></div>
     <button class="addrow" onclick="addCustomer()">+ Add customer</button>
   </div>
 
-  <div class="card mastersection" id="master-users">
+  <div class="card adminsection" id="master-users">
     <h2>User Registrations</h2>
-    <div class="hint">Approve new registrations before they can access the calculator. Passwords are securely handled by Firebase and are never shown here.</div>
+    <div class="hint">Approve, disable, or remove registrations. Passwords are securely handled by Firebase and are never shown here.</div>
+    <div class="admin-note">Deleting a registration removes dashboard access immediately. The Firebase Authentication identity can only be permanently deleted through a secure server-side Admin function.</div>
     <div class="tablewrap"><table id="tbl-users"></table></div>
     <div class="save-note" id="userApprovalNote">Waiting for registrations.</div>
+    <div class="history-panel" id="userLoginHistoryPanel"></div>
   </div>
 
-  <div class="card mastersection" id="master-fabrics">
+  <div class="card mastersection active" id="master-fabrics">
     <h2>Fabric Master</h2>
     <div class="hint">Enter whatever unit your supplier quotes in (SQMTR / MTR / KGS). For MTR fabrics, add the roll width so the system converts to ₹/sqm automatically. For KGS fabrics, add the GSM. SQMTR fabrics need no conversion.</div>
     <input class="search" type="text" id="fabricSearch" placeholder="Search fabric name...">
@@ -918,7 +943,7 @@
     <button class="addrow" onclick="addRow('zipperTypes',{name:'New Type',ratePerInch:0})">+ Add zipper type</button>
   </div>
 
-  <div class="card mastersection" id="master-articleMaster">
+  <div class="card adminsection" id="master-articleMaster">
     <h2>Locked Quote Approvals</h2>
     <div class="hint">Quotes submitted with “Lock the Quote” appear here for the administrator. Review the costing and change its status to Approved or Rejected.</div>
     <div class="tablewrap"><table id="tbl-articleMaster"></table></div>
@@ -964,7 +989,7 @@
     <div class="tablewrap"><table id="tbl-qtyBufferArea"></table></div>
   </div>
 
-  <div class="card mastersection" id="master-settings">
+  <div class="card adminsection" id="master-settings">
     <h2>Management Settings</h2>
     <div class="row">
       <div><label>Default Overhead %</label><input type="number" id="set-overhead"></div>
@@ -979,6 +1004,23 @@
       <div><label>Category D margin %</label><input type="number" id="set-marginDD" data-cat="D"></div>
     </div>
   </div>
+</div>
+
+<!-- ================= SECURE ADMIN VIEW ================= -->
+<div class="view" id="view-admin">
+  <div class="card admin-hero">
+    <h2>Administration</h2>
+    <div class="hint">Restricted controls for buyers, team access, locked quotes, and commercial settings.</div>
+  </div>
+  <div class="card">
+    <div class="admin-tabs" role="tablist" aria-label="Administration sections">
+      <button class="admin-tab-btn active" data-admin="customers">Buyer Master</button>
+      <button class="admin-tab-btn" data-admin="users">Users &amp; Approvals</button>
+      <button class="admin-tab-btn" data-admin="articleMaster">Locked Quotes</button>
+      <button class="admin-tab-btn" data-admin="settings">Settings</button>
+    </div>
+  </div>
+  <div id="adminSectionHost"></div>
 </div>
 
 <div class="view" id="view-quick">
@@ -1575,11 +1617,14 @@ function setAuthMode(mode){
   document.getElementById("showLoginBtn").classList.toggle("active", !signup);
   document.getElementById("showSignupBtn").classList.toggle("active", signup);
   document.getElementById("loginTitle").textContent = signup ? "Create your account" : "Welcome back";
-  document.querySelector(".g-welcome-sub").textContent = signup ? "Register your name and password, then wait for admin approval." : "Enter your credentials to continue to your workspace.";
-  document.getElementById("loginUserLabel").textContent = signup ? "Your name (this becomes your username)" : "Username";
-  document.getElementById("authNote").textContent = signup ? "Use at least 6 characters for your password. Your password is never visible to the admin." : "New users can register here. Access starts after admin approval.";
+  document.querySelector(".g-welcome-sub").textContent = signup ? "Choose your username and add your contact details, then wait for admin approval." : "Enter your credentials to continue to your workspace.";
+  document.getElementById("loginUserLabel").textContent = signup ? "Choose a username (capitalization is preserved)" : "Username";
+  document.getElementById("loginPasswordLabel").textContent = signup ? "Password (minimum 6 characters)" : "Password";
+  document.getElementById("authNote").textContent = signup ? "Your username will appear exactly as entered. Passwords require at least 6 characters and are never visible to the admin." : "New users can register here. Access starts after admin approval.";
   document.getElementById("authSubmitBtn").childNodes[0].nodeValue = signup ? "Register Account " : "Sign In To Calculator ";
   document.getElementById("confirmPassword").required = signup;
+  document.getElementById("signupEmail").required = signup;
+  document.getElementById("signupPhone").required = signup;
   document.getElementById("loginUser").readOnly = false;
   if (signup && document.getElementById("loginUser").value === LEGACY_USER_ID) document.getElementById("loginUser").value = "";
   document.getElementById("loginPassword").value = "";
@@ -1677,27 +1722,35 @@ document.getElementById("loginForm").addEventListener("submit", async event=>{
   submitButton.disabled = true;
   try{
     if (AUTH_MODE === "signup"){
-      const username = normalizeUsername(enteredName);
+      const usernameDisplay = enteredName;
+      const usernameKey = normalizeUsername(usernameDisplay);
+      const contactEmail = document.getElementById("signupEmail").value.trim();
+      const phone = document.getElementById("signupPhone").value.trim();
       const confirmPassword = document.getElementById("confirmPassword").value;
-      if (username.length < 3) throw new Error("Please enter a name containing at least 3 letters or numbers.");
+      if (usernameKey.length < 3) throw new Error("Please enter a username containing at least 3 letters or numbers.");
+      if (!contactEmail || !phone) throw new Error("Please enter both your email address and mobile number.");
       if (password.length < 6) throw new Error("Password must contain at least 6 characters.");
       if (password !== confirmPassword) throw new Error("The two passwords do not match.");
       error.textContent = "Creating your registration...";
-      const credential = await FIREBASE_AUTH.createUserWithEmailAndPassword(usernameEmail(username), password);
+      const credential = await FIREBASE_AUTH.createUserWithEmailAndPassword(usernameEmail(usernameKey), password);
       await FIRESTORE.collection("users").doc(credential.user.uid).set({
-        fullName:enteredName,
-        username,
+        fullName:usernameDisplay,
+        username:usernameDisplay,
+        usernameKey,
+        contactEmail,
         role:"employee",
         status:"pending",
-        phone:"",
+        phone,
+        loginCount:0,
+        loginHistory:[],
         createdAt:firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt:firebase.firestore.FieldValue.serverTimestamp()
       });
       await FIREBASE_AUTH.signOut();
       setAuthMode("login");
-      document.getElementById("loginUser").value = username;
+      document.getElementById("loginUser").value = usernameDisplay;
       error.style.color = "#0a7a2f";
-      error.textContent = "Registration sent. Your username is " + username + ". You can sign in after the admin approves it.";
+      error.textContent = "Registration sent. Your username is " + usernameDisplay + ". You can sign in after the admin approves it.";
       return;
     }
 
@@ -1719,6 +1772,12 @@ document.getElementById("loginForm").addEventListener("submit", async event=>{
       const profile = profileSnapshot.data();
       if (profile.status === "pending"){ await FIREBASE_AUTH.signOut(); throw new Error("Your registration is waiting for admin approval."); }
       if (profile.status !== "approved"){ await FIREBASE_AUTH.signOut(); throw new Error("This account is disabled. Please contact the admin."); }
+      const loginTime = firebase.firestore.Timestamp.now();
+      await FIRESTORE.collection("users").doc(credential.user.uid).update({
+        lastLoginAt:firebase.firestore.FieldValue.serverTimestamp(),
+        loginCount:firebase.firestore.FieldValue.increment(1),
+        loginHistory:firebase.firestore.FieldValue.arrayUnion(loginTime)
+      });
       await ensureAuthenticatedSession("employee", profile, credential.user);
     }
     error.textContent = "";
@@ -1765,6 +1824,12 @@ document.getElementById("logoutBtn").addEventListener("click", async ()=>{
 });
 
 /* ================= TAB NAV ================= */
+const adminHost = document.getElementById("adminSectionHost");
+["customers","users","articleMaster","settings"].forEach(key=>{
+  const section = document.getElementById("master-" + key);
+  if (section) adminHost.appendChild(section);
+});
+document.getElementById("master-customers")?.classList.add("active");
 document.querySelectorAll(".tab-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     if (document.body.classList.contains("employee-mode") && !["calc","history","profile"].includes(btn.dataset.tab)) return;
@@ -1774,12 +1839,20 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
     document.getElementById("view-"+btn.dataset.tab).classList.add("active");
   });
 });
-document.querySelectorAll(".mtab-btn").forEach(btn=>{
+document.querySelectorAll("#view-masters .mtab-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
-    document.querySelectorAll(".mtab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll("#view-masters .mtab-btn").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
-    document.querySelectorAll(".mastersection").forEach(v=>v.classList.remove("active"));
+    document.querySelectorAll("#view-masters .mastersection").forEach(v=>v.classList.remove("active"));
     document.getElementById("master-"+btn.dataset.m).classList.add("active");
+  });
+});
+document.querySelectorAll(".admin-tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".admin-tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll("#view-admin .adminsection").forEach(v=>v.classList.remove("active"));
+    document.getElementById("master-"+btn.dataset.admin)?.classList.add("active");
   });
 });
 
@@ -1793,14 +1866,16 @@ function renderUserDirectory(){
   const table = document.getElementById("tbl-users");
   if (!table) return;
   const rows = USER_DIRECTORY.slice().sort((a,b)=>(b.createdMillis||0)-(a.createdMillis||0));
-  let html = "<tr><th>Name</th><th>Username</th><th>Status</th><th>Registered</th><th>Action</th></tr>";
+  let html = "<tr><th>Name</th><th>Username</th><th>Email</th><th>Mobile</th><th>Status</th><th>Registered</th><th>Last login</th><th>Actions</th></tr>";
   rows.forEach(user=>{
     const action = user.status === "approved"
       ? `<button class="del-btn" onclick="setUserStatus('${user.id}','disabled')">Disable</button>`
       : `<button class="save-btn" onclick="setUserStatus('${user.id}','approved')">${user.status === "pending" ? "Approve" : "Enable"}</button>`;
-    html += `<tr><td>${escapeUserText(user.fullName)}</td><td>${escapeUserText(user.username)}</td><td>${escapeUserText(user.status)}</td><td>${escapeUserText(user.createdLabel)}</td><td>${action}</td></tr>`;
+    const historyAction = `<button class="edit-btn" onclick="showUserLoginHistory('${user.id}')">History (${Number(user.loginCount)||0})</button>`;
+    const deleteAction = `<button class="del-btn" onclick="deleteUserRegistration('${user.id}')">Delete registration</button>`;
+    html += `<tr><td>${escapeUserText(user.fullName)}</td><td>${escapeUserText(user.username)}</td><td>${escapeUserText(user.contactEmail || "—")}</td><td>${escapeUserText(user.phone || "—")}</td><td>${escapeUserText(user.status)}</td><td>${escapeUserText(user.createdLabel)}</td><td>${escapeUserText(user.lastLoginLabel)}</td><td><div class="user-actions">${action}${historyAction}${deleteAction}</div></td></tr>`;
   });
-  table.innerHTML = rows.length ? html : html + "<tr><td colspan='5'>No user registrations yet.</td></tr>";
+  table.innerHTML = rows.length ? html : html + "<tr><td colspan='8'>No user registrations yet.</td></tr>";
   const note = document.getElementById("userApprovalNote");
   if (note){
     const pendingCount = rows.filter(user=>user.status === "pending").length;
@@ -1810,10 +1885,18 @@ function renderUserDirectory(){
 function startUserDirectoryRealtime(){
   if (!FIRESTORE || userDirectoryUnsubscribe || CURRENT_PROFILE?.role !== "admin") return;
   userDirectoryUnsubscribe = FIRESTORE.collection("users").onSnapshot(snapshot=>{
+    snapshot.docs.forEach(doc=>{
+      const oldData = doc.data();
+      if (!oldData.usernameKey && oldData.fullName && normalizeUsername(oldData.fullName) === oldData.username && oldData.fullName !== oldData.username){
+        doc.ref.update({username:oldData.fullName, usernameKey:oldData.username, updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(()=>{});
+      }
+    });
     USER_DIRECTORY = snapshot.docs.map(doc=>{
       const data = doc.data();
       const date = data.createdAt?.toDate ? data.createdAt.toDate() : null;
-      return {...data, id:doc.id, createdMillis:date ? date.getTime() : 0, createdLabel:date ? date.toLocaleString() : "Just now"};
+      const lastLogin = data.lastLoginAt?.toDate ? data.lastLoginAt.toDate() : null;
+      const history = Array.isArray(data.loginHistory) ? data.loginHistory.map(item=>item?.toDate ? item.toDate() : null).filter(Boolean) : [];
+      return {...data, id:doc.id, loginHistoryDates:history, createdMillis:date ? date.getTime() : 0, createdLabel:date ? date.toLocaleString() : "Just now", lastLoginLabel:lastLogin ? lastLogin.toLocaleString() : "Never"};
     });
     renderUserDirectory();
   }, error=>{
@@ -1829,6 +1912,25 @@ async function setUserStatus(uid, status){
     await FIRESTORE.collection("users").doc(uid).update({status, updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
     if (note) note.textContent = status === "approved" ? "User approved ✓" : "User disabled ✓";
   }catch(error){ if (note) note.textContent = "Could not update user: " + error.message; }
+}
+function showUserLoginHistory(uid){
+  const user = USER_DIRECTORY.find(item=>item.id === uid);
+  const panel = document.getElementById("userLoginHistoryPanel");
+  if (!user || !panel) return;
+  const history = (user.loginHistoryDates || []).slice().sort((a,b)=>b-a);
+  panel.classList.add("active");
+  panel.innerHTML = `<strong>${escapeUserText(user.username)} — sign-in history</strong><button class="del-btn" style="float:right" onclick="this.parentElement.classList.remove('active')">Close</button><div style="clear:both;margin-top:10px">${history.length ? history.map((date,index)=>`<div>${index+1}. ${escapeUserText(date.toLocaleString())}</div>`).join("") : "No completed sign-ins recorded yet."}</div>`;
+}
+async function deleteUserRegistration(uid){
+  if (CURRENT_PROFILE?.role !== "admin") return;
+  const user = USER_DIRECTORY.find(item=>item.id === uid);
+  if (!user || !confirm(`Delete the registration and dashboard access for ${user.username}?`)) return;
+  const note = document.getElementById("userApprovalNote");
+  try{
+    if (note) note.textContent = "Deleting registration...";
+    await FIRESTORE.collection("users").doc(uid).delete();
+    if (note) note.textContent = "Registration deleted and dashboard access removed ✓";
+  }catch(error){ if (note) note.textContent = "Could not delete registration: " + error.message; }
 }
 
 /* ================= MASTER TABLE RENDERING ================= */
