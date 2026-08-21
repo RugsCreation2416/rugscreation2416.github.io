@@ -2888,6 +2888,23 @@ function updateYarnMixRow(key, idx, field, value){
   yarnMix[key][idx][field] = value;
   if (field==="yarnIdx" || field==="needsDyeing" || field==="showPrice" || field==="showDyePrice") renderYarnMixUI(key);
   calculate();
+  refreshYarnCostBlock(key, idx);
+}
+function refreshYarnCostBlock(key, idx){
+  const row = yarnMix[key]?.[idx];
+  if (!row) return;
+  const masterRate = row.yarnIdx==="custom" ? (row.customRate||0) : (DB.yarns[row.yarnIdx]?.rate||0);
+  const effectiveRate = row.rateOverride!==null ? row.rateOverride : masterRate;
+  const weightedKg = (row.grams||0)/1000 * (1 + (row.wastagePct||0)/100);
+  const yarnCost = weightedKg * effectiveRate;
+  const dyeCost = row.needsDyeing ? weightedKg * (row.dyeRate||0) : 0;
+  const yarnEl = document.getElementById(`${key}YarnCost${idx}`);
+  const dyeEl = document.getElementById(`${key}DyeCost${idx}`);
+  const totalEl = document.getElementById(`${key}YarnTotal${idx}`);
+  if (yarnEl) yarnEl.value = yarnCost.toFixed(2);
+  if (dyeEl) dyeEl.value = dyeCost.toFixed(2);
+  if (totalEl) totalEl.textContent = `₹${(yarnCost+dyeCost).toFixed(2)}`;
+  refreshYarnSumDisplay(key);
 }
 function renderYarnMixUI(key){
   const container = document.getElementById(key+"YarnRows");
@@ -2906,10 +2923,10 @@ function renderYarnMixUI(key){
         ${DB.yarns.map((y,yi)=>`<option value="${yi}" ${row.yarnIdx===yi?"selected":""}>${y.name}</option>`).join("")}
         <option value="custom" ${row.yarnIdx==="custom"?"selected":""}>＋ Custom yarn (this quote only)</option>
       </select></div>
-      <div><label>Rate ₹/kg</label><input type="number" onfocus="this.select()" value="${effectiveRate}" onchange="updateYarnMixRow('${key}',${i},'rateOverride',this.value)"></div>
-      <div><label>Grams</label><input type="number" value="${row.grams}" onchange="updateYarnMixRow('${key}',${i},'grams',this.value)"></div>
-      <div><label>Wastage %</label><input type="number" min="0" step="0.1" value="${wastage}" onchange="updateYarnMixRow('${key}',${i},'wastagePct',this.value)"></div>
-      <div><label>Final calculated rate ₹</label><input type="text" value="${yarnCost.toFixed(2)}" disabled></div>
+      <div><label>Rate ₹/kg</label><input type="number" onfocus="this.select()" value="${effectiveRate}" oninput="updateYarnMixRow('${key}',${i},'rateOverride',this.value)"></div>
+      <div><label>Grams</label><input type="number" value="${row.grams}" oninput="updateYarnMixRow('${key}',${i},'grams',this.value)"></div>
+      <div><label>Wastage %</label><input type="number" min="0" step="0.1" value="${wastage}" oninput="updateYarnMixRow('${key}',${i},'wastagePct',this.value)"></div>
+      <div><label>Final calculated rate ₹</label><input id="${key}YarnCost${i}" type="text" value="${yarnCost.toFixed(2)}" disabled></div>
     </div>`;
     if (row.yarnIdx==="custom"){
       html += `<div class="row">
@@ -2920,11 +2937,11 @@ function renderYarnMixUI(key){
     }
     html += `<div class="dyeing-row"><div><label class="chk" style="margin-bottom:6px;"><input type="checkbox" ${row.needsDyeing?"checked":""} onchange="updateYarnMixRow('${key}',${i},'needsDyeing',this.checked)"> Add dyeing</label></div>`;
     if (row.needsDyeing){
-      html += `<div><label>Dyeing rate ₹/kg</label><input type="number" onfocus="this.select()" value="${row.dyeRate}" onchange="updateYarnMixRow('${key}',${i},'dyeRate',this.value)"></div><div><label>Dyeing calculated ₹</label><input type="text" value="${dyeCost.toFixed(2)}" disabled></div>`;
+      html += `<div><label>Dyeing rate ₹/kg</label><input type="number" onfocus="this.select()" value="${row.dyeRate}" oninput="updateYarnMixRow('${key}',${i},'dyeRate',this.value)"></div><div><label>Dyeing calculated ₹</label><input id="${key}DyeCost${i}" type="text" value="${dyeCost.toFixed(2)}" disabled></div>`;
     } else {
       html += `<div></div><div class="hint">Select “Add dyeing” when dyeing is required.</div>`;
     }
-    html += `</div><div class="yarn-total"><span>Total rate including dyeing</span><span>₹${(yarnCost+dyeCost).toFixed(2)}</span></div></div>`;
+    html += `</div><div class="yarn-total"><span>Total rate including dyeing</span><span id="${key}YarnTotal${i}">₹${(yarnCost+dyeCost).toFixed(2)}</span></div></div>`;
   });
   container.innerHTML = html || `<div class="hint">No yarn lines yet — click "+ Add yarn" below.</div>`;
   refreshYarnSumDisplay(key);
