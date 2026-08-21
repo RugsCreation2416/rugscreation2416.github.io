@@ -593,10 +593,6 @@
       <div class="card wizard-locked calc-page" id="stitchedProcessFields" data-calc-page="3">
         <h2>3 · Process</h2>
         <div class="card-body" id="stitchedProcessFieldsBody">
-        <div class="warn" style="display:block; margin-bottom:14px;">
-          <label class="chk" style="margin:0;"><input type="checkbox" id="editAutoRates"> Edit automatic rates for this costing</label>
-          <div class="hint" style="margin-top:6px;">Unchecked rates come from Master Data. Check this to override locked production rates for this quote only; Master Data will not be changed.</div>
-        </div>
         <fieldset id="fillerFieldset">
           <legend>Filler</legend>
           <label class="chk" style="display:none;"><input type="checkbox" id="fillerOn" checked> Filled product</label>
@@ -633,7 +629,7 @@
         <fieldset id="fixedStitchingFieldset" style="display:none;">
           <legend>Stitching &amp; Cutting</legend>
           <div class="row">
-            <div><label>Stitching &amp; cutting rate ₹/piece</label><input type="number" id="fixedStitchingDisplay" min="0" step="0.01" disabled><label class="chk"><input type="checkbox" id="editFixedStitchingRate"> Change this rate for this quote</label></div>
+            <div><label>Stitching &amp; cutting rate ₹/piece (editable)</label><input type="number" id="fixedStitchingDisplay" min="0" step="0.01"><div class="hint">Loaded from Master Data; editing changes only this costing.</div></div>
             <div></div>
           </div>
         </fieldset>
@@ -658,10 +654,6 @@
       <div class="card wizard-locked calc-page" id="areaFields" data-calc-page="2" style="display:none;">
         <h2>2 · Raw Material, Construction, Backing &amp; Binding</h2>
         <div class="card-body" id="areaFieldsBody">
-        <div class="warn" style="display:block; margin-bottom:14px;">
-          <label class="chk" style="margin:0;"><input type="checkbox" id="editAutoRatesArea"> Edit automatic rates for this costing</label>
-          <div class="hint" style="margin-top:6px;">Unchecked rates come from Master Data. Check this to override locked production rates for this quote only; Master Data will not be changed.</div>
-        </div>
         <fieldset>
           <legend>Raw Material — yarn and/or fabric, one or more</legend>
           <div id="areaMaterialRows"></div>
@@ -684,7 +676,7 @@
           <label class="chk"><input type="checkbox" id="backingOn"> Backing required</label>
           <div class="row">
             <div><label for="backingType">Type</label><select id="backingType"></select></div>
-            <div><label for="backingRate">Rate ₹/sqm (computed)</label><input type="number" id="backingRate" disabled></div>
+            <div><label for="backingRate">Rate ₹/sqm (editable)</label><input type="number" id="backingRate"><div class="hint">Loaded automatically; editing changes only this costing.</div></div>
           </div>
           <div class="row" id="backingConversionRow" style="display:none;">
             <div><label for="backingGsmInput">Coating GSM for this order</label><input type="number" id="backingGsmInput" placeholder="e.g. 700"></div>
@@ -776,8 +768,8 @@
           </div>
         </div>
         <div class="row">
-          <div><label for="packagingRate" id="packagingRateLabel">Packaging rate (from Master Data)</label><input type="number" id="packagingRate" min="0" step="0.01" disabled></div>
-          <div><label for="forwardingManual" id="forwardingLabel">Forwarding (₹/pc, from 40ft High Cube rate)</label><input type="number" id="forwardingManual" min="0" step="0.01" value="0" disabled></div>
+          <div><label for="packagingRate" id="packagingRateLabel">Packaging rate (editable for this costing)</label><input type="number" id="packagingRate" min="0" step="0.01"></div>
+          <div><label for="forwardingManual" id="forwardingLabel">Forwarding ₹/pc (automatic, but editable)</label><input type="number" id="forwardingManual" min="0" step="0.01" value="0"><button type="button" class="edit-btn" onclick="restoreAutomaticForwarding()">↻ Use automatic forwarding</button></div>
         </div>
         <div class="hint" id="forwardingCalcNote" style="display:none;"></div>
         <fieldset>
@@ -2409,31 +2401,14 @@ function getBackFabric(){ return document.getElementById("backFabric").value==="
 /* ---- Per-quote price override: dropdown shows fabric names only; price is hidden by default,
    locked (read-only) when shown, and only editable via double-tap so it can't be bumped by accident ---- */
 const priceOverride = { front: null, back: null };
-let AUTO_RATE_EDITING = false;
-function setAutoRateEditing(enabled){
-  AUTO_RATE_EDITING = enabled;
-  ["editAutoRates","editAutoRatesArea","editFixedStitchingRate"].forEach(id=>{
-    const checkbox = document.getElementById(id);
-    if (checkbox) checkbox.checked = enabled;
-  });
-  ["fixedStitchingDisplay","packagingRate","backingRate","forwardingManual"].forEach(id=>{
-    const input = document.getElementById(id);
-    if (!input) return;
-    input.disabled = !enabled;
-    input.style.background = enabled ? "#fff3cd" : "";
-  });
-  document.getElementById("packagingRateLabel").textContent = enabled
-    ? "Packaging rate (editable for this costing)"
-    : "Packaging rate (from Master Data)";
-  if (!enabled) toggleProductFields();
-  else calculate();
+let FORWARDING_MANUAL_OVERRIDE = false;
+["fixedStitchingDisplay","packagingRate","backingRate"].forEach(id=>document.getElementById(id).addEventListener("input",calculate));
+document.getElementById("forwardingManual").addEventListener("input",()=>{ FORWARDING_MANUAL_OVERRIDE=true; calculate(); });
+function restoreAutomaticForwarding(){
+  FORWARDING_MANUAL_OVERRIDE = false;
+  updateForwardingCalc(true);
+  calculate();
 }
-["editAutoRates","editAutoRatesArea","editFixedStitchingRate"].forEach(id=>{
-  document.getElementById(id).addEventListener("change", event=>setAutoRateEditing(event.target.checked));
-});
-["fixedStitchingDisplay","packagingRate","backingRate","forwardingManual"].forEach(id=>{
-  document.getElementById(id).addEventListener("input", calculate);
-});
 function unlockPriceOverride(key){
   const el = document.getElementById(key+"PriceDisplay");
   el.disabled = false;
@@ -2851,7 +2826,7 @@ function toggleProductFields(){
   }
 
   const isSqmForwarding = SQM_FORWARDING_PRODUCTS.includes(product);
-  if (!AUTO_RATE_EDITING) document.getElementById("packagingRateLabel").textContent = isSqmForwarding ? "Packaging rate (₹/sqm, from Master Data)" : "Packaging rate (₹/pc, from Master Data)";
+  document.getElementById("packagingRateLabel").textContent = isSqmForwarding ? "Packaging rate ₹/sqm (automatic, but editable)" : "Packaging rate ₹/pc (automatic, but editable)";
   updateForwardingCalc();
   document.getElementById("loadabilityCard").style.display = "block";
   document.getElementById("areaPricingModeRow").style.display = isStitched ? "none" : "grid";
@@ -3212,11 +3187,11 @@ function updateLoadability(){
   document.getElementById("loadabilityResults").innerHTML = html;
   updateForwardingCalc();
 }
-function updateForwardingCalc(){
+function updateForwardingCalc(force=false){
   const product = document.getElementById("product").value;
   const noteEl = document.getElementById("forwardingCalcNote");
   const fwdInput = document.getElementById("forwardingManual");
-  if (AUTO_RATE_EDITING){
+  if (FORWARDING_MANUAL_OVERRIDE && !force){
     noteEl.textContent = "Manual forwarding override is active for this costing.";
     return;
   }
@@ -3747,8 +3722,9 @@ function calculate(){
     if (usesFixedStitching){
       const fp = DB.stitchingCuttingPrices.find(s=>s.product===product);
       const masterRate = fp ? fp.rate : 0;
-      const rate = AUTO_RATE_EDITING ? (parseFloat(document.getElementById("fixedStitchingDisplay").value)||0) : masterRate;
-      if (rate>0){ processCost += rate; lineItems.push({label:`Stitching & Cutting — ${fp?.label||"Production"}${AUTO_RATE_EDITING?" (quote override)":" (Master Data)"}`, amount:rate}); }
+      const enteredRate = parseFloat(document.getElementById("fixedStitchingDisplay").value);
+      const rate = Number.isFinite(enteredRate) ? enteredRate : masterRate;
+      if (rate>0){ processCost += rate; lineItems.push({label:`Stitching & Cutting — ${fp?.label||"Production"}${Math.abs(rate-masterRate)>0.0001?" (quote override)":" (Master Data)"}`, amount:rate}); }
       document.getElementById("constructionDesignHint").style.display = "none";
     } else {
       const cons = DB.techniques[document.getElementById("construction").value];
@@ -3812,10 +3788,10 @@ function calculate(){
       const backing = DB.backings[document.getElementById("backingType").value];
       const backingGsmEl = document.getElementById("backingGsmInput");
       const bR = backingRatePerSqm(backing, backingGsmEl?parseFloat(backingGsmEl.value):null);
-      if (!AUTO_RATE_EDITING) document.getElementById("backingRate").value = bR.value.toFixed(2);
-      const appliedBackingRate = AUTO_RATE_EDITING ? (parseFloat(document.getElementById("backingRate").value)||0) : bR.value;
+      const enteredBackingRate = parseFloat(document.getElementById("backingRate").value);
+      const appliedBackingRate = Number.isFinite(enteredBackingRate) ? enteredBackingRate : bR.value;
       if (backing && !bR.ok) warnings.push(`Backing "${backing.name}": ${bR.reason} — enter it just above.`);
-      if (backing){ const c = appliedBackingRate*area; processCost += c; lineItems.push({label:`Backing — ${backing.name}${AUTO_RATE_EDITING?" (quote override)":""}`, amount:c}); }
+      if (backing){ const c = appliedBackingRate*area; processCost += c; lineItems.push({label:`Backing — ${backing.name}${Math.abs(appliedBackingRate-bR.value)>0.0001?" (quote override)":""}`, amount:c}); }
     }
     const bindingInSqmMode = document.getElementById("areaPricingMode").value === "sqm";
     document.getElementById("bindingSqmModeWarning").style.display = (document.getElementById("bindingOn").checked && bindingInSqmMode) ? "block" : "none";
