@@ -242,6 +242,24 @@
   .tablewrap table tbody tr:hover{background:rgba(255,91,0,.07);}
   @media(max-width:850px){.admin-tabs{grid-template-columns:repeat(2,minmax(130px,1fr));}}
   @media(max-width:520px){.admin-tabs{grid-template-columns:1fr;}}
+  .calc-workflow{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:18px;background:rgba(244,244,244,.97);padding:10px;border-radius:8px;box-shadow:0 6px 18px rgba(25,27,29,.12);}
+  .calc-step{border:1px solid #c4c9ce;background:#fff;color:#555;border-radius:6px;padding:9px 7px;font-size:.7rem;cursor:pointer;text-align:center;}
+  .calc-step.active{background:#25282b;color:#fff;border-color:#25282b;}
+  .calc-step.locked{opacity:.42;cursor:not-allowed;}
+  .calc-page:not(.calc-page-active){display:none!important;}
+  .calc-page.calc-page-active:not(.wizard-locked){display:block!important;}
+  #view-calc.calc-page-expanded .grid2>div:first-child{padding-right:0;}
+  #view-calc.calc-page-expanded .sticky{display:none;}
+  #view-calc.calc-page-expanded .card.calc-page{max-width:1100px;margin-left:auto;margin-right:auto;}
+  .page-eyebrow{font-size:.7rem;text-transform:uppercase;letter-spacing:1.1px;color:#777;margin-bottom:5px;}
+  .yarn-cost-block{background:#fff;border:1px solid #c9ced3;border-left:5px solid #343a40;border-radius:8px;padding:14px 14px 10px;margin:12px 0 18px;box-shadow:0 5px 15px rgba(25,27,29,.08);}
+  .yarn-cost-title{display:flex;justify-content:space-between;align-items:center;border-bottom:1px dashed #c5c9cd;padding-bottom:8px;margin-bottom:10px;font-weight:800;}
+  .yarn-cost-grid{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:9px;align-items:end;}
+  .dyeing-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end;border-top:1px solid #e0e3e5;padding-top:10px;margin-top:3px;}
+  .yarn-total{display:flex;justify-content:space-between;align-items:center;background:#25282b;color:#fff;border-radius:5px;padding:10px 12px;margin-top:9px;font-weight:800;}
+  @media(min-width:901px){#view-calc:not(.calc-page-expanded) .calc-workflow{margin-right:430px;}}
+  @media(max-width:900px){.calc-workflow{grid-template-columns:repeat(3,1fr)}.yarn-cost-grid{grid-template-columns:1fr 1fr}.dyeing-row{grid-template-columns:1fr}}
+  @media(max-width:520px){.calc-workflow{grid-template-columns:1fr 1fr}.yarn-cost-grid{grid-template-columns:1fr}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -351,9 +369,17 @@
 
 <!-- ================= CALCULATOR VIEW ================= -->
 <div class="view active" id="view-calc">
+  <div class="calc-workflow" id="calcWorkflowNav" aria-label="Costing steps">
+    <button class="calc-step active" data-page="1">1. Product</button>
+    <button class="calc-step locked" data-page="2">2. Raw Materials</button>
+    <button class="calc-step locked" data-page="3">3. Process</button>
+    <button class="calc-step locked" data-page="4">4. Quantity</button>
+    <button class="calc-step locked" data-page="5">5. Loadability</button>
+    <button class="calc-step locked" data-page="6">6. Packaging</button>
+  </div>
   <div class="grid2">
     <div>
-      <div class="card" id="cardCustomer">
+      <div class="card calc-page calc-page-active" id="cardCustomer" data-calc-page="1">
         <h2>1 · Customer, Product &amp; Size</h2>
         <div class="card-body" id="cardCustomerBody">
         <div class="row">
@@ -418,8 +444,9 @@
         </div>
       </div>
 
-      <div class="card wizard-locked" id="stitchedFields">
-        <h2>2 · Fabric</h2>
+      <div class="card wizard-locked calc-page" id="stitchedFields" data-calc-page="2">
+        <div class="page-eyebrow">Page 2 of 6</div>
+        <h2>2 · Raw Materials</h2>
         <div class="card-body" id="stitchedFieldsBody">
         <fieldset>
           <legend>Front construction</legend>
@@ -540,7 +567,7 @@
         </div>
       </div>
 
-      <div class="card wizard-locked" id="stitchedProcessFields">
+      <div class="card wizard-locked calc-page" id="stitchedProcessFields" data-calc-page="3">
         <h2>3 · Process</h2>
         <div class="card-body" id="stitchedProcessFieldsBody">
         <div class="warn" style="display:block; margin-bottom:14px;">
@@ -606,7 +633,7 @@
         </div>
       </div>
 
-      <div class="card wizard-locked" id="areaFields" style="display:none;">
+      <div class="card wizard-locked calc-page" id="areaFields" data-calc-page="2" style="display:none;">
         <h2>2 · Raw Material, Construction, Backing &amp; Binding</h2>
         <div class="card-body" id="areaFieldsBody">
         <div class="warn" style="display:block; margin-bottom:14px;">
@@ -668,7 +695,7 @@
         </div>
       </div>
 
-      <div class="card wizard-locked" id="loadabilityCard">
+      <div class="card wizard-locked calc-page" id="loadabilityCard" data-calc-page="4">
         <h2>4 · Order Quantity</h2>
         <div class="card-body" id="loadabilityCardBody">
         <div class="row">
@@ -685,7 +712,7 @@
         </div>
       </div>
 
-      <div class="card wizard-locked" id="cardLoadability">
+      <div class="card wizard-locked calc-page" id="cardLoadability" data-calc-page="5">
         <h2>5 · Container Loadability</h2>
         <div class="card-body" id="cardLoadabilityBody">
         <div id="loadabilityCheckboxLabel" style="font-weight:bold; margin-bottom:10px;">Packed Carton Dimension:-</div>
@@ -720,7 +747,7 @@
         </div>
       </div>
 
-      <div class="card wizard-locked" id="cardPackaging">
+      <div class="card wizard-locked calc-page" id="cardPackaging" data-calc-page="6">
         <h2>6 · Packaging &amp; Forwarding</h2>
         <div class="card-body" id="cardPackagingBody">
         <div class="row" id="packingMethodRow" style="display:none;">
@@ -2112,6 +2139,33 @@ function renderAllMasterTables(){
 });
 
 /* ================= CALCULATOR ================= */
+let CURRENT_CALC_PAGE = 1;
+const CALC_CARD_PAGE = {cardCustomer:1,stitchedFields:2,areaFields:2,stitchedProcessFields:3,loadabilityCard:4,cardLoadability:5,cardPackaging:6};
+function pageCardFor(page){
+  const product = document.getElementById("product").value;
+  if (page === 2) return document.getElementById(STITCHED_PRODUCTS.includes(product) ? "stitchedFields" : "areaFields");
+  if (page === 3 && !STITCHED_PRODUCTS.includes(product)) return null;
+  return document.querySelector(`.calc-page[data-calc-page="${page}"]`);
+}
+function goToCalcPage(page, force=false){
+  page = Number(page);
+  const target = pageCardFor(page);
+  if (!target && page === 3) return goToCalcPage(4, force);
+  if (!target || (!force && target.classList.contains("wizard-locked"))) return;
+  CURRENT_CALC_PAGE = page;
+  document.querySelectorAll("#view-calc .calc-page").forEach(card=>card.classList.remove("calc-page-active"));
+  target.classList.add("calc-page-active");
+  document.querySelectorAll("#calcWorkflowNav .calc-step").forEach(button=>button.classList.toggle("active", Number(button.dataset.page) === page));
+  document.getElementById("view-calc").classList.toggle("calc-page-expanded", page > 1);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function refreshCalcWorkflowLocks(){
+  document.querySelectorAll("#calcWorkflowNav .calc-step").forEach(button=>{
+    const target = pageCardFor(Number(button.dataset.page));
+    button.classList.toggle("locked", !target || target.classList.contains("wizard-locked"));
+  });
+}
+document.querySelectorAll("#calcWorkflowNav .calc-step").forEach(button=>button.addEventListener("click",()=>goToCalcPage(button.dataset.page)));
 /* ---- Card-by-card save/edit workflow: collapse a finished card, reveal the next one(s) ----
    Uses a CSS class (not inline style) to lock cards, so it layers cleanly on top of the
    existing product-type show/hide logic (toggleProductFields) without fighting it. */
@@ -2199,6 +2253,9 @@ function saveCard(cardId, nextIds){
     const next = document.getElementById(id);
     if (next) next.classList.remove("wizard-locked");
   });
+  refreshCalcWorkflowLocks();
+  const nextPage = {cardCustomer:2,stitchedFields:3,areaFields:4,stitchedProcessFields:4,loadabilityCard:5,cardLoadability:6}[cardId];
+  if (nextPage) goToCalcPage(nextPage, true);
 }
 function editCard(cardId){
   const card = document.getElementById(cardId);
@@ -2208,6 +2265,7 @@ function editCard(cardId){
   if (saveBtn) saveBtn.style.display = "inline-block";
   card.querySelector(".edit-btn").style.display = "none";
   card.querySelector(".saved-note").style.display = "none";
+  goToCalcPage(CALC_CARD_PAGE[cardId] || 1, true);
   // re-derive any nested field visibility that depends on current selections
   // (front/back mode, product type, etc.) rather than assuming it's still correct
   if (typeof toggleProductFields === "function") toggleProductFields();
@@ -2813,7 +2871,7 @@ document.getElementById("backModeYarn").addEventListener("change", ()=>{
 /* ---- Yarn Composition Builder (reused for every product's front/panel-as-yarn mode) ---- */
 const yarnMix = { front: [], back: [] };
 function addYarnMixRow(key){
-  yarnMix[key].push({yarnIdx:0, customName:"Custom yarn", customRate:0, grams:0, needsDyeing:false, dyeRate: defaultDyeRate(), showPrice:false, showDyePrice:false, rateOverride:null});
+  yarnMix[key].push({yarnIdx:0, customName:"Custom yarn", customRate:0, grams:0, wastagePct:0, needsDyeing:false, dyeRate: defaultDyeRate(), showPrice:false, showDyePrice:false, rateOverride:null});
   renderYarnMixUI(key);
   calculate();
 }
@@ -2823,7 +2881,7 @@ function removeYarnMixRow(key, idx){
   calculate();
 }
 function updateYarnMixRow(key, idx, field, value){
-  if (field==="grams" || field==="customRate" || field==="dyeRate" || field==="rateOverride") value = parseFloat(value)||0;
+  if (field==="grams" || field==="customRate" || field==="dyeRate" || field==="rateOverride" || field==="wastagePct") value = parseFloat(value)||0;
   if (field==="yarnIdx") value = (value==="custom") ? "custom" : parseInt(value);
   if (field==="needsDyeing" || field==="showPrice" || field==="showDyePrice") value = !!value;
   if (field==="yarnIdx") yarnMix[key][idx].rateOverride = null; // new yarn picked — drop any price override tied to the old one
@@ -2838,18 +2896,20 @@ function renderYarnMixUI(key){
   yarnMix[key].forEach((row,i)=>{
     const masterRate = row.yarnIdx==="custom" ? (row.customRate||0) : (DB.yarns[row.yarnIdx]?.rate||0);
     const effectiveRate = row.rateOverride!==null ? row.rateOverride : masterRate;
-    html += `<div class="hint" style="font-weight:bold; margin-bottom:4px;">Yarn ${i+1}</div>`;
-    html += `<div class="row" style="grid-template-columns:1.6fr 1fr auto; align-items:end;">
+    const wastage = row.wastagePct || 0;
+    const weightedKg = (row.grams||0)/1000 * (1 + wastage/100);
+    const yarnCost = weightedKg * effectiveRate;
+    const dyeCost = row.needsDyeing ? weightedKg * (row.dyeRate||0) : 0;
+    html += `<div class="yarn-cost-block"><div class="yarn-cost-title"><span>Yarn ${i+1}</span><button class="del-btn" onclick="removeYarnMixRow('${key}',${i})">Remove</button></div>`;
+    html += `<div class="yarn-cost-grid">
       <div><label>Yarn</label><select onchange="updateYarnMixRow('${key}',${i},'yarnIdx',this.value)">
         ${DB.yarns.map((y,yi)=>`<option value="${yi}" ${row.yarnIdx===yi?"selected":""}>${y.name}</option>`).join("")}
         <option value="custom" ${row.yarnIdx==="custom"?"selected":""}>＋ Custom yarn (this quote only)</option>
       </select></div>
+      <div><label>Rate ₹/kg</label><input type="number" onfocus="this.select()" value="${effectiveRate}" onchange="updateYarnMixRow('${key}',${i},'rateOverride',this.value)"></div>
       <div><label>Grams</label><input type="number" value="${row.grams}" onchange="updateYarnMixRow('${key}',${i},'grams',this.value)"></div>
-      <div><button class="del-btn" onclick="removeYarnMixRow('${key}',${i})">✕</button></div>
-    </div>`;
-    html += `<div class="row" style="margin-bottom:6px;">
-      <div><label>Rate ₹/kg (editable)</label><input type="number" onfocus="this.select()" value="${effectiveRate}" onchange="updateYarnMixRow('${key}',${i},'rateOverride',this.value)"></div>
-      <div></div>
+      <div><label>Wastage %</label><input type="number" min="0" step="0.1" value="${wastage}" onchange="updateYarnMixRow('${key}',${i},'wastagePct',this.value)"></div>
+      <div><label>Final calculated rate ₹</label><input type="text" value="${yarnCost.toFixed(2)}" disabled></div>
     </div>`;
     if (row.yarnIdx==="custom"){
       html += `<div class="row">
@@ -2858,14 +2918,13 @@ function renderYarnMixUI(key){
         <div></div>
       </div>`;
     }
-    html += `<div class="row" style="grid-template-columns:auto auto 1fr; align-items:end; margin-bottom:14px;">
-      <div><label class="chk" style="margin-bottom:6px;"><input type="checkbox" ${row.needsDyeing?"checked":""} onchange="updateYarnMixRow('${key}',${i},'needsDyeing',this.checked)"> Needs dyeing?</label></div>`;
+    html += `<div class="dyeing-row"><div><label class="chk" style="margin-bottom:6px;"><input type="checkbox" ${row.needsDyeing?"checked":""} onchange="updateYarnMixRow('${key}',${i},'needsDyeing',this.checked)"> Add dyeing</label></div>`;
     if (row.needsDyeing){
-      html += `<div><label>Dyeing rate ₹/kg (editable)</label><input type="number" onfocus="this.select()" value="${row.dyeRate}" onchange="updateYarnMixRow('${key}',${i},'dyeRate',this.value)"></div><div></div>`;
+      html += `<div><label>Dyeing rate ₹/kg</label><input type="number" onfocus="this.select()" value="${row.dyeRate}" onchange="updateYarnMixRow('${key}',${i},'dyeRate',this.value)"></div><div><label>Dyeing calculated ₹</label><input type="text" value="${dyeCost.toFixed(2)}" disabled></div>`;
     } else {
-      html += `<div></div><div class="hint">Leave unticked if this yarn is already bought pre-dyed.</div>`;
+      html += `<div></div><div class="hint">Select “Add dyeing” when dyeing is required.</div>`;
     }
-    html += `</div>`;
+    html += `</div><div class="yarn-total"><span>Total rate including dyeing</span><span>₹${(yarnCost+dyeCost).toFixed(2)}</span></div></div>`;
   });
   container.innerHTML = html || `<div class="hint">No yarn lines yet — click "+ Add yarn" below.</div>`;
   refreshYarnSumDisplay(key);
@@ -2876,8 +2935,9 @@ function yarnMixTotals(key){
     totalGrams += row.grams||0;
     const masterRate = row.yarnIdx==="custom" ? (row.customRate||0) : (DB.yarns[row.yarnIdx]?.rate||0);
     const rate = row.rateOverride!==null ? row.rateOverride : masterRate;
-    totalCost += (row.grams||0)/1000 * rate;
-    if (row.needsDyeing) totalCost += (row.grams||0)/1000 * (row.dyeRate||0);
+    const weightedKg = (row.grams||0)/1000 * (1 + (row.wastagePct||0)/100);
+    totalCost += weightedKg * rate;
+    if (row.needsDyeing) totalCost += weightedKg * (row.dyeRate||0);
   });
   return {totalGrams, totalCost};
 }
