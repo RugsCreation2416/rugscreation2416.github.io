@@ -260,6 +260,10 @@
   .yarn-add-button{display:inline-flex;align-items:center;justify-content:center;min-width:155px;min-height:48px;padding:12px 22px!important;background:#25282b!important;color:#fff!important;border:2px solid #25282b!important;border-radius:7px!important;font-size:.92rem!important;font-weight:800!important;box-shadow:0 5px 14px rgba(25,27,29,.2);transition:transform .15s,box-shadow .15s;}
   .yarn-add-button:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(25,27,29,.28);}
   .yarn-add-button + .hint{font-size:.82rem;line-height:1.5;margin-top:3px;color:#555;}
+  .construction-price-box{display:flex;align-items:center;justify-content:space-between;gap:18px;background:#fff;border:1px solid #c5cbd0;border-left:5px solid #343a40;border-radius:7px;padding:12px 15px;margin-top:8px;box-shadow:0 4px 12px rgba(25,27,29,.08);}
+  .construction-price-box .price-label{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.55px;color:#343a40;}
+  .construction-price-box .hint{margin:3px 0 0;font-size:.78rem;color:#60666b;}
+  .construction-price-box strong{font-size:1.35rem;white-space:nowrap;color:#111;}
   @media(min-width:901px){#view-calc:not(.calc-page-expanded) .calc-workflow{margin-right:430px;}}
   @media(max-width:900px){.calc-workflow{grid-template-columns:repeat(3,1fr)}.yarn-cost-grid{grid-template-columns:1fr 1fr}.dyeing-row{grid-template-columns:1fr}}
   @media(max-width:520px){.calc-workflow{grid-template-columns:1fr 1fr}.yarn-cost-grid{grid-template-columns:1fr}}
@@ -480,7 +484,7 @@
             </div>
             <div><label for="frontConstructionRate">Rate ₹</label><input type="number" id="frontConstructionRate" onfocus="this.select()" placeholder="₹/sqm or ₹/panel"></div>
           </div>
-          <div class="hint" id="frontConstructionAreaHint"></div>
+          <div class="construction-price-box"><div><div class="price-label">Calculated construction price</div><div class="hint" id="frontConstructionAreaHint">Choose a construction to calculate its price.</div></div><strong id="frontConstructionCostDisplay">₹0.00</strong></div>
         </fieldset>
 
         <fieldset id="fabricFieldset">
@@ -558,7 +562,7 @@
                 </div>
                 <div><label for="backConstructionRate">Rate ₹</label><input type="number" id="backConstructionRate" onfocus="this.select()" placeholder="₹/sqm or ₹/panel"></div>
               </div>
-              <div class="hint" id="backConstructionAreaHint"></div>
+              <div class="construction-price-box"><div><div class="price-label">Calculated back construction price</div><div class="hint" id="backConstructionAreaHint">Choose a construction to calculate its price.</div></div><strong id="backConstructionCostDisplay">₹0.00</strong></div>
             </fieldset>
           </div>
         </fieldset>
@@ -3548,6 +3552,7 @@ function calculate(){
       document.getElementById("frontConstructionAreaHint").textContent = fcBasis === "sqm"
         ? `= ₹${fcRate||0} × ${totalFrontArea.toFixed(3)} sqm total = ₹${fcCost.toFixed(2)}`
         : `= ₹${fcRate||0} × ${panelCount} panel(s) = ₹${fcCost.toFixed(2)}`;
+      document.getElementById("frontConstructionCostDisplay").textContent = `₹${fcCost.toFixed(2)}`;
     } else {
       const front = getFrontFabric();
       const frontWidthEl = document.getElementById("frontWidthInput");
@@ -3610,6 +3615,7 @@ function calculate(){
           document.getElementById("backConstructionAreaHint").textContent = bcBasis === "sqm"
             ? `= ₹${bcRate||0} × ${totalBackArea.toFixed(3)} sqm = ₹${bcCost.toFixed(2)}`
             : `= ₹${bcRate||0} × 1 panel = ₹${bcCost.toFixed(2)}`;
+          document.getElementById("backConstructionCostDisplay").textContent = `₹${bcCost.toFixed(2)}`;
         } else {
           const back = getBackFabric();
           const backWidthEl = document.getElementById("backWidthInput");
