@@ -1004,6 +1004,10 @@
 </div>
 
 <script>
+window.addEventListener("error", event=>{
+  const target = document.getElementById("loginError");
+  if (target) target.textContent = `Startup error: ${event.message} (line ${event.lineno})`;
+});
 /* ================= DEFAULT SEED DATA ================= */
 const DEFAULT_DB = {
   fabrics: [
