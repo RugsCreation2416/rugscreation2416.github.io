@@ -332,8 +332,8 @@
         <div class="row">
           <div><label for="staffName">Costing done by</label><input type="text" id="staffName" placeholder="e.g. Priya"></div>
           <div style="position:relative;">
-            <label for="customerSearchInput">Customer</label>
-            <input type="text" id="customerSearchInput" placeholder="Start typing a customer name..." autocomplete="off">
+            <label for="customerSearchInput">Buyer Code</label>
+            <input type="text" id="customerSearchInput" placeholder="Enter buyer code..." autocomplete="off">
             <div id="customerSuggestions" style="display:none; position:absolute; z-index:20; top:100%; left:0; right:0; background:#fff; border:1px solid var(--line); max-height:260px; overflow:auto; box-shadow:0 4px 10px rgba(0,0,0,0.12);"></div>
             <select id="customer" style="display:none;"></select>
           </div>
@@ -440,8 +440,8 @@
           <div class="row">
             <div><label for="frontFabric" id="frontFabricLabel">Front / Face Fabric</label><select id="frontFabric"></select></div>
             <div>
-              <label class="chk"><input type="checkbox" id="frontShowPrice"> Show price</label>
-              <input type="number" id="frontPriceDisplay" disabled style="display:none;" ondblclick="unlockPriceOverride('front')" title="Double-tap to override this quote's price">
+              <label for="frontPriceDisplay">Rate ₹/sqm (editable for this quote)</label>
+              <input type="number" id="frontPriceDisplay" min="0" step="0.01" onfocus="this.select()">
             </div>
           </div>
           <div class="row" id="frontConversionRow" style="display:none;"></div>
@@ -477,8 +477,8 @@
               <div class="row">
                 <div><label for="backFabric" id="backFabricLabel">Back / bottom fabric</label><select id="backFabric"></select></div>
                 <div>
-                  <label class="chk"><input type="checkbox" id="backShowPrice"> Show price</label>
-                  <input type="number" id="backPriceDisplay" disabled style="display:none;" ondblclick="unlockPriceOverride('back')" title="Double-tap to override this quote's price">
+                  <label for="backPriceDisplay">Rate ₹/sqm (editable for this quote)</label>
+                  <input type="number" id="backPriceDisplay" min="0" step="0.01" onfocus="this.select()">
                 </div>
               </div>
               <div class="row" id="backConversionRow" style="display:none;"></div>
@@ -537,9 +537,9 @@
             <div><label>Calculated zipper length</label><input type="text" id="zipperLenDisplay" disabled></div>
             <div><label for="zipperRate">Zipper type</label><select id="zipperRate"></select></div>
           </div>
-          <div class="row" style="grid-template-columns:auto 1fr;">
-            <div><label class="chk" style="margin-bottom:6px;"><input type="checkbox" id="zipperShowPrice"> Show price</label></div>
-            <div id="zipperPriceWrap" style="display:none;"><label>Price ₹ (length × ₹/inch, editable)</label><input type="number" id="zipperPriceDisplay" onfocus="this.select()"></div>
+          <div class="row">
+            <div id="zipperPriceWrap"><label>Price ₹ (length × ₹/inch, editable)</label><input type="number" id="zipperPriceDisplay" onfocus="this.select()"></div>
+            <div></div>
           </div>
         </fieldset>
 
@@ -548,8 +548,7 @@
           <div class="row">
             <div><label for="construction">Type</label><select id="construction"></select></div>
             <div>
-              <label class="chk"><input type="checkbox" id="constructionShowPrice"> Show price</label>
-              <div id="constructionRateWrap" style="display:none;"><label for="constructionRate">Rate ₹ (per sqm or piece, editable)</label><input type="number" id="constructionRate" onfocus="this.select()"></div>
+              <div id="constructionRateWrap"><label for="constructionRate">Rate ₹ (per sqm or piece, editable)</label><input type="number" id="constructionRate" onfocus="this.select()"></div>
             </div>
           </div>
           <div class="hint" id="constructionDesignHint" style="display:none;">This technique's rate depends on the specific design — enter the agreed rate for this order above.</div>
@@ -817,6 +816,14 @@
       </div>
     </div>
     <div class="warn" id="importWarn"></div>
+    <hr class="divider">
+    <h3 style="font-size:.82rem; text-transform:uppercase; letter-spacing:1px;">Monthly Yarn &amp; Fabric Rate Update</h3>
+    <div class="hint">Download the template, fill only “This Month Rate” for changed items, then upload it. Blank and unchanged rows are ignored.</div>
+    <div class="row">
+      <div><button class="addrow" style="width:100%; padding:9px;" onclick="downloadMonthlyRateTemplate()">⬇ Download monthly rate template</button></div>
+      <div><label for="monthlyRateImport">⬆ Upload completed monthly rate template</label><input type="file" id="monthlyRateImport" accept=".xlsx,.xls"></div>
+    </div>
+    <div class="warn" id="monthlyRateWarn"></div>
   </div>
 
   <div class="card">
@@ -844,7 +851,7 @@
 
   <div class="card mastersection active" id="master-customers">
     <h2>Customer Master</h2>
-    <input class="search" type="text" id="custSearch" placeholder="Search customer name...">
+    <input class="search" type="text" id="custSearch" placeholder="Search buyer code or name...">
     <div class="tablewrap"><table id="tbl-customers"></table></div>
     <button class="addrow" onclick="addCustomer()">+ Add customer</button>
   </div>
@@ -1303,7 +1310,8 @@ const DEFAULT_DB = {
     ["Wool Worth GMBH","D"],["Wunsche Fashion Gmbh & Co. KG","D"],["XXX Lutz KG","B"],["XXXL Living UG","B"],
     ["YMF Carpet Inc","C"],["Yuugen Gaisha C And D","B"],["Zuss","A"],
     ["Other / Not Listed — use category default","B"],
-  ].map(([name,cat])=>({
+  ].map(([name,cat],index)=>({
+    buyerCode: `BUY${String(index+1).padStart(3,"0")}`,
     name, category: cat.toUpperCase(),
     commissionPct: (name.includes("Kwantum")?5 : name.includes("Trendcarpet")?12 : 0),
     buyingAgencyPct: 0, marginOverridePct: null, testingCost: 0, active: true
@@ -1480,7 +1488,10 @@ async function loadDB(){
         const s = (stored.qtyBufferArea||[]).find(x=>x.tier===d.tier);
         return s ? {...d, buffer:s.buffer} : d;
       }),
-      customers: mergeArraysByName(stored.customers, def.customers),
+      customers: mergeArraysByName(stored.customers, def.customers).map((customer,index)=>({
+        ...customer,
+        buyerCode: customer.buyerCode || `BUY${String(index+1).padStart(3,"0")}`
+      })),
       packaging: Object.assign({}, def.packaging, stored.packaging||{}),
       packingMethods: def.packingMethods.map(d => {
         const s = (stored.packingMethods||[]).find(x=>x.value===d.value);
@@ -1834,17 +1845,25 @@ function delRow(key, idx){
   populateCalculatorDropdowns();
 }
 function addCustomer(){
-  DB.customers.push({name:"New Customer", category:"B", commissionPct:0, buyingAgencyPct:0, marginOverridePct:null, testingCost:0, active:true});
+  DB.customers.push({buyerCode:nextBuyerCode(), name:"New Customer", category:"B", commissionPct:0, buyingAgencyPct:0, marginOverridePct:null, testingCost:0, active:true});
   saveDB(); renderCustomerTable(); populateCalculatorDropdowns();
+}
+function nextBuyerCode(){
+  const used = new Set(DB.customers.map(customer=>String(customer.buyerCode||"").toUpperCase()));
+  let number = DB.customers.length + 1;
+  let code = "";
+  do{ code = `BUY${String(number++).padStart(3,"0")}`; }while(used.has(code));
+  return code;
 }
 
 function renderCustomerTable(filter=""){
   const tbl = document.getElementById("tbl-customers");
   const f = filter.toLowerCase();
-  let rows = DB.customers.map((c,i)=>({c,i})).filter(({c})=>c.name.toLowerCase().includes(f));
-  let html = `<tr><th>Name</th><th>Category</th><th>Commission %</th><th>Buying Agency %</th><th>Margin Override %</th><th>Testing ₹</th><th></th></tr>`;
+  let rows = DB.customers.map((c,i)=>({c,i})).filter(({c})=>c.name.toLowerCase().includes(f) || String(c.buyerCode||"").toLowerCase().includes(f));
+  let html = `<tr><th>Buyer Code</th><th>Name</th><th>Category</th><th>Commission %</th><th>Buying Agency %</th><th>Margin Override %</th><th>Testing ₹</th><th></th></tr>`;
   rows.forEach(({c,i})=>{
     html += `<tr>
+      <td><input value="${String(c.buyerCode||"").replace(/"/g,'&quot;')}" onchange="DB.customers[${i}].buyerCode=this.value.trim().toUpperCase();saveDB();populateCalculatorDropdowns();"></td>
       <td><input value="${c.name.replace(/"/g,'&quot;')}" onchange="DB.customers[${i}].name=this.value;saveDB();populateCalculatorDropdowns();"></td>
       <td><select onchange="DB.customers[${i}].category=this.value;saveDB();populateCalculatorDropdowns();">
         ${["A","B","C","D"].map(cat=>`<option ${c.category===cat?"selected":""}>${cat}</option>`).join("")}
@@ -2019,6 +2038,7 @@ async function saveCustomerCard(){
     if (customerIndex < 0){
       customerIndex = DB.customers.length;
       DB.customers.push({
+        buyerCode: nextBuyerCode(),
         name: customerName,
         category: "B",
         commissionPct: customEntries.customer.commissionPct || 0,
@@ -2038,7 +2058,7 @@ async function saveCustomerCard(){
 
     populateCalculatorDropdowns();
     document.getElementById("customer").value = String(customerIndex);
-    document.getElementById("customerSearchInput").value = DB.customers[customerIndex].name;
+    document.getElementById("customerSearchInput").value = DB.customers[customerIndex].buyerCode;
     renderCustomCustomerUI();
     renderCustomerTable();
   }
@@ -2229,14 +2249,11 @@ function unlockPriceOverride(key){
   el.select();
 }
 function syncPriceDisplay(key){
-  const showCk = document.getElementById(key+"ShowPrice");
   const priceEl = document.getElementById(key+"PriceDisplay");
-  priceEl.style.display = showCk.checked ? "block" : "none";
   if (priceOverride[key] === null){
     const fabric = key==="front" ? getFrontFabric() : getBackFabric();
     const r = fabricRatePerSqm(fabric);
     priceEl.value = r.value.toFixed(2);
-    priceEl.disabled = true;
     priceEl.style.background = "#fff";
   }
 }
@@ -2247,17 +2264,13 @@ function currentZipLenIn(){
   return Math.max(0, (W/2.54) - 2);
 }
 function syncZipperPriceDisplay(){
-  const showCk = document.getElementById("zipperShowPrice");
-  const wrap = document.getElementById("zipperPriceWrap");
   const priceEl = document.getElementById("zipperPriceDisplay");
-  wrap.style.display = showCk.checked ? "block" : "none";
   if (zipperRateOverride === null){
     const zt = DB.zipperTypes[document.getElementById("zipperRate").value];
     const rate = zt ? currentZipLenIn() * zt.ratePerInch : 0;
     priceEl.value = rate.toFixed(2);
   }
 }
-document.getElementById("zipperShowPrice").addEventListener("change", syncZipperPriceDisplay);
 document.getElementById("zipperPriceDisplay").addEventListener("input", (e)=>{
   zipperRateOverride = parseFloat(e.target.value)||0;
   calculate();
@@ -2268,13 +2281,7 @@ document.getElementById("zipperRate").addEventListener("change", ()=>{
   calculate();
 });
 
-/* ---- Construction / Stitching & Cutting price show/hide (field itself already drives the calculation) ---- */
-document.getElementById("constructionShowPrice").addEventListener("change", (e)=>{
-  document.getElementById("constructionRateWrap").style.display = e.target.checked ? "block" : "none";
-});
-
 ["front","back"].forEach(key=>{
-  document.getElementById(key+"ShowPrice").addEventListener("change", ()=>syncPriceDisplay(key));
   document.getElementById(key+"PriceDisplay").addEventListener("input", (e)=>{
     priceOverride[key] = parseFloat(e.target.value) || 0;
     calculate();
@@ -2327,7 +2334,7 @@ function updateCustomFabric(prefix){
 
 
 function populateCalculatorDropdowns(){
-  fillSelect("customer", DB.customers, c=>`${c.name} [${c.category}]`);
+  fillSelect("customer", DB.customers, c=>`${c.buyerCode} — ${c.name}`);
   appendCustomOption("customer", "＋ Add new buyer to Customer Master");
   fillSelect("frontFabric", DB.fabrics, f=>{ const r=fabricRatePerSqm(f); return `${f.name}${r.ok?"":" ⚠"}`; });
   appendCustomOption("frontFabric", "＋ Custom fabric (this quote only)");
@@ -2359,7 +2366,7 @@ function syncCustomerSearchDisplay(){
   const input = document.getElementById("customerSearchInput");
   if (sel.value === "custom"){ input.value = "＋ Add new buyer to Customer Master"; return; }
   const cust = DB.customers[sel.value];
-  input.value = cust ? `${cust.name} [${cust.category}]` : "";
+  input.value = cust ? cust.buyerCode : "";
 }
 function selectCustomerByIndex(value){
   const sel = document.getElementById("customer");
@@ -2374,13 +2381,13 @@ function renderCustomerSuggestions(query){
   if (!q){ box.style.display = "none"; return; }
   const matches = DB.customers
     .map((c,i)=>({c,i}))
-    .filter(({c})=>c.name.toLowerCase().includes(q))
+    .filter(({c})=>String(c.buyerCode||"").toLowerCase().includes(q))
     .slice(0, 20);
   let html = matches.map(({c,i})=>
-    `<div class="suggestion-row" onclick="selectCustomerByIndex(${i})" style="padding:8px 10px; cursor:pointer; border-bottom:1px solid #eee; font-size:0.88rem;" onmouseover="this.style.background='#f2f2f2'" onmouseout="this.style.background='#fff'">${c.name} <span style="color:#888; font-family:var(--mono); font-size:0.75rem;">[${c.category}]</span></div>`
+    `<div class="suggestion-row" onclick="selectCustomerByIndex(${i})" style="padding:8px 10px; cursor:pointer; border-bottom:1px solid #eee; font-size:0.88rem;" onmouseover="this.style.background='#f2f2f2'" onmouseout="this.style.background='#fff'"><strong>${c.buyerCode}</strong> — ${c.name}</div>`
   ).join("");
   html += `<div class="suggestion-row" onclick="selectCustomerByIndex('custom')" style="padding:8px 10px; cursor:pointer; font-family:var(--mono); font-size:0.8rem; color:var(--thread);" onmouseover="this.style.background='#f2f2f2'" onmouseout="this.style.background='#fff'">＋ Add new buyer to Customer Master</div>`;
-  box.innerHTML = html || `<div style="padding:8px 10px; color:#888; font-size:0.85rem;">No match — try a different spelling, or <span style="text-decoration:underline; cursor:pointer;" onclick="selectCustomerByIndex('custom')">add as a new customer</span>.</div>`;
+  box.innerHTML = html || `<div style="padding:8px 10px; color:#888; font-size:0.85rem;">No buyer code match. Check Customer Master or <span style="text-decoration:underline; cursor:pointer;" onclick="selectCustomerByIndex('custom')">add a new buyer</span>.</div>`;
   box.style.display = "block";
 }
 document.getElementById("customerSearchInput").addEventListener("input", (e)=>renderCustomerSuggestions(e.target.value));
@@ -2447,7 +2454,6 @@ function addProcessRow(kind){
       <option value="2">Both sides</option>
     </select></td>
     <td>
-      <label class="chk procPriceToggle" style="display:none; margin-bottom:4px;"><input type="checkbox" class="procShowPrice"> Show</label>
       <input type="number" class="procRate" onfocus="this.select()" value="${DB.processes[0]?.rate ?? 0}" style="display:none;">
     </td>
     <td><input type="number" class="procWastage" value="0" step="0.1" style="display:none;"></td>
@@ -2460,8 +2466,6 @@ function addProcessRow(kind){
   const sel = tr.querySelector(".procSelect");
   const basisSel = tr.querySelector(".procBasis");
   const sidesSel = tr.querySelector(".procSides");
-  const priceToggle = tr.querySelector(".procPriceToggle");
-  const showPriceCk = tr.querySelector(".procShowPrice");
   const rateInput = tr.querySelector(".procRate");
   const wastage = tr.querySelector(".procWastage");
   const qty = tr.querySelector(".procQty");
@@ -2488,8 +2492,7 @@ function addProcessRow(kind){
     sel.style.display = on ? "block" : "none";
     basisSel.style.display = on ? "block" : "none";
     sidesSel.style.display = on ? "block" : "none";
-    priceToggle.style.display = on ? "block" : "none";
-    rateInput.style.display = (on && showPriceCk.checked) ? "block" : "none";
+    rateInput.style.display = on ? "block" : "none";
     wastage.style.display = on ? "block" : "none";
     qty.style.display = on ? "block" : "none";
     costDisplay.style.display = on ? "block" : "none";
@@ -2505,7 +2508,6 @@ function addProcessRow(kind){
   });
   basisSel.addEventListener("change", ()=>{ applyQtyDefault(); refreshCostDisplay(); calculate(); });
   sidesSel.addEventListener("change", ()=>{ refreshCostDisplay(); calculate(); });
-  showPriceCk.addEventListener("change", ()=>{ rateInput.style.display = showPriceCk.checked ? "block" : "none"; refreshCostDisplay(); });
   tr.querySelectorAll("select,input").forEach(el=>el.addEventListener("input", ()=>{ refreshCostDisplay(); calculate(); }));
   refreshCostDisplay();
   calculate();
@@ -2743,9 +2745,9 @@ function renderYarnMixUI(key){
       <div><label>Grams</label><input type="number" value="${row.grams}" onchange="updateYarnMixRow('${key}',${i},'grams',this.value)"></div>
       <div><button class="del-btn" onclick="removeYarnMixRow('${key}',${i})">✕</button></div>
     </div>`;
-    html += `<div class="row" style="grid-template-columns:auto 1fr; align-items:end; margin-bottom:6px;">
-      <div><label class="chk" style="margin-bottom:6px;"><input type="checkbox" ${row.showPrice?"checked":""} onchange="updateYarnMixRow('${key}',${i},'showPrice',this.checked)"> Show price</label></div>
-      ${row.showPrice ? `<div><label>Rate ₹/kg (editable)</label><input type="number" onfocus="this.select()" value="${effectiveRate}" onchange="updateYarnMixRow('${key}',${i},'rateOverride',this.value)"></div>` : `<div></div>`}
+    html += `<div class="row" style="margin-bottom:6px;">
+      <div><label>Rate ₹/kg (editable)</label><input type="number" onfocus="this.select()" value="${effectiveRate}" onchange="updateYarnMixRow('${key}',${i},'rateOverride',this.value)"></div>
+      <div></div>
     </div>`;
     if (row.yarnIdx==="custom"){
       html += `<div class="row">
@@ -2757,8 +2759,7 @@ function renderYarnMixUI(key){
     html += `<div class="row" style="grid-template-columns:auto auto 1fr; align-items:end; margin-bottom:14px;">
       <div><label class="chk" style="margin-bottom:6px;"><input type="checkbox" ${row.needsDyeing?"checked":""} onchange="updateYarnMixRow('${key}',${i},'needsDyeing',this.checked)"> Needs dyeing?</label></div>`;
     if (row.needsDyeing){
-      html += `<div><label class="chk" style="margin-bottom:6px;"><input type="checkbox" ${row.showDyePrice?"checked":""} onchange="updateYarnMixRow('${key}',${i},'showDyePrice',this.checked)"> Show price</label></div>
-      ${row.showDyePrice ? `<div><label>Dyeing rate ₹/kg (editable)</label><input type="number" onfocus="this.select()" value="${row.dyeRate}" onchange="updateYarnMixRow('${key}',${i},'dyeRate',this.value)"></div>` : `<div class="hint">Auto-priced from master — tick "Show price" to view or change it.</div>`}`;
+      html += `<div><label>Dyeing rate ₹/kg (editable)</label><input type="number" onfocus="this.select()" value="${row.dyeRate}" onchange="updateYarnMixRow('${key}',${i},'dyeRate',this.value)"></div><div></div>`;
     } else {
       html += `<div></div><div class="hint">Leave unticked if this yarn is already bought pre-dyed.</div>`;
     }
@@ -3830,6 +3831,68 @@ function exportToExcel(){
   XLSX.writeFile(wb, "Rugs_Creation_Masters.xlsx");
 }
 
+function downloadMonthlyRateTemplate(){
+  const wb = XLSX.utils.book_new();
+  const yarnRows = DB.yarns.map(yarn=>({
+    "Yarn Name": yarn.name,
+    "Previous Rate": yarn.rate,
+    "This Month Rate": ""
+  }));
+  const fabricRows = DB.fabrics.map(fabric=>({
+    "Fabric Name": fabric.name,
+    "Unit": fabric.sourceUnit,
+    "Previous Rate": fabric.sourceRate,
+    "This Month Rate": ""
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(yarnRows), "Yarn Monthly Rates");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(fabricRows), "Fabric Monthly Rates");
+  const month = new Date().toISOString().slice(0,7);
+  XLSX.writeFile(wb, `Rugs_Creation_Monthly_Rates_${month}.xlsx`);
+}
+
+document.getElementById("monthlyRateImport").addEventListener("change", event=>{
+  const file = event.target.files[0];
+  if (!file) return;
+  const note = document.getElementById("monthlyRateWarn");
+  note.textContent = "Checking monthly rates...";
+  const reader = new FileReader();
+  reader.onload = async loadEvent=>{
+    try{
+      const workbook = XLSX.read(loadEvent.target.result, {type:"array"});
+      const yarnRows = sheetRows(workbook, "Yarn Monthly Rates") || [];
+      const fabricRows = sheetRows(workbook, "Fabric Monthly Rates") || [];
+      let yarnChanges = 0;
+      let fabricChanges = 0;
+      yarnRows.forEach(row=>{
+        const raw = row["This Month Rate"];
+        if (raw === null || raw === "") return;
+        const rate = Number(raw);
+        const yarn = DB.yarns.find(item=>item.name.trim().toLowerCase() === String(row["Yarn Name"]||"").trim().toLowerCase());
+        if (yarn && Number.isFinite(rate) && rate >= 0 && yarn.rate !== rate){ yarn.rate = rate; yarnChanges++; }
+      });
+      fabricRows.forEach(row=>{
+        const raw = row["This Month Rate"];
+        if (raw === null || raw === "") return;
+        const rate = Number(raw);
+        const fabric = DB.fabrics.find(item=>item.name.trim().toLowerCase() === String(row["Fabric Name"]||"").trim().toLowerCase());
+        if (fabric && Number.isFinite(rate) && rate >= 0 && fabric.sourceRate !== rate){ fabric.sourceRate = rate; fabricChanges++; }
+      });
+      if (yarnChanges + fabricChanges === 0){
+        note.textContent = "No changed This Month Rate values were found. Nothing was updated.";
+        return;
+      }
+      const cloudSaved = await saveDB();
+      if (!cloudSaved) throw new Error("Firebase sync failed");
+      renderAllMasterTables();
+      populateCalculatorDropdowns();
+      note.textContent = `Monthly rates updated ✓ — ${yarnChanges} yarn rate(s) and ${fabricChanges} fabric rate(s). Blank and unchanged rows were ignored.`;
+    }catch(error){
+      note.textContent = "Monthly rate upload failed: " + error.message;
+    }finally{ event.target.value = ""; }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
 function sheetRows(wb, name){
   const ws = wb.Sheets[name];
   return ws ? XLSX.utils.sheet_to_json(ws, {defval:null}) : null;
@@ -3850,7 +3913,8 @@ document.getElementById("excelImport").addEventListener("change", (e)=>{
       const missing = [];
 
       const customers = sheetRows(wb, "Customers");
-      if (customers) DB.customers = customers.map(c=>({
+      if (customers) DB.customers = customers.map((c,index)=>({
+        buyerCode: String(c.buyerCode || `BUY${String(index+1).padStart(3,"0")}`).trim().toUpperCase(),
         name: c.name || "Unnamed", category: (c.category||"B").toString().toUpperCase(),
         commissionPct: parseFloat(c.commissionPct)||0, buyingAgencyPct: parseFloat(c.buyingAgencyPct)||0,
         marginOverridePct: (c.marginOverridePct===null||c.marginOverridePct==="")?null:parseFloat(c.marginOverridePct),
