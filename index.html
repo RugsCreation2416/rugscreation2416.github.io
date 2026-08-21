@@ -242,7 +242,7 @@
   .tablewrap table tbody tr:hover{background:rgba(255,91,0,.07);}
   @media(max-width:850px){.admin-tabs{grid-template-columns:repeat(2,minmax(130px,1fr));}}
   @media(max-width:520px){.admin-tabs{grid-template-columns:1fr;}}
-  .calc-workflow{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:18px;background:rgba(244,244,244,.97);padding:10px;border-radius:8px;box-shadow:0 6px 18px rgba(25,27,29,.12);}
+  .calc-workflow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:18px;background:rgba(244,244,244,.97);padding:10px;border-radius:8px;box-shadow:0 6px 18px rgba(25,27,29,.12);}
   .calc-step{border:1px solid #c4c9ce;background:#fff;color:#555;border-radius:6px;padding:9px 7px;font-size:.7rem;cursor:pointer;text-align:center;}
   .calc-step.active{background:#25282b;color:#fff;border-color:#25282b;}
   .calc-step.locked{opacity:.42;cursor:not-allowed;}
@@ -264,6 +264,18 @@
   .construction-price-box .price-label{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.55px;color:#343a40;}
   .construction-price-box .hint{margin:3px 0 0;font-size:.78rem;color:#60666b;}
   .construction-price-box strong{font-size:1.35rem;white-space:nowrap;color:#111;}
+  .workflow-back,.workflow-next,.workflow-submit{min-width:125px;min-height:42px;border-radius:6px!important;font-size:.82rem!important;font-weight:800!important;}
+  .workflow-back{background:#fff!important;color:#25282b!important;border:1px solid #8f969c!important;}
+  .workflow-next,.workflow-submit{background:#25282b!important;color:#fff!important;border:1px solid #25282b!important;}
+  .final-actions-grid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px;margin-top:18px;}
+  .final-action-btn{min-height:64px;border:1px solid #b8bec4;background:#fff;border-radius:8px;padding:13px 15px;text-align:left;font-size:.9rem;font-weight:800;cursor:pointer;box-shadow:0 5px 14px rgba(25,27,29,.09);}
+  .final-action-btn:hover{background:#25282b;color:#fff;transform:translateY(-2px);}
+  .photo-upload-panel{border:2px dashed #9ca3a9;background:#fff;border-radius:9px;padding:18px;margin-top:14px;}
+  #quotePhotoPreview{display:none;max-width:280px;max-height:220px;object-fit:contain;border:1px solid #bbb;border-radius:7px;margin-top:12px;background:#f2f2f2;}
+  #view-calc input:disabled{background:#e9edef;color:#111;font-weight:800;border-color:#aeb5bb;opacity:1;}
+  #view-calc .out-line{font-size:.9rem;padding:7px 0;}
+  #view-calc .out-line span:last-child{font-weight:800;color:#111;}
+  @media(max-width:650px){.final-actions-grid{grid-template-columns:1fr}.card-footer{flex-wrap:wrap}.workflow-back,.workflow-next,.workflow-submit{flex:1}}
   @media(min-width:901px){#view-calc:not(.calc-page-expanded) .calc-workflow{margin-right:430px;}}
   @media(max-width:900px){.calc-workflow{grid-template-columns:repeat(3,1fr)}.yarn-cost-grid{grid-template-columns:1fr 1fr}.dyeing-row{grid-template-columns:1fr}}
   @media(max-width:520px){.calc-workflow{grid-template-columns:1fr 1fr}.yarn-cost-grid{grid-template-columns:1fr}}
@@ -383,6 +395,7 @@
     <button class="calc-step locked" data-page="4">4. Quantity</button>
     <button class="calc-step locked" data-page="5">5. Loadability</button>
     <button class="calc-step locked" data-page="6">6. Packaging</button>
+    <button class="calc-step locked" data-page="7">7. Final</button>
   </div>
   <div class="grid2">
     <div>
@@ -445,9 +458,7 @@
         <div id="sizeSegmentWarn" class="warn" style="display:none;"></div>
         </div>
         <div class="card-footer">
-          <button class="save-btn" onclick="saveCustomerCard()">✓ Save &amp; Continue</button>
-          <button class="edit-btn" style="display:none;" onclick="editCard('cardCustomer')">✎ Edit</button>
-          <span class="saved-note" style="display:none;">✓ Saved</span>
+          <button class="save-btn workflow-next" onclick="saveCustomerCard()">Next →</button>
         </div>
       </div>
 
@@ -568,9 +579,8 @@
         </fieldset>
         </div>
         <div class="card-footer">
-          <button class="save-btn" onclick="saveCard('stitchedFields',['stitchedProcessFields'])">✓ Save &amp; Continue</button>
-          <button class="edit-btn" style="display:none;" onclick="editCard('stitchedFields')">✎ Edit</button>
-          <span class="saved-note" style="display:none;">✓ Saved</span>
+          <button class="edit-btn workflow-back" onclick="goToCalcPage(1,true)">← Back</button>
+          <button class="save-btn workflow-next" onclick="saveCard('stitchedFields',['stitchedProcessFields'])">Next →</button>
         </div>
       </div>
 
@@ -634,9 +644,8 @@
         </fieldset>
         </div>
         <div class="card-footer">
-          <button class="save-btn" onclick="saveCard('stitchedProcessFields',['loadabilityCard'])">✓ Save &amp; Continue</button>
-          <button class="edit-btn" style="display:none;" onclick="editCard('stitchedProcessFields')">✎ Edit</button>
-          <span class="saved-note" style="display:none;">✓ Saved</span>
+          <button class="edit-btn workflow-back" onclick="goToCalcPage(2,true)">← Back</button>
+          <button class="save-btn workflow-next" onclick="saveCard('stitchedProcessFields',['loadabilityCard'])">Next →</button>
         </div>
       </div>
 
@@ -696,9 +705,8 @@
         </fieldset>
         </div>
         <div class="card-footer">
-          <button class="save-btn" onclick="saveCard('areaFields',['loadabilityCard'])">✓ Save &amp; Continue</button>
-          <button class="edit-btn" style="display:none;" onclick="editCard('areaFields')">✎ Edit</button>
-          <span class="saved-note" style="display:none;">✓ Saved</span>
+          <button class="edit-btn workflow-back" onclick="goToCalcPage(1,true)">← Back</button>
+          <button class="save-btn workflow-next" onclick="saveCard('areaFields',['loadabilityCard'])">Next →</button>
         </div>
       </div>
 
@@ -713,9 +721,8 @@
         <div id="qtySegmentWarn" class="warn" style="display:none;"></div>
         </div>
         <div class="card-footer">
-          <button class="save-btn" onclick="saveQtyCard()">✓ Save &amp; Continue</button>
-          <button class="edit-btn" style="display:none;" onclick="editCard('loadabilityCard')">✎ Edit</button>
-          <span class="saved-note" style="display:none;">✓ Saved</span>
+          <button class="edit-btn workflow-back" onclick="goToPreviousCalcPage(4)">← Back</button>
+          <button class="save-btn workflow-next" onclick="saveQtyCard()">Next →</button>
         </div>
       </div>
 
@@ -748,9 +755,8 @@
         <div id="loadabilityWarn" class="warn" style="display:none;"></div>
         </div>
         <div class="card-footer">
-          <button class="save-btn" onclick="saveLoadabilityCard()">✓ Save &amp; Continue</button>
-          <button class="edit-btn" style="display:none;" onclick="editCard('cardLoadability')">✎ Edit</button>
-          <span class="saved-note" style="display:none;">✓ Saved</span>
+          <button class="edit-btn workflow-back" onclick="goToCalcPage(4,true)">← Back</button>
+          <button class="save-btn workflow-next" onclick="saveLoadabilityCard()">Next →</button>
         </div>
       </div>
 
@@ -785,14 +791,26 @@
         </fieldset>
         </div>
         <div class="card-footer">
-          <button class="save-btn" onclick="savePackagingCard()">✓ Save</button>
-          <button class="edit-btn" style="display:none;" onclick="editPackagingCard()">✎ Edit</button>
-          <span class="saved-note" style="display:none;">✓ Saved — quote ready below</span>
+          <button class="edit-btn workflow-back" onclick="goToCalcPage(5,true)">← Back</button>
+          <button class="save-btn workflow-submit" onclick="savePackagingCard()">Submit Costing →</button>
         </div>
-        <div id="quoteActionBoxes" style="display:none; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px;">
-          <button class="addrow" style="padding:12px 8px;" onclick="downloadQuotePdf()">⬇ Download PDF Quote</button>
-          <button class="addrow" style="padding:12px 8px;" onclick="printSummary()">🖨 Print the Summary</button>
-          <button class="addrow" style="padding:12px 8px;" onclick="openLockQuoteFlow()">🔒 Lock the Quote</button>
+      </div>
+
+      <div class="card wizard-locked calc-page" id="cardFinalActions" data-calc-page="7">
+        <div class="page-eyebrow">Final page</div>
+        <h2>Costing Complete</h2>
+        <div class="hint">Attach the product reference photo, then choose the document or approval action you need.</div>
+        <div class="photo-upload-panel">
+          <label for="quotePhoto"><strong>Attach product photo</strong></label>
+          <input type="file" id="quotePhoto" accept="image/*" onchange="handleQuotePhoto(this)">
+          <div class="hint" id="quotePhotoStatus">Optional. The image will be compressed for safe saving and document generation.</div>
+          <img id="quotePhotoPreview" alt="Attached product preview">
+        </div>
+        <div class="final-actions-grid" id="quoteActionBoxes">
+          <button class="final-action-btn" onclick="downloadInternalCosting()">⬇ Download Internal Costing</button>
+          <button class="final-action-btn" onclick="printSummary()">🖨 Print Internal Costing</button>
+          <button class="final-action-btn" onclick="downloadBuyerQuotePdf()">⬇ Download Quote for Buyer</button>
+          <button class="final-action-btn" onclick="openLockQuoteFlow()">🔒 Lock Costing</button>
         </div>
         <div id="lockQuoteFlow" style="display:none; margin-top:14px; border:1px solid var(--line); padding:14px;">
           <h3 style="margin-top:0; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:var(--thread);">Lock this quote for admin approval</h3>
@@ -806,6 +824,7 @@
           </div>
           <div id="lockQuoteWarn" class="warn" style="display:none;"></div>
         </div>
+        <div class="card-footer"><button class="edit-btn workflow-back" onclick="goToCalcPage(6,true)">← Back to Packaging</button></div>
       </div>
     </div>
 
@@ -2147,7 +2166,7 @@ function renderAllMasterTables(){
 
 /* ================= CALCULATOR ================= */
 let CURRENT_CALC_PAGE = 1;
-const CALC_CARD_PAGE = {cardCustomer:1,stitchedFields:2,areaFields:2,stitchedProcessFields:3,loadabilityCard:4,cardLoadability:5,cardPackaging:6};
+const CALC_CARD_PAGE = {cardCustomer:1,stitchedFields:2,areaFields:2,stitchedProcessFields:3,loadabilityCard:4,cardLoadability:5,cardPackaging:6,cardFinalActions:7};
 function pageCardFor(page){
   const product = document.getElementById("product").value;
   if (page === 2) return document.getElementById(STITCHED_PRODUCTS.includes(product) ? "stitchedFields" : "areaFields");
@@ -2171,6 +2190,11 @@ function refreshCalcWorkflowLocks(){
     const target = pageCardFor(Number(button.dataset.page));
     button.classList.toggle("locked", !target || target.classList.contains("wizard-locked"));
   });
+}
+function goToPreviousCalcPage(page){
+  const product = document.getElementById("product").value;
+  const previous = Number(page) === 4 && !STITCHED_PRODUCTS.includes(product) ? 2 : Math.max(1, Number(page)-1);
+  goToCalcPage(previous, true);
 }
 document.querySelectorAll("#calcWorkflowNav .calc-step").forEach(button=>button.addEventListener("click",()=>goToCalcPage(button.dataset.page)));
 /* ---- Card-by-card save/edit workflow: collapse a finished card, reveal the next one(s) ----
@@ -2250,18 +2274,13 @@ async function saveCustomerCard(){
 
 function saveCard(cardId, nextIds){
   const card = document.getElementById(cardId);
-  const body = document.getElementById(cardId+"Body");
-  if (body) body.style.display = "none";
-  const saveBtn = card.querySelector(".save-btn");
-  if (saveBtn) saveBtn.style.display = "none";
-  card.querySelector(".edit-btn").style.display = "inline-block";
-  card.querySelector(".saved-note").style.display = "inline";
+  card.classList.add("workflow-completed");
   (nextIds||[]).forEach(id=>{
     const next = document.getElementById(id);
     if (next) next.classList.remove("wizard-locked");
   });
   refreshCalcWorkflowLocks();
-  const nextPage = {cardCustomer:2,stitchedFields:3,areaFields:4,stitchedProcessFields:4,loadabilityCard:5,cardLoadability:6}[cardId];
+  const nextPage = {cardCustomer:2,stitchedFields:3,areaFields:4,stitchedProcessFields:4,loadabilityCard:5,cardLoadability:6,cardPackaging:7}[cardId];
   if (nextPage) goToCalcPage(nextPage, true);
 }
 function editCard(cardId){
@@ -2270,8 +2289,8 @@ function editCard(cardId){
   if (body) body.style.display = "block";
   const saveBtn = card.querySelector(".save-btn");
   if (saveBtn) saveBtn.style.display = "inline-block";
-  card.querySelector(".edit-btn").style.display = "none";
-  card.querySelector(".saved-note").style.display = "none";
+  card.querySelector(".edit-btn")?.style && (card.querySelector(".edit-btn").style.display = "none");
+  if (card.querySelector(".saved-note")) card.querySelector(".saved-note").style.display = "none";
   goToCalcPage(CALC_CARD_PAGE[cardId] || 1, true);
   // re-derive any nested field visibility that depends on current selections
   // (front/back mode, product type, etc.) rather than assuming it's still correct
@@ -3242,6 +3261,38 @@ document.getElementById("backConstruction").addEventListener("change", ()=>{
 });
 document.getElementById("backTargetWeight").addEventListener("input", ()=>renderYarnMixUI("back"));
 
+let QUOTE_PHOTO_DATA = "";
+let QUOTE_PHOTO_NAME = "";
+function handleQuotePhoto(input){
+  const file = input.files?.[0];
+  const status = document.getElementById("quotePhotoStatus");
+  const preview = document.getElementById("quotePhotoPreview");
+  if (!file){ QUOTE_PHOTO_DATA=""; QUOTE_PHOTO_NAME=""; preview.style.display="none"; status.textContent="No photo attached."; return; }
+  if (!file.type.startsWith("image/")){ input.value=""; status.textContent="Please select an image file."; return; }
+  status.textContent = "Preparing photo...";
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    const image = new Image();
+    image.onload = ()=>{
+      const maxSide = 900;
+      const scale = Math.min(1, maxSide/Math.max(image.width,image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1,Math.round(image.width*scale));
+      canvas.height = Math.max(1,Math.round(image.height*scale));
+      canvas.getContext("2d").drawImage(image,0,0,canvas.width,canvas.height);
+      QUOTE_PHOTO_DATA = canvas.toDataURL("image/jpeg",.72);
+      QUOTE_PHOTO_NAME = file.name;
+      preview.src = QUOTE_PHOTO_DATA;
+      preview.style.display = "block";
+      status.textContent = `✓ ${file.name} attached to this costing.`;
+    };
+    image.onerror = ()=>{ status.textContent="Unable to read this image."; };
+    image.src = reader.result;
+  };
+  reader.onerror = ()=>{ status.textContent="Unable to read this image."; };
+  reader.readAsDataURL(file);
+}
+
 function printSummary(){
   const s = window.lastQuoteSummary;
   if (!s){ alert("Calculate a price first."); return; }
@@ -3261,7 +3312,8 @@ function printSummary(){
       .total{ font-size:1.3rem; font-weight:bold; margin-top:18px; border-top:2px solid #111111; padding-top:10px; }
       .totalpc{ font-size:1rem; color:#555; }
     </style></head><body>
-    <h1>Rugs Creation — Price Summary</h1>
+    <h1>Rugs Creation — Internal Costing</h1>
+    ${QUOTE_PHOTO_DATA ? `<img src="${QUOTE_PHOTO_DATA}" style="max-width:220px;max-height:170px;object-fit:contain;border:1px solid #ccc;margin:8px 0 12px;">` : ""}
     <div class="meta">Date: ${new Date().toLocaleDateString()} &nbsp; | &nbsp; Prepared by: ${s.staff}</div>
     <div class="meta">Customer: <strong>${s.customer}</strong></div>
     <div class="meta">Product: <strong>${s.product.replace('_',' ')}</strong> &nbsp; Size: ${sizeText} &nbsp; ${qtyLabel}: ${s.qty}</div>
@@ -3304,6 +3356,7 @@ function downloadQuotePdf(){
   ];
   let y = 30;
   details.forEach(([label,value])=>{ doc.setFont("helvetica","bold"); doc.text(label+":",14,y); doc.setFont("helvetica","normal"); doc.text(String(value),48,y); y+=6; });
+  if (QUOTE_PHOTO_DATA){ try{ doc.addImage(QUOTE_PHOTO_DATA,"JPEG",145,28,48,40,undefined,"FAST"); }catch(error){ console.warn("Photo could not be added to PDF",error); } }
   const rows = s.lineItems.map((item,index)=>[String(index+1),item.label,`INR ${item.amount.toFixed(2)}`]);
   if (typeof doc.autoTable === "function"){
     doc.autoTable({startY:y+3,head:[["#","Cost component","Amount"]],body:rows,theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[25,25,25]}});
@@ -3319,6 +3372,27 @@ function downloadQuotePdf(){
   doc.text(`Quantity: ${s.qty}`,14,y+7);
   doc.text(`Total order value: USD ${s.totalUsd.toFixed(2)}`,14,y+14);
   doc.save(`${safeName}_Quote.pdf`);
+  void saveToHistory();
+}
+
+function downloadInternalCosting(){ downloadQuotePdf(); }
+function downloadBuyerQuotePdf(){
+  const s = window.lastQuoteSummary;
+  if (!s){ alert("Calculate a price first."); return; }
+  if (!window.jspdf?.jsPDF){ alert("The PDF library is still loading. Please try again in a moment."); return; }
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({unit:"mm",format:"a4"});
+  const safeName = (s.customer||"Buyer_Quote").replace(/[^a-z0-9]+/gi,"_").replace(/^_+|_+$/g,"") || "Buyer_Quote";
+  const productLabels={cushion_cover:"Cushion Cover",filled_cushion:"Filled Cushion",floor_cushion:"Floor Cushion",chair_pad:"Chair Pad",pouf:"Pouf",throw:"Throw",carpet_rug:"Carpet / Rug",bath_mat:"Bath Mat"};
+  const sizeText=s.H?`${s.L} × ${s.W} × ${s.H} cm`:`${s.L} × ${s.W} cm`;
+  doc.setFillColor(25,25,25); doc.rect(0,0,210,30,"F");
+  doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(19); doc.text("RUGS CREATION",14,19);
+  doc.setTextColor(25,25,25); doc.setFontSize(15); doc.text("BUYER QUOTATION",14,43);
+  let y=54; const rows=[["Article No",s.articleNo||"—"],["Buyer",s.customer||"—"],["Product",productLabels[s.product]||s.product||"—"],["Size",sizeText],["Quantity",String(s.qty||0)],["Price",`USD ${s.fobUsd.toFixed(2)} / ${s.isSqmMode?"sqm":"piece"}`],["Total order value",`USD ${s.totalUsd.toFixed(2)}`],["Date",new Date().toLocaleDateString()]];
+  rows.forEach(([label,value])=>{doc.setFont("helvetica","bold");doc.text(label,14,y);doc.setFont("helvetica","normal");doc.text(String(value),62,y);doc.setDrawColor(220);doc.line(14,y+2,196,y+2);y+=10;});
+  if (QUOTE_PHOTO_DATA){ try{doc.addImage(QUOTE_PHOTO_DATA,"JPEG",45,y+5,120,85,undefined,"FAST");}catch(error){} }
+  doc.setFontSize(9); doc.setTextColor(100); doc.text("Thank you for your inquiry.",14,285);
+  doc.save(`${safeName}_Buyer_Quote.pdf`);
   void saveToHistory();
 }
 
@@ -3419,12 +3493,12 @@ function downloadQuote(){
 }
 
 function savePackagingCard(){
-  saveCard("cardPackaging", []);
-  document.getElementById("quoteActionBoxes").style.display = "grid";
+  const finalCard = document.getElementById("cardFinalActions");
+  finalCard.classList.remove("wizard-locked");
+  saveCard("cardPackaging", ["cardFinalActions"]);
 }
 function editPackagingCard(){
   editCard("cardPackaging");
-  document.getElementById("quoteActionBoxes").style.display = "none";
   document.getElementById("lockQuoteFlow").style.display = "none";
 }
 function openLockQuoteFlow(){
@@ -3454,6 +3528,8 @@ async function submitLockForApproval(){
     articleNo, customer: s.customer, product: s.product,
     date: new Date().toLocaleDateString(), staff: name,
     fobUsd: s.fobUsd, qty: s.qty,
+    photoData: QUOTE_PHOTO_DATA || "",
+    photoName: QUOTE_PHOTO_NAME || "",
     status: "Pending Approval",
   });
   warnEl.style.display = "block";
@@ -3465,7 +3541,7 @@ async function submitLockForApproval(){
     return;
   }
   renderMasterTable("articleMaster");
-  document.getElementById("lockQuoteFlow").innerHTML = `<div class="hint" style="font-weight:bold;">✓ Locked quote saved — Article No ${articleNo}. It is now in Master Data → Locked Quotes. Starting a fresh costing...</div>`;
+  document.getElementById("lockQuoteFlow").innerHTML = `<div class="hint" style="font-weight:bold;">✓ Locked costing saved — Article No ${articleNo}. It is now in Admin → Locked Quotes. Starting a fresh costing...</div>`;
   setTimeout(()=>location.reload(), 1200);
 }
 
@@ -4255,6 +4331,8 @@ async function saveToHistory(){
     totalUsd: document.getElementById("outTotalUsd").textContent,
     visibleCostInr: document.getElementById("mVisible").textContent,
     marginPct: document.getElementById("mCat").textContent,
+    photoData: QUOTE_PHOTO_DATA || "",
+    photoName: QUOTE_PHOTO_NAME || "",
   };
   note.textContent = "Saving...";
   const recordId = Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
