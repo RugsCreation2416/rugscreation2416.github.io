@@ -1777,7 +1777,7 @@ document.getElementById("loginForm").addEventListener("submit", async event=>{
         lastLoginAt:firebase.firestore.FieldValue.serverTimestamp(),
         loginCount:firebase.firestore.FieldValue.increment(1),
         loginHistory:firebase.firestore.FieldValue.arrayUnion(loginTime)
-      });
+      }).catch(historyError=>console.warn("Sign-in history could not be recorded:", historyError));
       await ensureAuthenticatedSession("employee", profile, credential.user);
     }
     error.textContent = "";
