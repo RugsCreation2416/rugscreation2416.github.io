@@ -275,6 +275,10 @@
   #view-calc input:disabled{background:#e9edef;color:#111;font-weight:800;border-color:#aeb5bb;opacity:1;}
   #view-calc .out-line{font-size:.9rem;padding:7px 0;}
   #view-calc .out-line span:last-child{font-weight:800;color:#111;}
+  .raw-material-grand-total{display:flex;justify-content:space-between;align-items:center;gap:20px;background:linear-gradient(135deg,#17191b,#343a40);color:#fff;border-radius:9px;padding:16px 18px;margin-top:18px;box-shadow:0 7px 18px rgba(20,24,27,.2);}
+  .raw-material-grand-total .total-label{font-size:.88rem;font-weight:800;text-transform:uppercase;letter-spacing:.65px;}
+  .raw-material-grand-total .total-note{font-size:.74rem;color:#d6dadd;margin-top:4px;}
+  .raw-material-grand-total strong{font-size:1.55rem;white-space:nowrap;}
   @media(max-width:650px){.final-actions-grid{grid-template-columns:1fr}.card-footer{flex-wrap:wrap}.workflow-back,.workflow-next,.workflow-submit{flex:1}}
   @media(min-width:901px){#view-calc:not(.calc-page-expanded) .calc-workflow{margin-right:430px;}}
   @media(max-width:900px){.calc-workflow{grid-template-columns:repeat(3,1fr)}.yarn-cost-grid{grid-template-columns:1fr 1fr}.dyeing-row{grid-template-columns:1fr}}
@@ -576,7 +580,9 @@
               <div class="construction-price-box"><div><div class="price-label">Calculated back construction price</div><div class="hint" id="backConstructionAreaHint">Choose a construction to calculate its price.</div></div><strong id="backConstructionCostDisplay">₹0.00</strong></div>
             </fieldset>
           </div>
+          <div class="construction-price-box" id="backSameCalculatedBox" style="display:none;"><div><div class="price-label">Back cost copied from front</div><div class="hint" id="backSameCalculatedHint">Front and back use the same material and construction.</div></div><strong id="backSameCalculatedDisplay">₹0.00</strong></div>
         </fieldset>
+        <div class="raw-material-grand-total"><div><div class="total-label">Total Raw Material Price</div><div class="total-note">Complete raw material cost for this piece, including front and back.</div></div><strong id="rawMaterialPageTotalDisplay">₹0.00</strong></div>
         </div>
         <div class="card-footer">
           <button class="edit-btn workflow-back" onclick="goToCalcPage(1,true)">← Back</button>
@@ -703,6 +709,7 @@
           </div>
           <button class="addrow" onclick="addProcessRow('area')">+ Add process line</button>
         </fieldset>
+        <div class="raw-material-grand-total"><div><div class="total-label">Total Raw Material Price</div><div class="total-note">Complete raw material cost for this piece.</div></div><strong id="areaRawMaterialPageTotalDisplay">₹0.00</strong></div>
         </div>
         <div class="card-footer">
           <button class="edit-btn workflow-back" onclick="goToCalcPage(1,true)">← Back</button>
@@ -3556,6 +3563,7 @@ function calculate(){
   document.getElementById("areaDisplay").value = area.toFixed(4);
 
   let rawMaterial=0, processCost=0, packCost=0;
+  let sameBackActive=false, sameBackMaterialCost=0, sameBackConstructionCost=0;
   let warnings=[];
   let lineItems=[];
 
@@ -3655,6 +3663,9 @@ function calculate(){
     // construction/weaving. Stitching, zipper and unrelated processes stay single charges.
     if (!NO_BACK_FABRIC.includes(product)){
       if (bottomSame){
+        sameBackActive = true;
+        sameBackMaterialCost = frontMaterialCost;
+        sameBackConstructionCost = frontConstructionCost;
         rawMaterial += frontMaterialCost;
         if (frontMaterialCost>0) lineItems.push({label:`Back material — same as front`, amount:frontMaterialCost});
         processCost += frontConstructionCost;
@@ -3889,6 +3900,14 @@ function calculate(){
     ? lineItems.map(li=>`<div class="out-line"><span class="lbl">${li.label}</span><span>₹${li.amount.toFixed(2)}</span></div>`).join("")
     : `<div class="hint">Nothing added yet.</div>`;
   document.getElementById("mRaw").textContent = "₹"+rawMaterial.toFixed(2);
+  document.getElementById("rawMaterialPageTotalDisplay").textContent = "₹"+rawMaterial.toFixed(2);
+  document.getElementById("areaRawMaterialPageTotalDisplay").textContent = "₹"+rawMaterial.toFixed(2);
+  const sameBackBox = document.getElementById("backSameCalculatedBox");
+  sameBackBox.style.display = sameBackActive ? "flex" : "none";
+  if (sameBackActive){
+    document.getElementById("backSameCalculatedDisplay").textContent = "₹"+(sameBackMaterialCost+sameBackConstructionCost).toFixed(2);
+    document.getElementById("backSameCalculatedHint").textContent = `Material ₹${sameBackMaterialCost.toFixed(2)} + construction ₹${sameBackConstructionCost.toFixed(2)} — copied internally from the front.`;
+  }
   document.getElementById("mProc").textContent = "₹"+processCost.toFixed(2);
   document.getElementById("mPack").textContent = "₹"+packAndFwd.toFixed(2);
   document.getElementById("mTest").textContent = "₹"+testingCost.toFixed(2);
