@@ -229,6 +229,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -390,7 +392,7 @@
       </div>
 
       <div class="card wizard-locked" id="stitchedFields">
-        <h2>4 · Fabric</h2>
+        <h2>2 · Fabric</h2>
         <div class="card-body" id="stitchedFieldsBody">
         <fieldset>
           <legend>Front construction</legend>
@@ -512,7 +514,7 @@
       </div>
 
       <div class="card wizard-locked" id="stitchedProcessFields">
-        <h2>5 · Process</h2>
+        <h2>3 · Process</h2>
         <div class="card-body" id="stitchedProcessFieldsBody">
         <div class="warn" style="display:block; margin-bottom:14px;">
           <label class="chk" style="margin:0;"><input type="checkbox" id="editAutoRates"> Edit automatic rates for this costing</label>
@@ -555,7 +557,7 @@
         <fieldset id="fixedStitchingFieldset" style="display:none;">
           <legend>Stitching &amp; Cutting</legend>
           <div class="row">
-            <div><label>Stitching &amp; cutting rate ₹/piece</label><input type="number" id="fixedStitchingDisplay" min="0" step="0.01" disabled></div>
+            <div><label>Stitching &amp; cutting rate ₹/piece</label><input type="number" id="fixedStitchingDisplay" min="0" step="0.01" disabled><label class="chk"><input type="checkbox" id="editFixedStitchingRate"> Change this rate for this quote</label></div>
             <div></div>
           </div>
         </fieldset>
@@ -579,7 +581,7 @@
       </div>
 
       <div class="card wizard-locked" id="areaFields" style="display:none;">
-        <h2>4 · Raw Material, Construction, Backing &amp; Binding</h2>
+        <h2>2 · Raw Material, Construction, Backing &amp; Binding</h2>
         <div class="card-body" id="areaFieldsBody">
         <div class="warn" style="display:block; margin-bottom:14px;">
           <label class="chk" style="margin:0;"><input type="checkbox" id="editAutoRatesArea"> Edit automatic rates for this costing</label>
@@ -641,7 +643,7 @@
       </div>
 
       <div class="card wizard-locked" id="loadabilityCard">
-        <h2>6 · Order Quantity</h2>
+        <h2>4 · Order Quantity</h2>
         <div class="card-body" id="loadabilityCardBody">
         <div class="row">
           <div><label for="qty" id="qtyLabel">Order Quantity (pcs)</label><input type="number" id="qty" placeholder="e.g. 100"></div>
@@ -658,7 +660,7 @@
       </div>
 
       <div class="card wizard-locked" id="cardLoadability">
-        <h2>7 · Container Loadability</h2>
+        <h2>5 · Container Loadability</h2>
         <div class="card-body" id="cardLoadabilityBody">
         <div id="loadabilityCheckboxLabel" style="font-weight:bold; margin-bottom:10px;">Packed Carton Dimension:-</div>
         <div id="loadabilityInputs">
@@ -693,7 +695,7 @@
       </div>
 
       <div class="card wizard-locked" id="cardPackaging">
-        <h2>8 · Packaging &amp; Forwarding</h2>
+        <h2>6 · Packaging &amp; Forwarding</h2>
         <div class="card-body" id="cardPackagingBody">
         <div class="row" id="packingMethodRow" style="display:none;">
           <div><label for="packingMethod">Packing method</label>
@@ -728,7 +730,7 @@
           <span class="saved-note" style="display:none;">✓ Saved — quote ready below</span>
         </div>
         <div id="quoteActionBoxes" style="display:none; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px;">
-          <button class="addrow" style="padding:12px 8px;" onclick="downloadQuote()">⬇ Download the Quote</button>
+          <button class="addrow" style="padding:12px 8px;" onclick="downloadQuotePdf()">⬇ Download PDF Quote</button>
           <button class="addrow" style="padding:12px 8px;" onclick="printSummary()">🖨 Print the Summary</button>
           <button class="addrow" style="padding:12px 8px;" onclick="openLockQuoteFlow()">🔒 Lock the Quote</button>
         </div>
@@ -829,7 +831,7 @@
       <button class="mtab-btn" data-m="backings">Backings</button>
       <button class="mtab-btn" data-m="cartonBoards">Carton Boards</button>
       <button class="mtab-btn" data-m="zipperTypes">Zippers</button>
-      <button class="mtab-btn" data-m="articleMaster">Articles</button>
+      <button class="mtab-btn" data-m="articleMaster">Locked Quotes</button>
       <button class="mtab-btn" data-m="stitchingCuttingPrices">Stitching &amp; Cutting</button>
       <button class="mtab-btn" data-m="packaging">Packaging</button>
       <button class="mtab-btn" data-m="forwardingRates">Forwarding</button>
@@ -910,8 +912,8 @@
   </div>
 
   <div class="card mastersection" id="master-articleMaster">
-    <h2>Article Master</h2>
-    <div class="hint">Reference record of costings that have been deliberately "locked" from the Calculator's Result panel — not every quote, just the ones someone chose to file here. When a merchandiser types a matching Article No on a new quote, they'll see who costed it, when, and the final price, so nobody re-does the same article blind. Note: there's no real login system here, so "locking" is a team-trust convention, not enforced access control — anyone can still edit these rows directly if a correction is needed.</div>
+    <h2>Locked Quote Approvals</h2>
+    <div class="hint">Quotes submitted with “Lock the Quote” appear here for the administrator. Review the costing and change its status to Approved or Rejected.</div>
     <div class="tablewrap"><table id="tbl-articleMaster"></table></div>
     <button class="addrow" onclick="addRow('articleMaster',{articleNo:'',customer:'',product:'',date:new Date().toLocaleDateString(),staff:'',fobUsd:0,qty:0})">+ Add record manually</button>
   </div>
@@ -2197,7 +2199,7 @@ const priceOverride = { front: null, back: null };
 let AUTO_RATE_EDITING = false;
 function setAutoRateEditing(enabled){
   AUTO_RATE_EDITING = enabled;
-  ["editAutoRates","editAutoRatesArea"].forEach(id=>{
+  ["editAutoRates","editAutoRatesArea","editFixedStitchingRate"].forEach(id=>{
     const checkbox = document.getElementById(id);
     if (checkbox) checkbox.checked = enabled;
   });
@@ -2213,7 +2215,7 @@ function setAutoRateEditing(enabled){
   if (!enabled) toggleProductFields();
   else calculate();
 }
-["editAutoRates","editAutoRatesArea"].forEach(id=>{
+["editAutoRates","editAutoRatesArea","editFixedStitchingRate"].forEach(id=>{
   document.getElementById(id).addEventListener("change", event=>setAutoRateEditing(event.target.checked));
 });
 ["fixedStitchingDisplay","packagingRate","backingRate","forwardingManual"].forEach(id=>{
@@ -3089,6 +3091,50 @@ function printSummary(){
   setTimeout(()=>win.print(), 300);
 }
 
+function downloadQuotePdf(){
+  const s = window.lastQuoteSummary;
+  if (!s){ alert("Calculate a price first."); return; }
+  if (!window.jspdf?.jsPDF){ alert("The PDF library is still loading. Please try again in a moment."); return; }
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({unit:"mm",format:"a4"});
+  const safeName = (s.customer||"Quote").replace(/[^a-z0-9]+/gi,"_").replace(/^_+|_+$/g,"") || "Quote";
+  const sizeText = s.H ? `${s.L} × ${s.W} × ${s.H} cm` : `${s.L} × ${s.W} cm`;
+  const unitLabel = s.isSqmMode ? "sqm" : "piece";
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(18);
+  doc.text("RUGS CREATION — COSTING QUOTE", 14, 18);
+  doc.setDrawColor(35);
+  doc.line(14,22,196,22);
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(10);
+  const details = [
+    ["Article No", document.getElementById("articleNo").value.trim() || "—"],
+    ["Customer", s.customer || "—"],
+    ["Product", s.product || "—"],
+    ["Size", sizeText],
+    ["Costed by", document.getElementById("staffName").value.trim() || "—"],
+    ["Date", new Date().toLocaleDateString()],
+  ];
+  let y = 30;
+  details.forEach(([label,value])=>{ doc.setFont("helvetica","bold"); doc.text(label+":",14,y); doc.setFont("helvetica","normal"); doc.text(String(value),48,y); y+=6; });
+  const rows = s.lineItems.map((item,index)=>[String(index+1),item.label,`INR ${item.amount.toFixed(2)}`]);
+  if (typeof doc.autoTable === "function"){
+    doc.autoTable({startY:y+3,head:[["#","Cost component","Amount"]],body:rows,theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[25,25,25]}});
+    y = doc.lastAutoTable.finalY + 9;
+  } else {
+    rows.slice(0,25).forEach(row=>{ doc.text(`${row[0]}. ${row[1]} — ${row[2]}`,14,y); y+=5; });
+    y += 4;
+  }
+  if (y > 260){ doc.addPage(); y=20; }
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(12);
+  doc.text(`Final FOB: USD ${s.fobUsd.toFixed(2)} / ${unitLabel}`,14,y);
+  doc.text(`Quantity: ${s.qty}`,14,y+7);
+  doc.text(`Total order value: USD ${s.totalUsd.toFixed(2)}`,14,y+14);
+  doc.save(`${safeName}_Quote.pdf`);
+  void saveToHistory();
+}
+
 function downloadQuote(){
   const s = window.lastQuoteSummary;
   if (!s){ alert("Calculate a price first."); return; }
@@ -3199,7 +3245,7 @@ function openLockQuoteFlow(){
   const nameField = document.getElementById("lockStaffName");
   if (!nameField.value) nameField.value = document.getElementById("staffName").value || "";
 }
-function submitLockForApproval(){
+async function submitLockForApproval(){
   const s = window.lastQuoteSummary;
   const warnEl = document.getElementById("lockQuoteWarn");
   if (!s){ warnEl.style.display="block"; warnEl.textContent="Calculate a price first."; return; }
@@ -3217,14 +3263,23 @@ function submitLockForApproval(){
   }
   warnEl.style.display = "none";
   DB.articleMaster.push({
+    id: Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8),
     articleNo, customer: s.customer, product: s.product,
     date: new Date().toLocaleDateString(), staff: name,
     fobUsd: s.fobUsd, qty: s.qty,
     status: "Pending Approval",
   });
-  saveDB();
+  warnEl.style.display = "block";
+  warnEl.textContent = "Saving locked quote to the Admin portal...";
+  const cloudSaved = await saveDB();
+  if (!cloudSaved){
+    DB.articleMaster.pop();
+    warnEl.textContent = "The quote could not be synced to Firebase, so the calculator was not reset. Please check the connection and try again.";
+    return;
+  }
   renderMasterTable("articleMaster");
-  document.getElementById("lockQuoteFlow").innerHTML = `<div class="hint" style="font-weight:bold;">✓ Submitted for admin approval — Article No ${articleNo}, by ${name}. The admin can approve or reject this in Master Data → Articles.</div>`;
+  document.getElementById("lockQuoteFlow").innerHTML = `<div class="hint" style="font-weight:bold;">✓ Locked quote saved — Article No ${articleNo}. It is now in Master Data → Locked Quotes. Starting a fresh costing...</div>`;
+  setTimeout(()=>location.reload(), 1200);
 }
 
 function calculate(){
