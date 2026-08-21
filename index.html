@@ -257,6 +257,9 @@
   .yarn-cost-grid{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:9px;align-items:end;}
   .dyeing-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end;border-top:1px solid #e0e3e5;padding-top:10px;margin-top:3px;}
   .yarn-total{display:flex;justify-content:space-between;align-items:center;background:#25282b;color:#fff;border-radius:5px;padding:10px 12px;margin-top:9px;font-weight:800;}
+  .yarn-add-button{display:inline-flex;align-items:center;justify-content:center;min-width:155px;min-height:48px;padding:12px 22px!important;background:#25282b!important;color:#fff!important;border:2px solid #25282b!important;border-radius:7px!important;font-size:.92rem!important;font-weight:800!important;box-shadow:0 5px 14px rgba(25,27,29,.2);transition:transform .15s,box-shadow .15s;}
+  .yarn-add-button:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(25,27,29,.28);}
+  .yarn-add-button + .hint{font-size:.82rem;line-height:1.5;margin-top:3px;color:#555;}
   @media(min-width:901px){#view-calc:not(.calc-page-expanded) .calc-workflow{margin-right:430px;}}
   @media(max-width:900px){.calc-workflow{grid-template-columns:repeat(3,1fr)}.yarn-cost-grid{grid-template-columns:1fr 1fr}.dyeing-row{grid-template-columns:1fr}}
   @media(max-width:520px){.calc-workflow{grid-template-columns:1fr 1fr}.yarn-cost-grid{grid-template-columns:1fr}}
@@ -465,7 +468,7 @@
             <div></div>
           </div>
           <div id="frontYarnRows"></div>
-          <button class="addrow" onclick="addYarnMixRow('front')">+ Add yarn</button>
+          <button class="addrow yarn-add-button" onclick="addYarnMixRow('front')">＋ Add Yarn</button>
           <div class="hint">Don't know the exact split between yarns? Add one line using "Custom yarn" with your best average weight and average blended rate instead.</div>
           <div class="row row3">
             <div><label for="frontConstruction">Construction (weaving / knitting / tufting)</label><select id="frontConstruction"></select></div>
@@ -544,7 +547,7 @@
                 <div></div>
               </div>
               <div id="backYarnRows"></div>
-              <button class="addrow" onclick="addYarnMixRow('back')">+ Add yarn</button>
+              <button class="addrow yarn-add-button" onclick="addYarnMixRow('back')">＋ Add Yarn</button>
               <div class="row row3">
                 <div><label for="backConstruction">Construction (weaving / knitting / tufting)</label><select id="backConstruction"></select></div>
                 <div><label for="backConstructionBasis">Rate is per...</label>
