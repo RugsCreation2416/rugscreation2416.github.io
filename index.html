@@ -1860,9 +1860,51 @@ let CURRENT_PROFILE = null;
 let AUTH_MODE = "login";
 let AUTH_SESSION_PROMISE = null;
 let COSTING_WORKSPACE_ENTERED = false;
+let LOGIN_WELCOME_SPOKEN = false;
+let LOGIN_WELCOME_PENDING = false;
 
 function normalizeUsername(name){
   return String(name || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, ".").replace(/^\.+|\.+$/g, "");
+}
+
+function speakLoginWelcome(force=false){
+  if(LOGIN_WELCOME_SPOKEN||(!force&&LOGIN_WELCOME_PENDING)||!("speechSynthesis" in window)||typeof SpeechSynthesisUtterance==="undefined")return;
+  LOGIN_WELCOME_PENDING=true;
+  const hour=new Date().getHours();
+  const greeting=hour>=5&&hour<12?"Good morning":hour>=12&&hour<17?"Good afternoon":"Good evening";
+  const name=String(CURRENT_PROFILE?.full_name||CURRENT_USER?.userId||"Team Member").trim();
+  const message=new SpeechSynthesisUtterance(`${greeting}, ${name}. Welcome to the Rugs Creation costing dashboard.`);
+  message.lang="en-IN";message.rate=.92;message.pitch=1;message.volume=1;
+  const voices=window.speechSynthesis.getVoices();
+  message.voice=voices.find(voice=>voice.lang==="en-IN")||voices.find(voice=>voice.lang.startsWith("en"))||null;
+  const retryAfterInteraction=()=>{
+    document.removeEventListener("pointerdown",retryAfterInteraction);
+    document.removeEventListener("keydown",retryAfterInteraction);
+    if(!LOGIN_WELCOME_SPOKEN){LOGIN_WELCOME_PENDING=false;speakLoginWelcome(true);}
+  };
+  message.onstart=()=>{LOGIN_WELCOME_SPOKEN=true;LOGIN_WELCOME_PENDING=false;document.removeEventListener("pointerdown",retryAfterInteraction);document.removeEventListener("keydown",retryAfterInteraction);};
+  message.onerror=()=>{LOGIN_WELCOME_PENDING=false;};
+  document.addEventListener("pointerdown",retryAfterInteraction,{once:true});
+  document.addEventListener("keydown",retryAfterInteraction,{once:true});
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.resume();
+  window.setTimeout(()=>window.speechSynthesis.speak(message),180);
+}
+
+function speakLogoutFarewell(){
+  if(!("speechSynthesis" in window)||typeof SpeechSynthesisUtterance==="undefined")return Promise.resolve();
+  const evening=new Date().getHours()>=17;
+  const name=String(CURRENT_PROFILE?.full_name||CURRENT_USER?.userId||"").trim();
+  const message=new SpeechSynthesisUtterance(`Goodbye${name?", "+name:""}. ${evening?"Have a good evening.":"Have a nice day."}`);
+  message.lang="en-IN";message.rate=.92;message.pitch=1;message.volume=1;
+  const voices=window.speechSynthesis.getVoices();
+  message.voice=voices.find(voice=>voice.lang==="en-IN")||voices.find(voice=>voice.lang.startsWith("en"))||null;
+  return new Promise(resolve=>{
+    let finished=false;const done=()=>{if(finished)return;finished=true;resolve();};
+    message.onend=done;message.onerror=done;
+    window.speechSynthesis.cancel();window.speechSynthesis.resume();window.speechSynthesis.speak(message);
+    window.setTimeout(done,3200);
+  });
 }
 function usernameEmail(username){ return normalizeUsername(username) + "@" + USER_EMAIL_DOMAIN; }
 
@@ -2081,6 +2123,7 @@ async function finishAuthenticatedSession(role, cloudProfile=null, firebaseUser=
   startHistoryRealtime();
   if (canManageUserAccess()) startUserDirectoryRealtime();
   renderWelcomeDashboard(); renderApprovalQueue();
+  speakLoginWelcome();
 }
 
 async function changeMyPassword(){
@@ -2244,6 +2287,7 @@ if (FIREBASE_AUTH){
 }
 
 document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+  await speakLogoutFarewell();
   if (FIREBASE_AUTH) await FIREBASE_AUTH.signOut();
   location.reload();
 });
