@@ -1967,11 +1967,56 @@ function rugsLocalAnswer(question){
   if(q.includes("exchange")||q.includes("usd"))return `This costing uses ₹${Number(s.fx||0).toFixed(2)} per USD. Change it on the Final page; the summary and PDFs will recalculate automatically.`;
   return "The Rugs interface is ready, but unrestricted AI answers require the secure server endpoint. I can currently explain the active price, summarize the costing, identify missing information and explain the exchange rate.";
 }
+const RUGS_PRIVATE_KEY_PATTERN=/(password|passwd|pwd|secret|token|api.?key|email|mobile|phone|uid|firebase|credential)/i;
+function sanitizeRugsValue(value,depth=0){
+  if(depth>7||value===undefined||typeof value==="function")return undefined;
+  if(value===null||typeof value==="string"||typeof value==="number"||typeof value==="boolean")return value;
+  if(Array.isArray(value))return value.map(item=>sanitizeRugsValue(item,depth+1)).filter(item=>item!==undefined);
+  if(typeof value==="object"){
+    const clean={};
+    Object.entries(value).forEach(([key,item])=>{
+      if(RUGS_PRIVATE_KEY_PATTERN.test(key))return;
+      const safe=sanitizeRugsValue(item,depth+1);if(safe!==undefined)clean[key]=safe;
+    });
+    return clean;
+  }
+  return undefined;
+}
+function buildRugsDashboardContext(question){
+  const profile=CURRENT_PROFILE||{};
+  const history=typeof visibleHistoryRecords==="function"?visibleHistoryRecords():[];
+  return {
+    snapshotType:"Rugs Creation dashboard knowledge",
+    generatedAt:new Date().toISOString(),
+    question:String(question||""),
+    signedInUser:{
+      name:profile.full_name||CURRENT_USER?.userId||"Team Member",
+      role:profile.role||"employee",
+      teamLeadName:profile.teamLeadName||"",
+      permissions:sanitizeRugsValue(profile.permissions||{})
+    },
+    activeCosting:sanitizeRugsValue(window.lastQuoteSummary||null),
+    masterDatabase:sanitizeRugsValue(typeof DB!=="undefined"?DB:{}),
+    accessibleCostingHistory:history.slice(-100).map(record=>sanitizeRugsValue({
+      when:record.ts,merchant:record.staff||record.createdByName||"",customer:record.customer||"",
+      buyerCode:record.buyerCode||"",articleNo:record.articleNo||"",product:record.product||"",
+      size:record.size||"",fobUsd:record.fobUsd,approvalStatus:record.approvalStatus||"approved",
+      rejectionReason:record.rejectionReason||"",summary:record.summary||record.snapshot||null
+    })),
+    instructions:[
+      "Use only this dashboard snapshot for business facts, prices, rates, buyers, costings and approvals.",
+      "Search the masterDatabase by both item name and code before saying data is unavailable.",
+      "When quoting a rate, include its unit or basis when present.",
+      "Never invent a dashboard record; clearly say when no matching record exists.",
+      "Only accessibleCostingHistory is authorized for this signed-in user."
+    ]
+  };
+}
 async function sendRugsMessage(event){
   event?.preventDefault();const input=document.getElementById("rugsBotInput"),question=input.value.trim();if(!question)return;input.value="";addRugsMessage(question,"user");
   if(!RUGS_AI_ENDPOINT){addRugsMessage(rugsLocalAnswer(question));return;}
   const send=document.getElementById("rugsBotSend");send.disabled=true;
-  try{const response=await fetch(RUGS_AI_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:question,context:JSON.stringify(window.lastQuoteSummary||{})})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Assistant service unavailable");addRugsMessage(data.answer||"No answer was returned.");}catch(error){addRugsMessage(error.message||"Rugs could not respond.","error");}finally{send.disabled=false;}
+  try{const response=await fetch(RUGS_AI_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:question,context:JSON.stringify(buildRugsDashboardContext(question))})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Assistant service unavailable");addRugsMessage(data.answer||"No answer was returned.");}catch(error){addRugsMessage(error.message||"Rugs could not respond.","error");}finally{send.disabled=false;}
 }
 function askRugsQuick(question){document.getElementById("rugsBotInput").value=question;sendRugsMessage(new Event("submit"));}
 function closeMenuDrawer(){ document.body.classList.remove("menu-drawer-open"); document.getElementById("menuBtn")?.setAttribute("aria-expanded","false"); }
