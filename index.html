@@ -1107,7 +1107,7 @@
     </div>
     <div class="tablewrap" style="max-height:600px;"><table id="tbl-history"></table></div>
   </div>
-  <dialog id="historyQuoteDialog"><div class="quote-preview"><div id="historyQuotePreview"></div><div class="card-footer"><button class="save-btn" id="historyDialogDownloadBtn">⬇ Download Buyer Quote</button><button class="edit-btn" onclick="document.getElementById('historyQuoteDialog').close()">Close</button></div></div></dialog>
+  <dialog id="historyQuoteDialog"><div class="quote-preview"><div id="historyQuotePreview"></div><div class="card-footer"><button class="save-btn" id="historyDialogDownloadBtn">⬇ Download Full Costing</button><button class="edit-btn" onclick="document.getElementById('historyQuoteDialog').close()">Close</button></div></div></dialog>
 </div>
 
 <div class="view" id="view-profile">
@@ -3380,8 +3380,8 @@ function printSummary(){
   setTimeout(()=>win.print(), 300);
 }
 
-function downloadQuotePdf(){
-  const s = window.lastQuoteSummary;
+function downloadQuotePdf(summary=window.lastQuoteSummary, photoData=QUOTE_PHOTO_DATA, saveHistory=true){
+  const s = summary;
   if (!s){ alert("Calculate a price first."); return; }
   if (!window.jspdf?.jsPDF){ alert("The PDF library is still loading. Please try again in a moment."); return; }
   const {jsPDF} = window.jspdf;
@@ -3397,16 +3397,16 @@ function downloadQuotePdf(){
   doc.setFont("helvetica","normal");
   doc.setFontSize(10);
   const details = [
-    ["Article No", document.getElementById("articleNo").value.trim() || "—"],
+    ["Article No", s.articleNo || "—"],
     ["Customer", s.customer || "—"],
     ["Product", s.product || "—"],
     ["Size", sizeText],
-    ["Costed by", document.getElementById("staffName").value.trim() || "—"],
-    ["Date", new Date().toLocaleDateString()],
+    ["Costed by", s.staff || "—"],
+    ["Date", new Date(s.ts||Date.now()).toLocaleDateString()],
   ];
   let y = 30;
   details.forEach(([label,value])=>{ doc.setFont("helvetica","bold"); doc.text(label+":",14,y); doc.setFont("helvetica","normal"); doc.text(String(value),48,y); y+=6; });
-  if (QUOTE_PHOTO_DATA){ try{ doc.addImage(QUOTE_PHOTO_DATA,"JPEG",145,28,48,40,undefined,"FAST"); }catch(error){ console.warn("Photo could not be added to PDF",error); } }
+  if (photoData){ try{ doc.addImage(photoData,"JPEG",145,28,48,40,undefined,"FAST"); }catch(error){ console.warn("Photo could not be added to PDF",error); } }
   const rows = s.lineItems.map((item,index)=>[String(index+1),item.label,`INR ${item.amount.toFixed(2)}`]);
   if (typeof doc.autoTable === "function"){
     doc.autoTable({startY:y+3,head:[["#","Cost component","Amount"]],body:rows,theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[25,25,25]}});
@@ -3441,10 +3441,17 @@ function downloadQuotePdf(){
   y += 24;
   if ((s.moqTiers||[]).length && typeof doc.autoTable === "function"){
     doc.autoTable({startY:y,head:[["Order bracket","Adjustment","FOB USD"]],body:s.moqTiers.map(t=>[`${t.tier} ${s.isAreaTierProduct?"sqm":"pcs"}`,`${t.buffer>=0?"+":""}$${t.buffer.toFixed(2)}`,`$${t.fobUsd.toFixed(2)}`]),theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[25,25,25]}});
+    y=doc.lastAutoTable.finalY+8;
+  }
+  const load=s.loadability||{};
+  if (typeof doc.autoTable === "function"){
+    if (y>238){doc.addPage();y=20;}
+    doc.setTextColor(25);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Packaging & Container Loadability",14,y);y+=3;
+    doc.autoTable({startY:y,head:[["Loadability detail","Value"]],body:[["Packing type",load.packageType||"—"],["Packed dimensions",load.length?`${load.length} x ${load.width} x ${load.height} cm`:"—"],["Pieces per package",String(load.piecesPerPackage||1)],["CBM per package",load.cbmPerPackage||"—"],["Total shipment CBM",load.totalCbm||"—"],["Container estimates",load.results||"—"]],theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[25,25,25]}});
   }
   doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(110); doc.text("Rugs Creation — Internal Costing Document",14,289);
   doc.save(`${safeName}_Quote.pdf`);
-  void saveToHistory();
+  if (saveHistory) void saveToHistory();
 }
 
 function downloadInternalCosting(){ downloadQuotePdf(); }
@@ -4474,25 +4481,45 @@ function summaryFromHistoryRecord(r){
     ts:r.ts, staff:r.staff, articleNo:r.articleNo||"—", customer:r.customer||"—", product:r.product||"—",
     L:Number(r.length)||0,W:Number(r.width)||0,H:Number(r.height)||0,qty:Number(r.qty)||0,
     fobUsd:Number(r.fobUsd)||0,totalUsd:Number(String(r.totalUsd||"").replace(/[^0-9.-]/g,""))||0,
-    isSqmMode:false,loadability:r.loadability||{},lineItems:[]
+    isSqmMode:false,loadability:r.loadability||{},lineItems:[],rawMaterial:0,processCost:0,packAndFwd:0,testingCost:0,
+    visibleCost:Number(String(r.visibleCostInr||"").replace(/[^0-9.-]/g,""))||0,overheadPct:0,costWithOH:0,
+    category:r.category||"—",marginPct:Number(String(r.marginPct||"").replace(/[^0-9.-]/g,""))||0,commissionPct:0,buyingAgencyPct:0,
+    finalInr:0,fx:0,qtyBuffer:0,isAreaTierProduct:false,moqTiers:[]
   };
 }
 function findHistoryRecord(id){ return HISTORY.find(r=>String(r.id)===String(id)); }
+function isOwnHistoryRecord(r){ return !!CURRENT_USER && String(r?.userId||"")===String(CURRENT_USER.id); }
 function viewHistoryQuote(id){
   const r=findHistoryRecord(id); if(!r)return;
   const s=summaryFromHistoryRecord(r); const load=s.loadability||{};
   const size=s.H?`${s.L} × ${s.W} × ${s.H} cm`:`${s.L} × ${s.W} cm`;
+  const itemRows=(s.lineItems||[]).map((item,index)=>`<tr><td>${index+1}</td><td>${escapeHistoryText(item.label)}</td><td style="text-align:right">₹${Number(item.amount||0).toFixed(2)}</td></tr>`).join("");
+  const pricingSummary=r.quoteSummary?`<table><tr><th>Raw materials</th><td>₹${Number(s.rawMaterial||0).toFixed(2)}</td><th>Processes</th><td>₹${Number(s.processCost||0).toFixed(2)}</td></tr><tr><th>Packaging &amp; forwarding</th><td>₹${Number(s.packAndFwd||0).toFixed(2)}</td><th>Testing</th><td>₹${Number(s.testingCost||0).toFixed(2)}</td></tr><tr><th>Visible cost</th><td>₹${Number(s.visibleCost||0).toFixed(2)}</td><th>Overhead</th><td>${Number(s.overheadPct||0).toFixed(2)}%</td></tr><tr><th>Cost after overhead</th><td>₹${Number(s.costWithOH||0).toFixed(2)}</td><th>Margin / category</th><td>${Number(s.marginPct||0).toFixed(2)}% / ${escapeHistoryText(s.category||"—")}</td></tr><tr><th>Commission</th><td>${Number(s.commissionPct||0).toFixed(2)}%</td><th>Buying agency</th><td>${Number(s.buyingAgencyPct||0).toFixed(2)}%</td></tr><tr><th>Final INR</th><td>₹${Number(s.finalInr||0).toFixed(2)}</td><th>Exchange rate</th><td>₹${Number(s.fx||0).toFixed(2)} / USD</td></tr></table>`:`<div class="hint" style="margin:8px 0 16px">The full calculation snapshot was not stored with this older record. New costings will show every material, rate and pricing calculation here.</div>`;
   document.getElementById("historyQuotePreview").innerHTML=`
-    <div class="quote-preview-header"><div><h2>RUGS CREATION</h2><div>Buyer Quotation</div></div>${r.photoData?`<img src="${r.photoData}" alt="Product photo">`:""}</div>
+    <div class="quote-preview-header"><div><h2>RUGS CREATION</h2><div>Complete Internal Costing</div></div>${r.photoData?`<img src="${r.photoData}" alt="Product photo">`:""}</div>
     <div class="quote-preview-grid"><div><b>Buyer</b><br>${escapeHistoryText(s.customer)}</div><div><b>Merchant</b><br>${escapeHistoryText(s.staff||r.staff)}</div><div><b>Article No</b><br>${escapeHistoryText(s.articleNo)}</div><div><b>Product</b><br>${escapeHistoryText(String(s.product||"").replaceAll("_"," "))}</div><div><b>Dimensions</b><br>${escapeHistoryText(size)}</div><div><b>Quantity</b><br>${Number(s.qty)||0}</div></div>
-    <div class="quote-preview-price">USD ${Number(s.fobUsd||0).toFixed(2)} / ${s.isSqmMode?"sqm":"piece"}<small>Total order value: USD ${Number(s.totalUsd||0).toFixed(2)}</small></div>
-    <h3>Packing &amp; Container Loadability</h3><table><tr><th>Packing</th><td>${escapeHistoryText(load.packageType||"—")}</td></tr><tr><th>Packed dimensions</th><td>${load.length?`${load.length} × ${load.width} × ${load.height} cm`:"—"}</td></tr><tr><th>CBM / package</th><td>${escapeHistoryText(load.cbmPerPackage||"—")}</td></tr><tr><th>Total CBM</th><td>${escapeHistoryText(load.totalCbm||"—")}</td></tr></table><p>${escapeHistoryText(load.results||"")}</p>`;
-  document.getElementById("historyDialogDownloadBtn").onclick=()=>downloadHistoryBuyerQuote(id);
+    <h3>Raw Materials, Processes &amp; Applied Rates</h3><table><tr><th>#</th><th>Cost component</th><th style="text-align:right">Amount</th></tr>${itemRows||'<tr><td colspan="3">Detailed component data was not stored for this older costing.</td></tr>'}</table>
+    <h3>Cost &amp; Pricing Summary</h3>${pricingSummary}
+    <h3>Packing &amp; Container Loadability</h3><table><tr><th>Packing</th><td>${escapeHistoryText(load.packageType||"—")}</td></tr><tr><th>Packed dimensions</th><td>${load.length?`${load.length} × ${load.width} × ${load.height} cm`:"—"}</td></tr><tr><th>CBM / package</th><td>${escapeHistoryText(load.cbmPerPackage||"—")}</td></tr><tr><th>Total CBM</th><td>${escapeHistoryText(load.totalCbm||"—")}</td></tr></table><p>${escapeHistoryText(load.results||"")}</p>
+    <div class="quote-preview-price">USD ${Number(s.fobUsd||0).toFixed(2)} / ${s.isSqmMode?"sqm":"piece"}<small>Total order value: USD ${Number(s.totalUsd||0).toFixed(2)}</small></div>`;
+  document.getElementById("historyDialogDownloadBtn").onclick=()=>downloadHistoryCosting(id);
   document.getElementById("historyQuoteDialog").showModal();
 }
-function downloadHistoryBuyerQuote(id){
+function downloadHistoryCosting(id){
   const r=findHistoryRecord(id); if(!r)return;
-  downloadBuyerQuotePdfFromSummary(summaryFromHistoryRecord(r),r.photoData||"",false);
+  downloadQuotePdf(summaryFromHistoryRecord(r),r.photoData||"",false);
+}
+async function deleteOwnHistoryCosting(id){
+  const r=findHistoryRecord(id);
+  if (!r || !isOwnHistoryRecord(r)){ alert("You can delete only your own costing."); return; }
+  if (!confirm(`Delete costing ${r.articleNo||"without article number"}? This cannot be undone.`)) return;
+  if (FIRESTORE){
+    try{ await FIRESTORE.collection("costing_history").doc(String(id)).delete(); }
+    catch(error){ alert("Delete failed: "+(error.message||"Please try again.")); return; }
+  }
+  HISTORY=HISTORY.filter(item=>String(item.id)!==String(id));
+  try{ localStorage.setItem("rc_costing_history",JSON.stringify(HISTORY)); }catch(e){}
+  renderHistoryTable(document.getElementById("historySearch")?.value||"");
 }
 
 function renderHistoryTable(filter=""){
@@ -4501,16 +4528,16 @@ function renderHistoryTable(filter=""){
   const f = (filter||"").toLowerCase();
   const currentId=String(CURRENT_USER?.id||"");
   const rows = HISTORY.filter(r => (HISTORY_SCOPE==="all" || String(r.userId||"")===currentId || (!r.userId && r.staff===CURRENT_PROFILE?.full_name)) && [r.staff,r.customer,r.articleNo,r.product].some(v=>String(v||"").toLowerCase().includes(f))).slice().reverse();
-  let html = `<tr><th>When</th><th>Merchant</th><th>Customer</th><th>Article No</th><th>Product</th><th>Size</th><th>FOB USD/PCS</th><th>View Quote</th><th>Download Quote</th></tr>`;
+  let html = `<tr><th>When</th><th>Merchant</th><th>Customer</th><th>Article No</th><th>Product</th><th>Size</th><th>FOB USD/PCS</th><th>View Costing</th><th>Download Costing</th><th>Action</th></tr>`;
   rows.forEach(r=>{
     const when = new Date(r.ts).toLocaleString();
     html += `<tr>
       <td style="font-family:var(--mono); font-size:0.72rem;">${escapeHistoryText(when)}</td>
       <td>${escapeHistoryText(r.staff)}</td><td>${escapeHistoryText(r.customer)}</td><td>${escapeHistoryText(r.articleNo||"—")}</td><td>${escapeHistoryText(String(r.product||"").replace('_',' '))}</td>
       <td>${Number(r.length)||0}×${Number(r.width)||0}cm</td><td>$${(Number(r.fobUsd)||0).toFixed(2)}</td>
-      <td><button class="edit-btn" onclick="viewHistoryQuote('${escapeHistoryText(r.id)}')">View</button></td><td><button class="save-btn" onclick="downloadHistoryBuyerQuote('${escapeHistoryText(r.id)}')">Download PDF</button></td></tr>`;
+      <td><button class="edit-btn" onclick="viewHistoryQuote('${escapeHistoryText(r.id)}')">View</button></td><td><button class="save-btn" onclick="downloadHistoryCosting('${escapeHistoryText(r.id)}')">Download PDF</button></td><td>${isOwnHistoryRecord(r)?`<button class="del-btn" onclick="deleteOwnHistoryCosting('${escapeHistoryText(r.id)}')">Delete</button>`:"—"}</td></tr>`;
   });
-  if (!rows.length) html += `<tr><td colspan="9">No costings found in this view.</td></tr>`;
+  if (!rows.length) html += `<tr><td colspan="10">No costings found in this view.</td></tr>`;
   tbl.innerHTML = html;
 }
 document.getElementById("historySearch").addEventListener("input", e=>renderHistoryTable(e.target.value));
