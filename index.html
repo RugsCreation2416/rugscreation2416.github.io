@@ -1942,7 +1942,7 @@ function toggleMenuDrawer(){
   document.body.classList.toggle("menu-drawer-open",open);
   document.getElementById("menuBtn")?.setAttribute("aria-expanded",String(open));
 }
-const RUGS_AI_ENDPOINT=""; // Set only to a secure server/worker URL. Never place an AI API key in this file.
+const RUGS_AI_ENDPOINT="https://rugs-costing-agent.marketing-630.workers.dev"; // Secure Cloudflare Worker; no AI key is exposed here.
 function toggleRugsBot(force){
   const panel=document.getElementById("rugsBotPanel");
   const open=typeof force==="boolean"?force:!panel.classList.contains("open");
@@ -1971,7 +1971,7 @@ async function sendRugsMessage(event){
   event?.preventDefault();const input=document.getElementById("rugsBotInput"),question=input.value.trim();if(!question)return;input.value="";addRugsMessage(question,"user");
   if(!RUGS_AI_ENDPOINT){addRugsMessage(rugsLocalAnswer(question));return;}
   const send=document.getElementById("rugsBotSend");send.disabled=true;
-  try{const token=await CURRENT_USER?.firebaseUser?.getIdToken?.();const response=await fetch(RUGS_AI_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({question,context:window.lastQuoteSummary||null})});if(!response.ok)throw new Error("Assistant service unavailable");const data=await response.json();addRugsMessage(data.answer||"No answer was returned.");}catch(error){addRugsMessage(error.message||"Rugs could not respond.","error");}finally{send.disabled=false;}
+  try{const response=await fetch(RUGS_AI_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:question,context:JSON.stringify(window.lastQuoteSummary||{})})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Assistant service unavailable");addRugsMessage(data.answer||"No answer was returned.");}catch(error){addRugsMessage(error.message||"Rugs could not respond.","error");}finally{send.disabled=false;}
 }
 function askRugsQuick(question){document.getElementById("rugsBotInput").value=question;sendRugsMessage(new Event("submit"));}
 function closeMenuDrawer(){ document.body.classList.remove("menu-drawer-open"); document.getElementById("menuBtn")?.setAttribute("aria-expanded","false"); }
