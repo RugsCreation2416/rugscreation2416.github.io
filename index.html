@@ -3338,6 +3338,16 @@ function collectLoadabilitySnapshot(){
     results: document.getElementById("loadabilityResults")?.innerText?.trim() || "",
   };
 }
+function collectCalculatorInputSnapshot(){
+  const snapshot={};
+  document.querySelectorAll("#view-calc input, #view-calc select, #view-calc textarea").forEach((field,index)=>{
+    if (["file","password","button"].includes(field.type)) return;
+    const key=field.id || field.name || `${field.tagName.toLowerCase()}_${index}`;
+    snapshot[key]=field.type==="checkbox" ? field.checked : field.value;
+    if (field.tagName==="SELECT") snapshot[`${key}__label`]=field.options[field.selectedIndex]?.text || "";
+  });
+  return snapshot;
+}
 
 function printSummary(){
   const s = window.lastQuoteSummary;
@@ -3592,10 +3602,11 @@ function downloadQuote(){
   void saveToHistory(); // download implies this quote is final, so also save it to the shared history
 }
 
-function savePackagingCard(){
+async function savePackagingCard(){
   const finalCard = document.getElementById("cardFinalActions");
   finalCard.classList.remove("wizard-locked");
   saveCard("cardPackaging", ["cardFinalActions"]);
+  await saveToHistory();
 }
 function editPackagingCard(){
   editCard("cardPackaging");
@@ -3630,7 +3641,7 @@ async function submitLockForApproval(){
     fobUsd: s.fobUsd, qty: s.qty,
     photoData: QUOTE_PHOTO_DATA || "",
     photoName: QUOTE_PHOTO_NAME || "",
-    quoteSummary: window.lastQuoteSummary ? {...window.lastQuoteSummary, ts:new Date().toISOString(), loadability:collectLoadabilitySnapshot()} : null,
+    quoteSummary: window.lastQuoteSummary ? {...window.lastQuoteSummary, ts:new Date().toISOString(), loadability:collectLoadabilitySnapshot(), calculatorInputs:collectCalculatorInputSnapshot()} : null,
     status: "Pending Approval",
   });
   warnEl.style.display = "block";
@@ -3641,6 +3652,7 @@ async function submitLockForApproval(){
     warnEl.textContent = "The quote could not be synced to Firebase, so the calculator was not reset. Please check the connection and try again.";
     return;
   }
+  await saveToHistory();
   renderMasterTable("articleMaster");
   document.getElementById("lockQuoteFlow").innerHTML = `<div class="hint" style="font-weight:bold;">✓ Locked costing saved — Article No ${articleNo}. It is now in Admin → Locked Quotes. Starting a fresh costing...</div>`;
   setTimeout(()=>location.reload(), 1200);
@@ -4400,6 +4412,7 @@ document.getElementById("excelImport").addEventListener("change", (e)=>{
 
 /* ================= QUOTE HISTORY ================= */
 let HISTORY = [];
+let CURRENT_COSTING_HISTORY_ID = "";
 
 async function loadHistory(){
   if (FIRESTORE){
@@ -4432,8 +4445,11 @@ async function saveToHistory(){
   const staff = document.getElementById("staffName").value.trim() || "Unnamed";
   const cust = getCustomer() || {name:"—", category:"—"};
   const product = document.getElementById("product").value;
+  const existingRecord = CURRENT_COSTING_HISTORY_ID ? HISTORY.find(item=>String(item.id)===String(CURRENT_COSTING_HISTORY_ID)) : null;
+  const now = new Date().toISOString();
   const record = {
-    ts: new Date().toISOString(),
+    ts: existingRecord?.ts || now,
+    updatedAt: now,
     staff,
     articleNo: document.getElementById("articleNo").value.trim() || "",
     customer: cust.name,
@@ -4448,12 +4464,14 @@ async function saveToHistory(){
     marginPct: document.getElementById("mCat").textContent,
     photoData: QUOTE_PHOTO_DATA || "",
     photoName: QUOTE_PHOTO_NAME || "",
-    quoteSummary: window.lastQuoteSummary ? {...window.lastQuoteSummary, ts:new Date().toISOString(), loadability:collectLoadabilitySnapshot()} : null,
+    quoteSummary: window.lastQuoteSummary ? {...window.lastQuoteSummary, ts:new Date().toISOString(), loadability:collectLoadabilitySnapshot(), calculatorInputs:collectCalculatorInputSnapshot()} : null,
   };
   note.textContent = "Saving...";
-  const recordId = Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+  const recordId = CURRENT_COSTING_HISTORY_ID || (Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8));
+  CURRENT_COSTING_HISTORY_ID = recordId;
   const savedRecord = {...record, id:recordId, userId:CURRENT_USER.id};
-  HISTORY.push(savedRecord);
+  const existingIndex = HISTORY.findIndex(item=>String(item.id)===String(recordId));
+  if (existingIndex>=0) HISTORY[existingIndex]=savedRecord; else HISTORY.push(savedRecord);
   try{ localStorage.setItem("rc_costing_history", JSON.stringify(HISTORY.slice(-1000))); }
   catch(error){ console.error("Local history save failed", error); note.textContent = "History was not saved in this browser."; return; }
   if (FIRESTORE){
