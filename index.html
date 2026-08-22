@@ -14,7 +14,7 @@
     --mono:var(--font-ui);
   }
   *{box-sizing:border-box;}
-  body{ margin:0; min-height:100vh; font-family:var(--font-ui); font-weight:500; color:var(--ink); background:radial-gradient(circle at 12% 18%,rgba(255,255,255,.7) 0 12%,transparent 34%),radial-gradient(circle at 88% 72%,rgba(45,49,53,.14) 0 10%,transparent 32%),linear-gradient(145deg,var(--canvas) 0%,#e7e9eb 48%,var(--canvas-deep) 100%) fixed; }
+  body{ margin:0; min-height:100vh; font-family:var(--font-ui); font-weight:500; color:var(--ink); background:radial-gradient(circle at 18% 10%,#353535 0,transparent 31%),radial-gradient(circle at 88% 82%,rgba(255,91,0,.11) 0,transparent 28%),linear-gradient(145deg,#050505,#17191b 58%,#090909) fixed; }
   .app-bar{ position:sticky; top:0; z-index:900; background:#000; box-shadow:0 5px 18px rgba(0,0,0,.16); }
   header{ min-height:72px; padding:0; border-bottom:1px solid #2d2d2d; display:flex; justify-content:space-between; align-items:center; gap:12px; background:#000; }
   header h1{ font-size:1.45rem; margin:0; color:#fff; }
@@ -336,6 +336,44 @@
   @media(max-width:900px){.calc-intro{align-items:flex-start}.calc-live-badge{display:none}#view-calc .card-body{padding:18px}.calc-step{min-height:48px}}
   @media(max-width:600px){#view-calc{padding:14px 10px 280px}.calc-intro{margin-bottom:12px}.calc-workflow{padding:6px}.calc-step{font-size:.65rem}.calc-step:not(:last-child)::after{display:none}#view-calc .row,#view-calc .row3{grid-template-columns:1fr}#view-calc .card.calc-page>h2{min-height:56px;padding:15px 16px;font-size:.92rem}#view-calc .card-body{padding:15px}#view-calc .card-footer{padding:13px 15px}.workflow-back,.workflow-next,.workflow-submit{width:100%;min-width:0}.big-usd{font-size:2.2rem!important}}
   @media(min-width:901px){#view-calc:not(.calc-page-expanded) .calc-intro{margin-right:430px;}}
+.gsm-target-panel,.pack-choice-panel{display:grid;grid-template-columns:minmax(260px,1fr) minmax(260px,1fr);gap:18px;align-items:end;background:linear-gradient(135deg,#fff7f1,#f4f6f7);border:1px solid #d6b29d;border-left:5px solid var(--orange,#f05a28);border-radius:12px;padding:18px;margin:8px 0 18px}
+.gsm-status{display:flex;gap:12px;flex-wrap:wrap}.gsm-status span{flex:1;min-width:125px;background:#fff;border:1px solid #cfd5d9;border-radius:9px;padding:13px}.gsm-status small{display:block;margin-top:3px;color:#747b80;font-size:.66rem;font-weight:600}.gsm-status strong{display:block;font-size:1.15rem;margin-top:4px}
+.required-mark{color:#bd2c00}.builder-action-box{display:flex;justify-content:space-between;align-items:center;gap:18px;background:#f5f6f7;border:2px dashed #9aa3a9;border-radius:11px;padding:16px 18px;margin:12px 0}.builder-action-box .addrow{min-height:44px;padding:10px 18px;border:0;background:#202427;color:#fff;border-radius:7px;font-weight:800;white-space:nowrap}
+.material-builder-row,.construction-builder-row{border:1px solid #cbd1d5;border-left:4px solid #555f65;border-radius:10px;background:#fff;padding:14px;margin:10px 0}.pack-choice-panel{grid-template-columns:1fr;margin-bottom:20px}.pack-choice-panel select{max-width:560px}
+.welcome-dashboard{position:relative;min-height:calc(100vh - 150px);display:grid;place-items:center;overflow:hidden;border-radius:0;background:radial-gradient(circle at 50% 20%,#333 0,transparent 35%),linear-gradient(145deg,#050505,#17191b 60%,#090909);color:#fff;box-shadow:none}
+.welcome-content{position:relative;z-index:2;width:min(100%,1050px);padding:70px 55px;text-align:center}.welcome-eyebrow{color:#ff7a35;font-size:.72rem;font-weight:800;letter-spacing:2.4px;text-transform:uppercase}.welcome-content h1{margin:18px 0 10px;font-size:clamp(2.3rem,5vw,5.4rem);font-weight:750;letter-spacing:-.045em}.welcome-content>p{margin:0 auto 34px;color:#bec3c6;font-size:1rem}.welcome-begin-btn{min-width:270px;padding:18px 26px;border:1px solid #ff6a1a;border-radius:9px;background:linear-gradient(135deg,#ff5b00,#e34600);color:#fff;font-size:.92rem;font-weight:850;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 13px 32px rgba(255,91,0,.27)}.welcome-begin-btn span{margin-left:20px;font-size:1.25rem}.welcome-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:60px}.welcome-stats>button,.approval-summary-grid>div{padding:20px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.065);color:#fff;backdrop-filter:blur(8px);text-align:left}.welcome-stats>button{cursor:pointer;transition:transform .16s,border-color .16s,background .16s}.welcome-stats>button:hover{transform:translateY(-4px);border-color:#ff6a1a;background:rgba(255,255,255,.11)}.welcome-stats small,.welcome-stats span{display:block;color:#aeb4b8;font-size:.7rem}.welcome-stats strong{display:block;margin:8px 0 3px;font-size:2rem}.welcome-stats em{display:block;margin-top:14px;color:#ff8647;font-size:.68rem;font-style:normal;font-weight:800}.welcome-orbit{position:absolute;border:1px solid rgba(255,255,255,.08);border-radius:50%}.welcome-orbit-one{width:540px;height:540px;left:-220px;top:-250px}.welcome-orbit-two{width:600px;height:600px;right:-300px;bottom:-340px}
+.welcome-summary-panel{min-height:calc(100vh - 150px);display:flex;flex-direction:column;padding:34px;border-radius:0;background:linear-gradient(145deg,#111315,#232629);color:#fff;box-shadow:none}.welcome-summary-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:24px}.welcome-summary-head h2{margin:8px 0 4px;font-size:1.8rem}.welcome-summary-head p{margin:0;color:#b9bec2}.welcome-back-btn{padding:12px 18px;border:1px solid #747b80;border-radius:7px;background:#fff;color:#222;font-weight:800;cursor:pointer}.welcome-summary-panel .tablewrap{flex:1;min-height:calc(100vh - 345px);max-height:none;background:#fff;color:#111;border-radius:10px}.welcome-summary-panel table td,.welcome-summary-panel table th{padding:11px 9px}body.welcome-only nav{display:none}body.welcome-only #view-home{padding:0}body.welcome-only .app-bar{position:relative}#view-home{max-width:none;padding:0}#view-calc{background:transparent}
+.approval-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}.approval-summary-grid>div{background:#fff;border-color:#ccd2d6;color:#25282b}.approval-summary-grid span{font-size:.75rem;font-weight:750;text-transform:uppercase}.approval-summary-grid strong{display:block;margin-top:8px;font-size:1.9rem}.approval-hero{border-left:5px solid #ff5b00!important}.approval-status{display:inline-block;padding:4px 8px;border-radius:12px;font-size:.68rem;font-weight:800;text-transform:uppercase}.approval-status.pending{background:#fff0c7;color:#735400}.approval-status.approved{background:#dff4e6;color:#126532}.approval-status.rejected{background:#ffe1dc;color:#8d2315}.team-builder-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin:15px 0}.team-builder-grid button{min-height:45px;margin-bottom:14px}.user-role-select{min-width:135px;margin:0}
+  /* Keep the live result card visible throughout every desktop calculator step. */
+  @media(min-width:901px){
+    #view-calc .calc-intro,#view-calc .calc-workflow{margin-right:430px!important}
+    #view-calc.calc-page-expanded .grid2>div:first-child{padding-right:430px}
+    #view-calc.calc-page-expanded .sticky{display:block}
+    #view-calc.calc-page-expanded .card.calc-page{max-width:none;margin-left:0;margin-right:0}
+    #view-calc .sticky{top:92px;max-height:calc(100vh - 112px)}
+  }
+  #view-calc .calc-intro h2{color:#fff}
+  #view-calc .calc-intro p{color:#c2c7ca}
+  #view-calc .calc-live-badge{background:#202326;color:#fff;border-color:#4b5155}
+  .final-fx-panel{display:grid;grid-template-columns:1.5fr minmax(250px,.75fr);gap:22px;align-items:center;margin:4px 0 18px;padding:19px 20px;border:1px solid #d29a78;border-left:5px solid #ff5b00;border-radius:10px;background:linear-gradient(135deg,#fff8f3,#eef1f3)}.final-fx-panel strong{display:block;margin:4px 0 9px;font-size:1.05rem}.final-fx-panel input{margin-bottom:5px!important;font-size:1.05rem!important;font-weight:850!important}.final-fx-panel .hint{margin:4px 0 0!important}
+  .data-page-hero{border-left:5px solid #ff5b00!important;background:linear-gradient(135deg,#fff,#eef1f3)!important}.data-tool-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.data-tool-status-grid>div{padding:16px 17px;border:1px solid #4d5357;border-radius:9px;background:linear-gradient(145deg,#191b1d,#292c2f);color:#fff}.data-tool-status-grid strong,.data-tool-status-grid span{display:block}.data-tool-status-grid span{margin-top:6px;color:#bfc4c7;font-size:.73rem;line-height:1.45}#view-data #dataTransferCard{margin-bottom:0}
+  #tbl-users{min-width:1280px}#tbl-users th{position:sticky;top:0;z-index:2;padding:12px 9px;background:#25282b;color:#fff;border-bottom-color:#ff5b00}#tbl-users td{padding:10px 9px;vertical-align:middle;white-space:nowrap}#tbl-users td:first-child,#tbl-users td:nth-child(5){white-space:normal;min-width:130px}.user-actions{display:grid;grid-template-columns:minmax(155px,1fr) auto;gap:8px;align-items:center;min-width:280px}.user-actions .edit-btn{min-height:40px;margin:0;padding:8px 12px;border-radius:6px}.user-role-select,.user-action-select{min-height:40px;margin:0!important;padding:7px 10px!important;border-radius:6px!important;background:#fff!important;font-size:.78rem!important}.user-role-select{min-width:145px}.user-action-select{min-width:155px;border-color:#9da5ab!important}.user-status-pill{display:inline-block;padding:5px 9px;border-radius:14px;font-size:.67rem;font-weight:850;text-transform:uppercase;letter-spacing:.35px}.user-status-pill.approved{background:#dff4e6;color:#126532}.user-status-pill.pending{background:#fff0c7;color:#735400}.user-status-pill.disabled{background:#ffe1dc;color:#8d2315}#master-users .tablewrap{max-height:62vh;border-radius:8px;background:#fff}
+  .access-hero{border-left:5px solid #ff5b00!important;background:linear-gradient(135deg,#fff,#eef1f3)!important}.access-user-picker{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:end}.access-role-card{min-height:45px;display:flex;align-items:center;margin-bottom:14px;padding:10px 13px;border:1px solid #c4cbd0;border-radius:7px;background:#eef1f3;font-weight:750}.permission-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.permission-option{display:flex;align-items:flex-start;gap:11px;min-height:92px;padding:15px;border:1px solid #c8ced2;border-radius:9px;background:#fff;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}.permission-option:hover{transform:translateY(-2px);border-color:#ff6a1a;box-shadow:0 6px 16px rgba(20,24,27,.1)}.permission-option input{width:19px;height:19px;margin:1px 0 0}.permission-option strong,.permission-option span{display:block}.permission-option span{margin-top:5px;color:#6b7277;font-size:.72rem;line-height:1.4}.permission-option.permission-locked{opacity:.5;cursor:not-allowed}.permission-option.permission-on{border-color:#ff6a1a;background:#fff7f2}.access-limit-note{grid-column:1/-1;padding:10px 12px;border-radius:7px;background:#fff3d4;color:#6b5000;font-size:.75rem}
+  #menuBtn{display:none;margin-right:10px;padding:10px 16px;border:1px solid #ff6a1a;border-radius:5px;background:#ff5b00;color:#fff;cursor:pointer;font-size:.76rem;font-weight:850;letter-spacing:.7px;text-transform:uppercase;white-space:nowrap}
+  #menuBtn:hover{background:#e64f00}
+  nav#mainNavigation{position:fixed;top:0;right:-390px;z-index:1200;width:min(370px,92vw);height:100vh;display:flex!important;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:7px;padding:24px 18px;overflow-y:auto;background:linear-gradient(165deg,#111315,#24272a);border:0;border-left:1px solid #444;box-shadow:-18px 0 48px rgba(0,0,0,.38);transition:right .24s ease}
+  body.menu-drawer-open nav#mainNavigation{right:0}
+  nav#mainNavigation .drawer-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding:2px 6px 18px;border-bottom:1px solid #45494d;color:#ff7430;font-size:.78rem;font-weight:850;letter-spacing:1.5px;text-transform:uppercase}
+  nav#mainNavigation .drawer-heading button{width:40px;height:40px;padding:0;border:1px solid #555;border-radius:50%;background:transparent;color:#fff;font-size:1.55rem;cursor:pointer}
+  nav#mainNavigation>button.tab-btn{width:100%;min-height:52px;padding:13px 15px;border:1px solid transparent;border-radius:7px;background:transparent;color:#d5d8da;text-align:left;font-size:.77rem;letter-spacing:.55px;transition:background .15s,border-color .15s,color .15s,transform .15s}
+  nav#mainNavigation>button.tab-btn:hover{transform:translateX(-3px);border-color:#555;background:#2c3033;color:#fff}
+  nav#mainNavigation>button.tab-btn.active{border-color:#ff6a1a;border-bottom-color:#ff6a1a;background:linear-gradient(135deg,#ff5b00,#dc4600);color:#fff}
+  .menu-drawer-overlay{position:fixed;inset:0;z-index:850;display:none;background:rgba(0,0,0,.62)}
+  body.menu-drawer-open .menu-drawer-overlay{display:block}
+  body.welcome-only #menuBtn{display:none!important}
+  .rugs-bot-launcher{position:fixed;right:24px;bottom:22px;z-index:820;display:none;align-items:center;gap:10px;padding:9px 14px 9px 9px;border:1px solid #ff6a1a;border-radius:28px;background:#111315;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.32);cursor:pointer}.rugs-bot-launcher>span,.rugs-bot-avatar{display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#ff6a1a,#d94300);color:#fff;font-weight:900}.rugs-bot-launcher>span{width:38px;height:38px}.rugs-bot-launcher div{text-align:left}.rugs-bot-launcher strong,.rugs-bot-launcher small{display:block}.rugs-bot-launcher small{color:#b9bec2;font-size:.62rem}.rugs-bot-panel{position:fixed;right:-430px;bottom:0;z-index:1180;width:min(410px,96vw);height:min(720px,calc(100vh - 80px));display:flex;flex-direction:column;border-left:1px solid #3f4448;border-radius:16px 0 0 0;background:#f5f6f7;color:#16181a;box-shadow:-18px -8px 48px rgba(0,0,0,.4);transition:right .24s ease}.rugs-bot-panel.open{right:0}.rugs-bot-head{display:flex;align-items:center;gap:11px;padding:15px 16px;background:linear-gradient(135deg,#111315,#292d30);color:#fff;border-radius:16px 0 0 0}.rugs-bot-avatar{width:42px;height:42px}.rugs-bot-head>div:nth-child(2){flex:1}.rugs-bot-head strong,.rugs-bot-head span{display:block}.rugs-bot-head span{color:#b8bec2;font-size:.68rem}.rugs-bot-head button{width:36px;height:36px;border:1px solid #555;border-radius:50%;background:transparent;color:#fff;font-size:1.35rem;cursor:pointer}.rugs-bot-context{padding:9px 14px;background:#fff1e8;color:#753100;font-size:.7rem}.rugs-bot-quick{display:flex;gap:6px;padding:10px;overflow-x:auto;border-bottom:1px solid #d8dcdf}.rugs-bot-quick button{flex:0 0 auto;padding:7px 9px;border:1px solid #c3c9cd;border-radius:14px;background:#fff;color:#333;font-size:.66rem;cursor:pointer}.rugs-bot-messages{flex:1;overflow-y:auto;padding:14px}.rugs-message{max-width:88%;margin-bottom:10px;padding:10px 12px;border-radius:12px;font-size:.78rem;line-height:1.5;white-space:pre-wrap}.rugs-message.bot{background:#fff;border:1px solid #d5dade}.rugs-message.user{margin-left:auto;background:#25282b;color:#fff}.rugs-message.error{background:#ffe4de;color:#872711}.rugs-bot-form{display:grid;grid-template-columns:1fr auto;gap:8px;padding:11px;border-top:1px solid #d3d7da;background:#fff}.rugs-bot-form textarea{min-height:48px;margin:0!important;resize:none}.rugs-bot-form button{padding:0 15px;border:0;border-radius:7px;background:#ff5b00;color:#fff;font-weight:800;cursor:pointer}body.welcome-only .rugs-bot-launcher{display:none!important}
+  @media(max-width:700px){.gsm-target-panel,.final-fx-panel,.data-tool-status-grid,.access-user-picker,.permission-grid{grid-template-columns:1fr}.builder-action-box{align-items:stretch;flex-direction:column}.builder-action-box .addrow{width:100%}}
+@media(max-width:760px){.welcome-content{padding:45px 20px}.welcome-stats{grid-template-columns:1fr 1fr;margin-top:38px}.approval-summary-grid,.team-builder-grid{grid-template-columns:1fr}.welcome-begin-btn{min-width:0;width:100%}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -428,22 +466,59 @@
     <h1 style="letter-spacing:0.3px; margin:0;">Costing Dashboard</h1>
   </div>
   <div style="padding:14px 24px; flex:1; display:flex; justify-content:flex-end; align-items:center;">
+    <button id="menuBtn" type="button" onclick="toggleMenuDrawer()" aria-controls="mainNavigation" aria-expanded="false">☰ Menu</button>
     <button id="logoutBtn" type="button">Logout</button>
   </div>
 </header>
 
-<nav>
+<nav id="mainNavigation" aria-label="Main navigation">
+  <div class="drawer-heading"><span>Workspace Menu</span><button type="button" onclick="closeMenuDrawer()" aria-label="Close menu">×</button></div>
+  <button class="tab-btn" data-tab="home">Home</button>
   <button class="tab-btn active" data-tab="calc">Calculator</button>
   <button class="tab-btn" data-tab="masters">Master Data</button>
+  <button class="tab-btn" data-tab="data">Data Import &amp; Templates</button>
   <button class="tab-btn" data-tab="admin">Admin</button>
   <button class="tab-btn" data-tab="quick">Quick Quote (type &amp; get price)</button>
   <button class="tab-btn" data-tab="history">History</button>
+  <button class="tab-btn" data-tab="approvals">Approvals</button>
+  <button class="tab-btn" data-tab="access">User Access</button>
   <button class="tab-btn" data-tab="profile">My Profile</button>
 </nav>
 </div>
+<div class="menu-drawer-overlay" id="menuDrawerOverlay" onclick="closeMenuDrawer()"></div>
+<button class="rugs-bot-launcher" id="rugsBotLauncher" type="button" onclick="toggleRugsBot()" aria-controls="rugsBotPanel" aria-expanded="false"><span>R</span><div><strong>Rugs</strong><small>Costing Assistant</small></div></button>
+<aside class="rugs-bot-panel" id="rugsBotPanel" aria-label="Rugs costing assistant">
+  <div class="rugs-bot-head"><div class="rugs-bot-avatar">R</div><div><strong>Rugs</strong><span>Costing Assistant</span></div><button type="button" onclick="toggleRugsBot(false)" aria-label="Close assistant">×</button></div>
+  <div class="rugs-bot-context" id="rugsBotContext">Ready to explain the current costing.</div>
+  <div class="rugs-bot-quick"><button onclick="askRugsQuick('Explain the current price')">Explain price</button><button onclick="askRugsQuick('What information is missing?')">Find missing data</button><button onclick="askRugsQuick('Summarize the current costing')">Summarize costing</button></div>
+  <div class="rugs-bot-messages" id="rugsBotMessages"><div class="rugs-message bot">Hello! I’m Rugs. Ask me about the current costing, materials, prices, exchange rate, packing or approvals.</div></div>
+  <form class="rugs-bot-form" onsubmit="sendRugsMessage(event)"><textarea id="rugsBotInput" rows="2" placeholder="Ask Rugs anything about this costing…"></textarea><button type="submit" id="rugsBotSend">Send</button></form>
+</aside>
 <input type="checkbox" id="mgmtToggle" hidden aria-hidden="true">
 
 <!-- ================= CALCULATOR VIEW ================= -->
+<div class="view" id="view-home">
+  <section class="welcome-dashboard">
+    <div class="welcome-orbit welcome-orbit-one"></div><div class="welcome-orbit welcome-orbit-two"></div>
+    <div class="welcome-content">
+      <div class="welcome-eyebrow">Rugs Creation · Costing Workspace</div>
+      <h1>Welcome, <span id="welcomeUserName">Team Member</span></h1>
+      <p id="welcomeRoleLine">Your costing workspace is ready.</p>
+      <button class="welcome-begin-btn" id="welcomeBeginBtn" onclick="beginNewCosting()">Begin the Costing <span>→</span></button>
+      <div class="welcome-stats">
+        <button type="button" onclick="openWelcomeSummary('created')"><small>Last 30 days</small><strong id="welcomeStatCreated">0</strong><span>Costings created</span><em>View details →</em></button>
+        <button type="button" onclick="openWelcomeSummary('approved')"><small>Approved</small><strong id="welcomeStatApproved">0</strong><span>Approved costings</span><em>View details →</em></button>
+        <button type="button" onclick="openWelcomeSummary('pending')"><small>Waiting</small><strong id="welcomeStatPending">0</strong><span>Pending approval</span><em>View details →</em></button>
+        <button type="button" onclick="openWelcomeSummary('rejected')"><small>Returned</small><strong id="welcomeStatRejected">0</strong><span>Rejected costings</span><em>View details →</em></button>
+      </div>
+    </div>
+  </section>
+  <section class="welcome-summary-panel" id="welcomeSummaryPanel" style="display:none">
+    <div class="welcome-summary-head"><div><div class="welcome-eyebrow">Costing Summary</div><h2 id="welcomeSummaryTitle">Costings</h2><p id="welcomeSummarySubtitle"></p></div><button class="welcome-back-btn" onclick="closeWelcomeSummary()">← Back to Dashboard</button></div>
+    <div class="tablewrap"><table id="tbl-welcome-summary"></table></div>
+  </section>
+</div>
+
 <div class="view active" id="view-calc">
   <div class="calc-intro">
     <div><h2>Build a precise product costing</h2><p>Complete each step in order. Your price updates automatically as materials, rates and quantities change.</p></div>
@@ -713,9 +788,12 @@
         <div class="card-body" id="areaFieldsBody">
         <fieldset>
           <legend>Raw Material — yarn and/or fabric, one or more</legend>
+          <div class="gsm-target-panel">
+            <div><label for="areaTargetGsm">Front GSM / Quality (grams) <span class="required-mark">*</span></label><input type="number" id="areaTargetGsm" min="1" placeholder="e.g. 2000" oninput="renderAreaMaterialRows();calculate()"></div>
+            <div class="gsm-status"><span>Allocated <small>Wastage excluded</small><strong id="areaAllocatedGsm">0 g</strong></span><span>Remaining <small>Wastage excluded</small><strong id="areaRemainingGsm">—</strong></span></div>
+          </div>
           <div id="areaMaterialRows"></div>
-          <button class="addrow" onclick="addAreaMaterialRow()">+ Add material</button>
-          <div class="hint">Each line = total weight (kg) × its rate/kg + its own wastage%. Add a second line for a base cloth, a border yarn, or anything else that goes into this piece — a fabric component is priced the same way (it's still made of yarn), just enter its total weight.</div>
+          <div class="builder-action-box"><div><strong>Add another yarn or material</strong><div class="hint">Enter net weight in grams. Allocated and Remaining use only these grams; wastage affects cost separately and does not reduce the GSM balance.</div></div><button class="addrow" onclick="addAreaMaterialRow()">＋ Add material</button></div>
           <div class="row">
             <div><label>Total raw material weight</label><input type="text" id="areaMaterialWeightDisplay" disabled></div>
             <div><label>Total raw material cost</label><input type="text" id="areaMaterialCostDisplay" disabled></div>
@@ -724,30 +802,35 @@
         <fieldset>
           <legend>Construction / Making — one or more stages</legend>
           <div id="areaConstructionRows"></div>
-          <button class="addrow" onclick="addAreaConstructionRow()">+ Add construction stage</button>
+          <div class="builder-action-box"><div><strong>Add another construction stage</strong><div class="hint">Use separate stages for weaving, tufting, knitting or other making work.</div></div><button class="addrow" onclick="addAreaConstructionRow()">＋ Add construction stage</button></div>
           <div class="hint">e.g. Weaving + Tufting as two separate stages on the same piece — each gets its own rate.</div>
           <div class="hint" id="constructionAreaDesignHint" style="display:none;">One of these stages depends on the specific design — enter the agreed rate for this order above.</div>
         </fieldset>
         <fieldset>
-          <legend>Backing (optional)</legend>
-          <label class="chk"><input type="checkbox" id="backingOn"> Backing required</label>
-          <div class="row">
+          <legend>Backing</legend>
+          <div class="row"><div><label for="backingRequiredChoice">Backing required? <span class="required-mark">*</span></label><select id="backingRequiredChoice" onchange="setBackingRequired(this.value)"><option value="">-- Select Yes or No --</option><option value="yes">Yes</option><option value="no">No</option></select></div><div></div></div>
+          <input type="checkbox" id="backingOn" hidden>
+          <div id="backingFields" style="display:none;"><div class="row">
             <div><label for="backingType">Type</label><select id="backingType"></select></div>
             <div><label for="backingRate">Rate ₹/sqm (editable)</label><input type="number" id="backingRate"><div class="hint">Loaded automatically; editing changes only this costing.</div></div>
           </div>
           <div class="row" id="backingConversionRow" style="display:none;">
             <div><label for="backingGsmInput">Coating GSM for this order</label><input type="number" id="backingGsmInput" placeholder="e.g. 700"></div>
           </div>
+          </div>
         </fieldset>
         <fieldset>
           <legend>Binding — always confirm either way (rugs / carpets)</legend>
-          <label class="chk"><input type="checkbox" id="bindingOn"> Binding required</label>
-          <div class="row">
+          <div class="row"><div><label for="bindingRequiredChoice">Binding required? <span class="required-mark">*</span></label><select id="bindingRequiredChoice" onchange="setBindingRequired(this.value)"><option value="">-- Select Yes or No --</option><option value="yes">Yes</option><option value="no">No</option></select></div><div></div></div>
+          <input type="checkbox" id="bindingOn" hidden>
+          <div id="bindingFields" style="display:none;"><div class="row">
             <div><label>Perimeter (running metres)</label><input type="text" id="perimeterDisplay" disabled></div>
             <div><label for="bindingRate">Rate ₹/running metre</label><input type="number" id="bindingRate" value="34" onfocus="this.select()"></div>
           </div>
           <div class="warn" id="bindingSqmModeWarning" style="display:none;">Binding depends on a real piece's perimeter, which doesn't exist in "per square metre" mode — switch to "per piece for a specific size" if this order needs binding costed accurately.</div>
+          </div>
         </fieldset>
+        <div id="areaFieldsWarn" class="warn" style="display:none;"></div>
         <fieldset>
           <legend>Additional Processes (optional — washing, embossing, finishing, etc.)</legend>
           <div class="tablewrap" style="max-height:none; overflow:visible;">
@@ -762,7 +845,7 @@
         </div>
         <div class="card-footer">
           <button class="edit-btn workflow-back" onclick="goToCalcPage(1,true)">← Back</button>
-          <button class="save-btn workflow-next" onclick="saveCard('areaFields',['loadabilityCard'])">Next →</button>
+          <button class="save-btn workflow-next" onclick="saveAreaFieldsCard()">Next →</button>
         </div>
       </div>
 
@@ -785,6 +868,7 @@
       <div class="card wizard-locked calc-page" id="cardLoadability" data-calc-page="5">
         <h2>5 · Container Loadability</h2>
         <div class="card-body" id="cardLoadabilityBody">
+        <div class="pack-choice-panel"><label for="loadPackMode">Outermost packing loaded into container <span class="required-mark">*</span></label><select id="loadPackMode" onchange="updateLoadability()"><option value="">-- Select packing type --</option><option value="box">Box / Carton Pack</option><option value="bale">Bale / Roll Pack (loose)</option><option value="pdq">PDQ Pack</option></select><div class="hint">If pieces or bales go inside a carton, choose Box / Carton. Choose Bale / Roll only when loaded loose.</div></div>
         <div id="loadabilityCheckboxLabel" style="font-weight:bold; margin-bottom:10px;">Packed Carton Dimension:-</div>
         <div id="loadabilityInputs">
           <div class="row3">
@@ -856,6 +940,10 @@
         <div class="page-eyebrow">Final page</div>
         <h2>Costing Complete</h2>
         <div class="hint">Attach the product reference photo, then choose the document or approval action you need.</div>
+        <div class="final-fx-panel">
+          <div><div class="page-eyebrow">Quote exchange rate</div><strong>Choose ₹ per USD for this costing</strong><div class="hint">Master Data provides the default. Changing this value affects only this costing, its summary and downloaded documents.</div></div>
+          <div><label for="finalFxRate">Exchange rate ₹ / USD</label><input type="number" id="finalFxRate" min="0.01" step="0.01" placeholder="e.g. 90" oninput="setQuoteExchangeRate(this.value)"><div class="hint" id="finalFxMasterHint">Master default: ₹90 / USD</div></div>
+        </div>
         <div class="photo-upload-panel">
           <label for="quotePhoto"><strong>Attach product photo</strong></label>
           <input type="file" id="quotePhoto" accept="image/*" onchange="handleQuotePhoto(this)">
@@ -941,7 +1029,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="dataTransferCard">
     <h2>Excel Backend</h2>
     <div class="hint">Maintain rates in a spreadsheet if that's easier for your team, then upload it here to sync everyone's live dashboard. Or download the current data anytime as a backup / to edit offline. <strong>Right now, this is also your safest way to carry master data between different versions of the dashboard file</strong> — see the note above if that's unclear.</div>
     <div class="row">
@@ -1115,6 +1203,12 @@
   </div>
 </div>
 
+<div class="view" id="view-data">
+  <div class="card data-page-hero"><div class="page-eyebrow">Master Database Tools</div><h2>Data Import &amp; Rate Templates</h2><div class="hint">Download backups, restore master data, or apply monthly Yarn and Fabric rate changes from one dedicated workspace.</div></div>
+  <div class="data-tool-status-grid"><div><strong>Full master backup</strong><span>Download or restore every master table.</span></div><div><strong>Monthly rate update</strong><span>Updates only populated, changed Yarn and Fabric rates.</span></div><div><strong>Automatic refresh</strong><span>Calculator dropdowns and prices refresh after a successful upload.</span></div></div>
+  <div id="dataTransferHost"></div>
+</div>
+
 <!-- ================= SECURE ADMIN VIEW ================= -->
 <div class="view" id="view-admin">
   <div class="card admin-hero">
@@ -1125,9 +1219,16 @@
     <div class="admin-tabs" role="tablist" aria-label="Administration sections">
       <button class="admin-tab-btn active" data-admin="customers">Buyer Master</button>
       <button class="admin-tab-btn" data-admin="users">Users &amp; Approvals</button>
+      <button class="admin-tab-btn" data-admin="teams">Teams &amp; Authority</button>
       <button class="admin-tab-btn" data-admin="articleMaster">Locked Quotes</button>
       <button class="admin-tab-btn" data-admin="settings">Settings</button>
     </div>
+  </div>
+  <div class="card adminsection" id="master-teams">
+    <h2>Teams &amp; Role Authority</h2>
+    <div class="admin-note">Assign every Employee to one Junior Admin. Super Admins retain visibility and control across all teams.</div>
+    <div class="team-builder-grid"><div><label for="teamJuniorAdmin">Junior Admin / Team Leader</label><select id="teamJuniorAdmin"></select></div><div><label for="teamEmployee">Employee to assign</label><select id="teamEmployee"></select></div><div><button class="save-btn" onclick="assignEmployeeToTeam()">Assign to Team</button></div></div>
+    <div class="tablewrap"><table id="tbl-teams"></table></div><div id="teamManagementNote" class="save-note"></div>
   </div>
   <div id="adminSectionHost"></div>
 </div>
@@ -1157,6 +1258,22 @@
     <div class="tablewrap" style="max-height:600px;"><table id="tbl-history"></table></div>
   </div>
   <dialog id="historyQuoteDialog"><div class="quote-preview"><div id="historyQuotePreview"></div><div class="card-footer"><button class="save-btn" id="historyDialogDownloadBtn">⬇ Download Full Costing</button><button class="edit-btn" onclick="document.getElementById('historyQuoteDialog').close()">Close</button></div></div></dialog>
+</div>
+
+<div class="view" id="view-approvals">
+  <div class="card approval-hero"><h2>Team Costing Approvals</h2><div class="hint" id="approvalScopeNote">Review costings submitted by your assigned team.</div></div>
+  <div class="approval-summary-grid"><div><span>Pending</span><strong id="approvalPendingCount">0</strong></div><div><span>Approved</span><strong id="approvalApprovedCount">0</strong></div><div><span>Rejected</span><strong id="approvalRejectedCount">0</strong></div></div>
+  <div class="card"><div class="tablewrap" style="max-height:650px"><table id="tbl-approval-queue"></table></div><div id="approvalQueueNote" class="save-note"></div></div>
+</div>
+
+<div class="view" id="view-access">
+  <div class="card access-hero"><div class="page-eyebrow">Visibility Control</div><h2>User Access &amp; Permissions</h2><div class="hint" id="accessScopeNote">Choose which pages and tools each user can see.</div></div>
+  <div class="card">
+    <div class="access-user-picker"><div><label for="accessUserSelect">Select user</label><select id="accessUserSelect" onchange="renderPermissionEditor()"></select></div><div id="accessSelectedRole" class="access-role-card">Select a user to manage access.</div></div>
+    <div id="permissionEditor" class="permission-grid"></div>
+    <div class="card-footer"><button class="save-btn" id="savePermissionsBtn" onclick="saveSelectedUserPermissions()">Save Access</button></div>
+    <div id="accessManagementNote" class="save-note"></div>
+  </div>
 </div>
 
 <div class="view" id="view-profile">
@@ -1535,9 +1652,23 @@ function renderFabricConversionUI(prefix){
 function renderBackingConversionUI(){
   const backing = DB.backings[document.getElementById("backingType").value];
   const row = document.getElementById("backingConversionRow");
-  if (!backing || backing.sourceUnit !== "KG"){ row.style.display="none"; return; }
-  row.style.display="grid";
-  document.getElementById("backingGsmInput").value = backing.gsm ?? "";
+  if (!backing){ row.style.display="none"; document.getElementById("backingRate").value=""; return; }
+  if (backing.sourceUnit === "KG"){
+    row.style.display="grid";
+    if (!document.getElementById("backingGsmInput").value) document.getElementById("backingGsmInput").value = backing.gsm ?? "";
+  } else row.style.display="none";
+  const applied = backingRatePerSqm(backing,parseFloat(document.getElementById("backingGsmInput").value));
+  document.getElementById("backingRate").value = applied.ok ? applied.value.toFixed(2) : "";
+}
+function setBackingRequired(value){
+  document.getElementById("backingOn").checked = value === "yes";
+  document.getElementById("backingFields").style.display = value === "yes" ? "block" : "none";
+  calculate();
+}
+function setBindingRequired(value){
+  document.getElementById("bindingOn").checked = value === "yes";
+  document.getElementById("bindingFields").style.display = value === "yes" ? "block" : "none";
+  calculate();
 }
 
 function mergeArraysByName(stored, defaults){
@@ -1728,6 +1859,7 @@ let CURRENT_USER = null;
 let CURRENT_PROFILE = null;
 let AUTH_MODE = "login";
 let AUTH_SESSION_PROMISE = null;
+let COSTING_WORKSPACE_ENTERED = false;
 
 function normalizeUsername(name){
   return String(name || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, ".").replace(/^\.+|\.+$/g, "");
@@ -1763,34 +1895,129 @@ function openCalculatorView(){
   document.querySelectorAll(".tab-btn").forEach(btn=>btn.classList.toggle("active", btn.dataset.tab === "calc"));
   document.querySelectorAll(".view").forEach(view=>view.classList.toggle("active", view.id === "view-calc"));
 }
+function normalizedRole(role, username=""){
+  const key=normalizeUsername(username);
+  if (key==="priyanshu") return "super_admin";
+  if (key==="jagjit") return "junior_admin";
+  if (role==="admin" || role==="superadmin") return "super_admin";
+  if (role==="junioradmin") return "junior_admin";
+  return role || "employee";
+}
+const PAGE_PERMISSION_DEFS={
+  calc:{label:"Calculator",description:"Create and calculate product costings."},
+  masters:{label:"Master Data",description:"View and edit rates and master tables."},
+  data:{label:"Data Import & Templates",description:"Download or upload Excel master files and monthly rates."},
+  admin:{label:"Administration",description:"Open buyer, user, team and commercial administration."},
+  quick:{label:"Quick Quote",description:"Use the type-and-get-price quick quote tool."},
+  history:{label:"History",description:"View permitted costing history and documents."},
+  approvals:{label:"Approvals",description:"Review and decide team costing submissions."},
+  access:{label:"User Access",description:"Manage visibility for permitted team members."}
+};
+const ROLE_PERMISSION_DEFAULTS={
+  employee:{calc:true,history:true},
+  junior_admin:{calc:true,history:true,approvals:true,access:true},
+  super_admin:Object.fromEntries(Object.keys(PAGE_PERMISSION_DEFS).map(key=>[key,true]))
+};
+function effectivePermissions(profile=CURRENT_PROFILE){
+  const role=profile?.role||"employee";
+  return {...(ROLE_PERMISSION_DEFAULTS[role]||ROLE_PERMISSION_DEFAULTS.employee),...(profile?.permissions||{})};
+}
+function hasPagePermission(page){
+  if(page==="home"||page==="profile")return true;
+  if(isSuperAdmin())return true;
+  return effectivePermissions()[page]===true;
+}
+function canManageUserAccess(){ return isSuperAdmin() || (isJuniorAdmin() && hasPagePermission("access")); }
+function isSuperAdmin(){ return CURRENT_PROFILE?.role === "super_admin"; }
+function isJuniorAdmin(){ return CURRENT_PROFILE?.role === "junior_admin"; }
+function openHomeView(){
+  document.querySelectorAll(".tab-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.tab==="home"));
+  document.querySelectorAll(".view").forEach(view=>view.classList.toggle("active",view.id==="view-home"));
+  document.body.classList.toggle("welcome-only",!COSTING_WORKSPACE_ENTERED);
+  closeWelcomeSummary();
+  renderWelcomeDashboard();
+}
+function toggleMenuDrawer(){
+  const open=!document.body.classList.contains("menu-drawer-open");
+  document.body.classList.toggle("menu-drawer-open",open);
+  document.getElementById("menuBtn")?.setAttribute("aria-expanded",String(open));
+}
+const RUGS_AI_ENDPOINT=""; // Set only to a secure server/worker URL. Never place an AI API key in this file.
+function toggleRugsBot(force){
+  const panel=document.getElementById("rugsBotPanel");
+  const open=typeof force==="boolean"?force:!panel.classList.contains("open");
+  panel.classList.toggle("open",open);document.getElementById("rugsBotLauncher")?.setAttribute("aria-expanded",String(open));
+  if(open)refreshRugsBotContext();
+}
+function refreshRugsBotContext(){
+  const s=window.lastQuoteSummary,el=document.getElementById("rugsBotContext");if(!el)return;
+  el.textContent=s&&s.product?`${String(s.product).replaceAll("_"," ")} · ${s.articleNo||"No article"} · FOB $${Number(s.fobUsd||0).toFixed(2)}`:"No active costing yet. Begin a costing or ask a general workflow question.";
+}
+function addRugsMessage(text,type="bot"){
+  const box=document.getElementById("rugsBotMessages"),message=document.createElement("div");message.className=`rugs-message ${type}`;message.textContent=text;box.appendChild(message);box.scrollTop=box.scrollHeight;
+}
+function rugsLocalAnswer(question){
+  const q=question.toLowerCase(),s=window.lastQuoteSummary;
+  if(q.includes("missing")){
+    const missing=[];if(!document.getElementById("product")?.value)missing.push("product");if(!(parseFloat(document.getElementById("length")?.value)>0))missing.push("length");if(!(parseFloat(document.getElementById("width")?.value)>0))missing.push("width");if(!document.getElementById("customer")?.value)missing.push("buyer code");if(!(parseFloat(document.getElementById("qty")?.value)>0))missing.push("order quantity");return missing.length?`Still required: ${missing.join(", ")}.`:`The main required costing details are filled. Review each completed segment before submitting.`;
+  }
+  if(!s)return "There is no calculated costing yet. Click Begin the Costing, choose a product and enter its size so I can explain the figures.";
+  if(q.includes("explain")||q.includes("price"))return `The visible cost is ₹${Number(s.visibleCost||0).toFixed(2)}. After ${Number(s.overheadPct||0).toFixed(2)}% overhead it becomes ₹${Number(s.costWithOH||0).toFixed(2)}. Margin, commission and buying-agency deductions produce ₹${Number(s.finalInr||0).toFixed(2)}. At ₹${Number(s.fx||0).toFixed(2)}/USD plus the quantity adjustment of $${Number(s.qtyBuffer||0).toFixed(2)}, the FOB is $${Number(s.fobUsd||0).toFixed(2)}.`;
+  if(q.includes("summar"))return `${s.articleNo||"This article"} for ${s.customer||"the selected buyer"}: ${String(s.product||"").replaceAll("_"," ")}, ${s.L||0} × ${s.W||0} cm, quantity ${s.qty||0}. Raw material ₹${Number(s.rawMaterial||0).toFixed(2)}, processes ₹${Number(s.processCost||0).toFixed(2)}, packaging/forwarding ₹${Number(s.packAndFwd||0).toFixed(2)}, final FOB $${Number(s.fobUsd||0).toFixed(2)}.`;
+  if(q.includes("exchange")||q.includes("usd"))return `This costing uses ₹${Number(s.fx||0).toFixed(2)} per USD. Change it on the Final page; the summary and PDFs will recalculate automatically.`;
+  return "The Rugs interface is ready, but unrestricted AI answers require the secure server endpoint. I can currently explain the active price, summarize the costing, identify missing information and explain the exchange rate.";
+}
+async function sendRugsMessage(event){
+  event?.preventDefault();const input=document.getElementById("rugsBotInput"),question=input.value.trim();if(!question)return;input.value="";addRugsMessage(question,"user");
+  if(!RUGS_AI_ENDPOINT){addRugsMessage(rugsLocalAnswer(question));return;}
+  const send=document.getElementById("rugsBotSend");send.disabled=true;
+  try{const token=await CURRENT_USER?.firebaseUser?.getIdToken?.();const response=await fetch(RUGS_AI_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({question,context:window.lastQuoteSummary||null})});if(!response.ok)throw new Error("Assistant service unavailable");const data=await response.json();addRugsMessage(data.answer||"No answer was returned.");}catch(error){addRugsMessage(error.message||"Rugs could not respond.","error");}finally{send.disabled=false;}
+}
+function askRugsQuick(question){document.getElementById("rugsBotInput").value=question;sendRugsMessage(new Event("submit"));}
+function closeMenuDrawer(){ document.body.classList.remove("menu-drawer-open"); document.getElementById("menuBtn")?.setAttribute("aria-expanded","false"); }
+document.addEventListener("keydown",event=>{ if(event.key==="Escape")closeMenuDrawer(); });
+function beginNewCosting(){
+  COSTING_WORKSPACE_ENTERED=true;QUOTE_FX_OVERRIDE=null;syncFinalExchangeRate(true);document.body.classList.remove("welcome-only");document.getElementById("menuBtn").style.display="inline-block";
+  document.getElementById("rugsBotLauncher").style.display="flex";
+  if(hasPagePermission("calc")){openCalculatorView();goToCalcPage(1,true);}
+  else{const first=["history","profile"].find(hasPagePermission)||"profile";document.querySelector(`.tab-btn[data-tab="${first}"]`)?.click();}
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 
 function applyUserRole(role){
-  const isAdmin = role === "admin";
+  const isAdmin = role === "super_admin";
+  const canApprove = isAdmin || (role === "junior_admin" && effectivePermissions().approvals);
   document.body.classList.toggle("employee-mode", !isAdmin);
   document.body.classList.toggle("admin-mode", isAdmin);
+  document.body.classList.toggle("junior-admin-mode",role==="junior_admin");
   document.getElementById("loginGate").style.display = "none";
   document.getElementById("logoutBtn").style.display = "block";
+  document.getElementById("menuBtn").style.display = "none";
+  document.getElementById("rugsBotLauncher").style.display = "none";
   document.querySelectorAll(".tab-btn").forEach(btn=>{
-    const employeeAllowed = btn.dataset.tab === "calc" || btn.dataset.tab === "history" || btn.dataset.tab === "profile";
-    btn.style.display = (isAdmin || employeeAllowed) ? "" : "none";
+    btn.style.display = hasPagePermission(btn.dataset.tab) ? "" : "none";
   });
   document.getElementById("mgmtToggle").checked = false;
   document.getElementById("mgmtPanel").style.display = "none";
-  if (!isAdmin){
-    openCalculatorView();
-  }
+  COSTING_WORKSPACE_ENTERED=false;
+  document.getElementById("historyAllBtn").style.display = canApprove ? "" : "none";
+  openHomeView();
 }
 
 async function finishAuthenticatedSession(role, cloudProfile=null, firebaseUser=null){
   let savedProfile = {};
   try{ savedProfile = JSON.parse(localStorage.getItem("rc_profile_" + (firebaseUser?.uid || role)) || "{}"); }catch(e){}
   const username = cloudProfile?.username || LEGACY_USER_ID;
+  role = normalizedRole(role,username);
   CURRENT_USER = {id:firebaseUser?.uid || role, uid:firebaseUser?.uid || null, userId:username, authEmail:firebaseUser?.email || "", firebaseUser};
   CURRENT_PROFILE = {
     role,
-    full_name:cloudProfile?.fullName || savedProfile.full_name || (role === "admin" ? "Administrator" : "Employee"),
+    teamLeadId:cloudProfile?.teamLeadId || "",
+    teamLeadName:cloudProfile?.teamLeadName || "",
+    permissions:cloudProfile?.permissions || {},
+    full_name:cloudProfile?.fullName || savedProfile.full_name || (role === "super_admin" ? "Administrator" : role === "junior_admin" ? "Junior Admin" : "Employee"),
     phone:cloudProfile?.phone || savedProfile.phone || "",
-    email:cloudProfile?.contactEmail || savedProfile.email || (role === "admin" ? "admin@rugscreation.com" : "")
+    email:cloudProfile?.contactEmail || savedProfile.email || (role === "super_admin" ? "admin@rugscreation.com" : "")
   };
   applyUserRole(role);
   document.getElementById("profileFullName").value = CURRENT_PROFILE.full_name;
@@ -1807,7 +2034,8 @@ async function finishAuthenticatedSession(role, cloudProfile=null, firebaseUser=
   renderHistoryTable(document.getElementById("historySearch").value);
   startMasterRealtime();
   startHistoryRealtime();
-  if (role === "admin") startUserDirectoryRealtime();
+  if (canManageUserAccess()) startUserDirectoryRealtime();
+  renderWelcomeDashboard(); renderApprovalQueue();
 }
 
 async function changeMyPassword(){
@@ -1851,7 +2079,7 @@ async function saveMyProfile(){
   noteEl.style.display = "block";
   try{
     localStorage.setItem("rc_profile_" + CURRENT_USER.id, JSON.stringify({full_name:fullName, phone}));
-    if (CURRENT_USER.uid && CURRENT_PROFILE.role !== "admin"){
+    if (CURRENT_USER.uid && !isSuperAdmin()){
       await FIRESTORE.collection("users").doc(CURRENT_USER.uid).update({fullName, phone, updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
     }
     CURRENT_PROFILE.full_name = fullName;
@@ -1890,6 +2118,7 @@ document.getElementById("loginForm").addEventListener("submit", async event=>{
         usernameKey,
         contactEmail,
         role:"employee",
+        permissions:{...ROLE_PERMISSION_DEFAULTS.employee},
         status:"pending",
         phone,
         loginCount:0,
@@ -1929,7 +2158,7 @@ document.getElementById("loginForm").addEventListener("submit", async event=>{
         loginCount:firebase.firestore.FieldValue.increment(1),
         loginHistory:firebase.firestore.FieldValue.arrayUnion(loginTime)
       }).catch(historyError=>console.warn("Sign-in history could not be recorded:", historyError));
-      await ensureAuthenticatedSession("employee", profile, credential.user);
+      await ensureAuthenticatedSession(normalizedRole(profile.role,profile.username), profile, credential.user);
     }
     error.textContent = "";
   }catch(authError){
@@ -1961,7 +2190,7 @@ if (FIREBASE_AUTH){
         await FIREBASE_AUTH.signOut();
         return;
       }
-      await ensureAuthenticatedSession("employee", profile, firebaseUser);
+      await ensureAuthenticatedSession(normalizedRole(profile.role,profile.username), profile, firebaseUser);
     }catch(error){
       console.error("Unable to restore the signed-in session:", error);
       document.getElementById("loginError").textContent = "Unable to restore your session. Please sign in again.";
@@ -1975,6 +2204,9 @@ document.getElementById("logoutBtn").addEventListener("click", async ()=>{
 });
 
 /* ================= TAB NAV ================= */
+const dataTransferCard=document.getElementById("dataTransferCard");
+const dataTransferHost=document.getElementById("dataTransferHost");
+if(dataTransferCard && dataTransferHost) dataTransferHost.appendChild(dataTransferCard);
 const adminHost = document.getElementById("adminSectionHost");
 ["customers","users","articleMaster","settings"].forEach(key=>{
   const section = document.getElementById("master-" + key);
@@ -1983,11 +2215,15 @@ const adminHost = document.getElementById("adminSectionHost");
 document.getElementById("master-customers")?.classList.add("active");
 document.querySelectorAll(".tab-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
-    if (document.body.classList.contains("employee-mode") && !["calc","history","profile"].includes(btn.dataset.tab)) return;
+    if (!hasPagePermission(btn.dataset.tab)) return;
     document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
     document.getElementById("view-"+btn.dataset.tab).classList.add("active");
+    if (btn.dataset.tab==="home") renderWelcomeDashboard();
+    if (btn.dataset.tab==="approvals") renderApprovalQueue();
+    if (btn.dataset.tab==="access") renderAccessUserPicker();
+    closeMenuDrawer();
   });
 });
 document.querySelectorAll("#view-masters .mtab-btn").forEach(btn=>{
@@ -2017,24 +2253,31 @@ function renderUserDirectory(){
   const table = document.getElementById("tbl-users");
   if (!table) return;
   const rows = USER_DIRECTORY.slice().sort((a,b)=>(b.createdMillis||0)-(a.createdMillis||0));
-  let html = "<tr><th>Name</th><th>Username</th><th>Email</th><th>Mobile</th><th>Status</th><th>Registered</th><th>Last login</th><th>Actions</th></tr>";
+  let html = "<tr><th>Name</th><th>Username</th><th>Role</th><th>Team Leader</th><th>Email</th><th>Mobile</th><th>Status</th><th>Last login</th><th>Actions</th></tr>";
   rows.forEach(user=>{
-    const action = user.status === "approved"
-      ? `<button class="del-btn" onclick="setUserStatus('${user.id}','disabled')">Disable</button>`
-      : `<button class="save-btn" onclick="setUserStatus('${user.id}','approved')">${user.status === "pending" ? "Approve" : "Enable"}</button>`;
     const historyAction = `<button class="edit-btn" onclick="showUserLoginHistory('${user.id}')">History (${Number(user.loginCount)||0})</button>`;
-    const deleteAction = `<button class="del-btn" onclick="deleteUserRegistration('${user.id}')">Delete registration</button>`;
-    html += `<tr><td>${escapeUserText(user.fullName)}</td><td>${escapeUserText(user.username)}</td><td>${escapeUserText(user.contactEmail || "—")}</td><td>${escapeUserText(user.phone || "—")}</td><td>${escapeUserText(user.status)}</td><td>${escapeUserText(user.createdLabel)}</td><td>${escapeUserText(user.lastLoginLabel)}</td><td><div class="user-actions">${action}${historyAction}${deleteAction}</div></td></tr>`;
+    const role=normalizedRole(user.role,user.username);
+    const roleControl=`<select class="user-role-select" onchange="setUserRole('${user.id}',this.value)"><option value="employee" ${role==="employee"?"selected":""}>Employee</option><option value="junior_admin" ${role==="junior_admin"?"selected":""}>Junior Admin</option><option value="super_admin" ${role==="super_admin"?"selected":""}>Super Admin</option></select>`;
+    const statusAction=user.status==="approved"?"disable":"approve";
+    const statusLabel=user.status==="approved"?"Disable user":(user.status==="pending"?"Approve user":"Enable user");
+    const actionMenu=`<select class="user-action-select" aria-label="Actions for ${escapeUserText(user.username)}" onchange="handleUserDirectoryAction('${user.id}',this.value);this.value=''"><option value="">Choose action…</option><option value="${statusAction}">${statusLabel}</option><option value="delete">Delete registration</option></select>`;
+    html += `<tr><td><strong>${escapeUserText(user.fullName)}</strong></td><td>${escapeUserText(user.username)}</td><td>${roleControl}</td><td>${escapeUserText(user.teamLeadName || "—")}</td><td>${escapeUserText(user.contactEmail || "—")}</td><td>${escapeUserText(user.phone || "—")}</td><td><span class="user-status-pill ${escapeUserText(user.status)}">${escapeUserText(user.status)}</span></td><td>${escapeUserText(user.lastLoginLabel)}</td><td><div class="user-actions">${actionMenu}${historyAction}</div></td></tr>`;
   });
-  table.innerHTML = rows.length ? html : html + "<tr><td colspan='8'>No user registrations yet.</td></tr>";
+  table.innerHTML = rows.length ? html : html + "<tr><td colspan='9'>No user registrations yet.</td></tr>";
   const note = document.getElementById("userApprovalNote");
   if (note){
     const pendingCount = rows.filter(user=>user.status === "pending").length;
     note.textContent = pendingCount ? pendingCount + " registration(s) waiting for approval." : "No registrations are waiting for approval.";
   }
+  renderTeamManagement();
+}
+function handleUserDirectoryAction(uid,action){
+  if(action==="approve")setUserStatus(uid,"approved");
+  else if(action==="disable")setUserStatus(uid,"disabled");
+  else if(action==="delete")deleteUserRegistration(uid);
 }
 function startUserDirectoryRealtime(){
-  if (!FIRESTORE || userDirectoryUnsubscribe || CURRENT_PROFILE?.role !== "admin") return;
+  if (!FIRESTORE || userDirectoryUnsubscribe || !canManageUserAccess()) return;
   userDirectoryUnsubscribe = FIRESTORE.collection("users").onSnapshot(snapshot=>{
     snapshot.docs.forEach(doc=>{
       const oldData = doc.data();
@@ -2050,13 +2293,14 @@ function startUserDirectoryRealtime(){
       return {...data, id:doc.id, loginHistoryDates:history, createdMillis:date ? date.getTime() : 0, createdLabel:date ? date.toLocaleString() : "Just now", lastLoginLabel:lastLogin ? lastLogin.toLocaleString() : "Never"};
     });
     renderUserDirectory();
+    renderAccessUserPicker();
   }, error=>{
     const note = document.getElementById("userApprovalNote");
     if (note) note.textContent = "Unable to load registrations: " + error.message;
   });
 }
 async function setUserStatus(uid, status){
-  if (CURRENT_PROFILE?.role !== "admin" || !["approved","disabled"].includes(status)) return;
+  if (!isSuperAdmin() || !["approved","disabled"].includes(status)) return;
   const note = document.getElementById("userApprovalNote");
   try{
     if (note) note.textContent = "Saving...";
@@ -2073,7 +2317,7 @@ function showUserLoginHistory(uid){
   panel.innerHTML = `<strong>${escapeUserText(user.username)} — sign-in history</strong><button class="del-btn" style="float:right" onclick="this.parentElement.classList.remove('active')">Close</button><div style="clear:both;margin-top:10px">${history.length ? history.map((date,index)=>`<div>${index+1}. ${escapeUserText(date.toLocaleString())}</div>`).join("") : "No completed sign-ins recorded yet."}</div>`;
 }
 async function deleteUserRegistration(uid){
-  if (CURRENT_PROFILE?.role !== "admin") return;
+  if (!isSuperAdmin()) return;
   const user = USER_DIRECTORY.find(item=>item.id === uid);
   if (!user || !confirm(`Delete the registration and dashboard access for ${user.username}?`)) return;
   const note = document.getElementById("userApprovalNote");
@@ -2082,6 +2326,72 @@ async function deleteUserRegistration(uid){
     await FIRESTORE.collection("users").doc(uid).delete();
     if (note) note.textContent = "Registration deleted and dashboard access removed ✓";
   }catch(error){ if (note) note.textContent = "Could not delete registration: " + error.message; }
+}
+async function setUserRole(uid,role){
+  if (!isSuperAdmin() || !["employee","junior_admin","super_admin"].includes(role)) return;
+  const note=document.getElementById("userApprovalNote");
+  try{ await FIRESTORE.collection("users").doc(uid).update({role,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}); if(note)note.textContent="Role updated ✓"; }
+  catch(error){ if(note)note.textContent="Role update failed: "+error.message; }
+}
+function renderTeamManagement(){
+  const leaders=USER_DIRECTORY.filter(u=>normalizedRole(u.role,u.username)==="junior_admin" && u.status==="approved");
+  const employees=USER_DIRECTORY.filter(u=>normalizedRole(u.role,u.username)==="employee" && u.status==="approved");
+  const leaderSelect=document.getElementById("teamJuniorAdmin"), employeeSelect=document.getElementById("teamEmployee");
+  if (!leaderSelect || !employeeSelect) return;
+  leaderSelect.innerHTML='<option value="">-- Select Junior Admin --</option>'+leaders.map(u=>`<option value="${u.id}">${escapeUserText(u.username||u.fullName)}</option>`).join("");
+  employeeSelect.innerHTML='<option value="">-- Select Employee --</option>'+employees.map(u=>`<option value="${u.id}">${escapeUserText(u.username||u.fullName)}${u.teamLeadName?` — ${escapeUserText(u.teamLeadName)}`:""}</option>`).join("");
+  const table=document.getElementById("tbl-teams");
+  let html="<tr><th>Junior Admin</th><th>Assigned Employees</th><th>Members</th></tr>";
+  leaders.forEach(leader=>{ const members=employees.filter(e=>e.teamLeadId===leader.id); html+=`<tr><td><strong>${escapeUserText(leader.username||leader.fullName)}</strong></td><td>${members.length?members.map(m=>escapeUserText(m.username||m.fullName)).join(", "):"No employees assigned"}</td><td>${members.length}</td></tr>`; });
+  table.innerHTML=leaders.length?html:html+'<tr><td colspan="3">Set at least one approved user as Junior Admin.</td></tr>';
+}
+async function assignEmployeeToTeam(){
+  if (!isSuperAdmin()) return;
+  const leaderId=document.getElementById("teamJuniorAdmin").value, employeeId=document.getElementById("teamEmployee").value;
+  const note=document.getElementById("teamManagementNote"), leader=USER_DIRECTORY.find(u=>u.id===leaderId);
+  if (!leaderId || !employeeId){ note.textContent="Select both a Junior Admin and an Employee."; return; }
+  try{ await FIRESTORE.collection("users").doc(employeeId).update({teamLeadId:leaderId,teamLeadName:leader.username||leader.fullName,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}); note.textContent="Employee assigned to team ✓"; }
+  catch(error){ note.textContent="Team assignment failed: "+error.message; }
+}
+function manageableAccessUsers(){
+  if(isSuperAdmin()) return USER_DIRECTORY.filter(user=>user.id!==CURRENT_USER?.id && normalizedRole(user.role,user.username)!=="super_admin");
+  if(isJuniorAdmin()) return USER_DIRECTORY.filter(user=>normalizedRole(user.role,user.username)==="employee" && String(user.teamLeadId||"")===String(CURRENT_USER?.id||""));
+  return [];
+}
+function renderAccessUserPicker(){
+  const select=document.getElementById("accessUserSelect"); if(!select)return;
+  const previous=select.value;
+  const users=manageableAccessUsers().sort((a,b)=>String(a.username||a.fullName).localeCompare(String(b.username||b.fullName)));
+  select.innerHTML='<option value="">-- Select user --</option>'+users.map(user=>`<option value="${user.id}">${escapeUserText(user.username||user.fullName)} — ${normalizedRole(user.role,user.username).replaceAll("_"," ")}</option>`).join("");
+  if(users.some(user=>user.id===previous))select.value=previous;
+  document.getElementById("accessScopeNote").textContent=isSuperAdmin()?"You can configure Junior Admins and Employees. Other Super Admin accounts remain protected.":"You can configure only Employees assigned to your team, and only within your own granted authority.";
+  renderPermissionEditor();
+}
+function renderPermissionEditor(){
+  const id=document.getElementById("accessUserSelect")?.value;
+  const user=manageableAccessUsers().find(item=>item.id===id);
+  const editor=document.getElementById("permissionEditor"),roleCard=document.getElementById("accessSelectedRole"),saveBtn=document.getElementById("savePermissionsBtn");
+  if(!editor||!roleCard)return;
+  if(!user){ editor.innerHTML="";roleCard.textContent="Select a user to manage access.";if(saveBtn)saveBtn.disabled=true;return; }
+  if(saveBtn)saveBtn.disabled=false;
+  const role=normalizedRole(user.role,user.username),permissions={...(ROLE_PERMISSION_DEFAULTS[role]||{}),...(user.permissions||{})},managerPermissions=effectivePermissions();
+  roleCard.innerHTML=`<div><strong>${escapeUserText(user.username||user.fullName)}</strong><div class="hint" style="margin:4px 0 0">${role.replaceAll("_"," ")} ${user.teamLeadName?`· Team ${escapeUserText(user.teamLeadName)}`:""}</div></div>`;
+  editor.innerHTML=Object.entries(PAGE_PERMISSION_DEFS).map(([key,def])=>{
+    const managerCanGrant=isSuperAdmin() || managerPermissions[key]===true;
+    const checked=permissions[key]===true;
+    return `<label class="permission-option ${checked?"permission-on":""} ${managerCanGrant?"":"permission-locked"}"><input type="checkbox" data-permission="${key}" ${checked?"checked":""} ${managerCanGrant?"":"disabled"} onchange="this.closest('.permission-option').classList.toggle('permission-on',this.checked)"><div><strong>${def.label}</strong><span>${def.description}</span></div></label>`;
+  }).join("")+(isJuniorAdmin()?'<div class="access-limit-note">Permissions unavailable to you are locked. Ask a Super Admin if your own authority needs to change.</div>':"");
+}
+async function saveSelectedUserPermissions(){
+  if(!canManageUserAccess())return;
+  const id=document.getElementById("accessUserSelect").value,user=manageableAccessUsers().find(item=>item.id===id),note=document.getElementById("accessManagementNote");
+  if(!user){note.textContent="Select a user first.";return;}
+  const current={...(user.permissions||{})},managerPermissions=effectivePermissions();
+  document.querySelectorAll("#permissionEditor input[data-permission]").forEach(input=>{if(isSuperAdmin()||managerPermissions[input.dataset.permission]===true)current[input.dataset.permission]=input.checked;});
+  user.permissions=current;note.textContent="Saving access…";
+  try{await FIRESTORE.collection("users").doc(id).update({permissions:current,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});note.textContent="User access saved ✓";}
+  catch(error){note.textContent="Access saved for this session only. Firebase rules must be updated before Junior Admin changes can sync: "+error.message;}
+  renderPermissionEditor();
 }
 
 /* ================= MASTER TABLE RENDERING ================= */
@@ -2264,6 +2574,18 @@ function renderAllMasterTables(){
 
 /* ================= CALCULATOR ================= */
 let CURRENT_CALC_PAGE = 1;
+let QUOTE_FX_OVERRIDE = null;
+function activeQuoteExchangeRate(){ return Number(QUOTE_FX_OVERRIDE)>0 ? Number(QUOTE_FX_OVERRIDE) : (Number(DB.settings.exchangeRate)||90); }
+function syncFinalExchangeRate(force=false){
+  const input=document.getElementById("finalFxRate"); if(!input)return;
+  if(force || !input.value) input.value=activeQuoteExchangeRate().toFixed(2);
+  const hint=document.getElementById("finalFxMasterHint"); if(hint)hint.textContent=`Master default: ₹${Number(DB.settings.exchangeRate||90).toFixed(2)} / USD`;
+}
+function setQuoteExchangeRate(value){
+  const parsed=parseFloat(value);
+  QUOTE_FX_OVERRIDE=Number.isFinite(parsed)&&parsed>0?parsed:null;
+  calculate();
+}
 const CALC_CARD_PAGE = {cardCustomer:1,stitchedFields:2,areaFields:2,stitchedProcessFields:3,loadabilityCard:4,cardLoadability:5,cardPackaging:6,cardFinalActions:7};
 function pageCardFor(page){
   const product = document.getElementById("product").value;
@@ -2668,7 +2990,8 @@ document.addEventListener("click", (e)=>{
 document.getElementById("customer").addEventListener("change", ()=>{ renderCustomCustomerUI(); calculate(); });
 document.getElementById("frontFabric").addEventListener("change", ()=>{ renderFabricConversionUI("front"); calculate(); });
 document.getElementById("backFabric").addEventListener("change", ()=>{ renderFabricConversionUI("back"); calculate(); });
-document.getElementById("backingType").addEventListener("change", ()=>{ renderBackingConversionUI(); calculate(); });
+document.getElementById("backingType").addEventListener("change", ()=>{ document.getElementById("backingGsmInput").value=""; renderBackingConversionUI(); calculate(); });
+document.getElementById("backingGsmInput").addEventListener("input", ()=>{ const backing=DB.backings[document.getElementById("backingType").value]; const r=backingRatePerSqm(backing,parseFloat(document.getElementById("backingGsmInput").value)); document.getElementById("backingRate").value=r.ok?r.value.toFixed(2):""; calculate(); });
 
 function normalizeProcessBasis(basisStr){
   const s = (basisStr||"").toUpperCase();
@@ -2860,7 +3183,7 @@ function toggleProductFields(){
   document.getElementById("zipperFieldset").style.display = NO_ZIPPER.includes(product) ? "none" : "block";
   document.getElementById("fillerFieldset").style.display = FILLER_PRODUCTS.includes(product) ? "block" : "none";
   document.getElementById("fillerOn").checked = FILLER_PRODUCTS.includes(product);
-  document.getElementById("bindingOn").parentElement.style.display = (product==="carpet_rug") ? "block" : "none";
+  document.getElementById("bindingRequiredChoice").closest("fieldset").style.display = (product==="carpet_rug") ? "block" : "none";
 
   document.getElementById("poufShapeRow").style.display = isBox ? "grid" : "none";
   document.getElementById("poufShapeWrap").style.display = isPouf ? "block" : "none";
@@ -3073,11 +3396,11 @@ function refreshYarnSumDisplay(key){
 }
 
 /* ---- Area product: multi-material raw material builder (yarn and/or fabric, each by weight) ---- */
-const areaMaterials = []; // {matIdx:'custom'|int, customName, customRate, weightKg, wastagePct, needsDyeing, dyeRate}
+const areaMaterials = []; // weights are entered and stored in grams
 function defaultDyeRate(){ return (DB.processes.find(p=>p.name==="Dyeing")||{}).rate || 0; }
 function addAreaMaterialRow(){
   const product = document.getElementById("product").value;
-  areaMaterials.push({matIdx:0, customName:"Custom material", customRate:0, weightKg:0, wastagePct: DB.wastageDefaults[product] ?? 8, needsDyeing:false, dyeRate: defaultDyeRate()});
+  areaMaterials.push({matIdx:0, customName:"Custom material", customRate:0, weightGrams:0, wastagePct: DB.wastageDefaults[product] ?? 8, needsDyeing:false, dyeRate: defaultDyeRate()});
   renderAreaMaterialRows();
   calculate();
 }
@@ -3087,9 +3410,14 @@ function removeAreaMaterialRow(idx){
   calculate();
 }
 function updateAreaMaterialRow(idx, field, value){
-  if (field==="weightKg" || field==="wastagePct" || field==="customRate" || field==="dyeRate") value = parseFloat(value)||0;
+  if (field==="weightGrams" || field==="wastagePct" || field==="customRate" || field==="dyeRate") value = Math.max(0,parseFloat(value)||0);
   if (field==="matIdx") value = (value==="custom") ? "custom" : parseInt(value);
   if (field==="needsDyeing") value = !!value;
+  if (field==="weightGrams"){
+    const target = parseFloat(document.getElementById("areaTargetGsm")?.value)||0;
+    const usedByOthers = areaMaterials.reduce((sum,row,i)=>sum+(i===idx?0:(row.weightGrams||0)),0);
+    if (target>0) value = Math.min(value,Math.max(0,target-usedByOthers));
+  }
   areaMaterials[idx][field] = value;
   if (field==="matIdx" || field==="needsDyeing") renderAreaMaterialRows();
   calculate();
@@ -3098,13 +3426,16 @@ function renderAreaMaterialRows(){
   const container = document.getElementById("areaMaterialRows");
   if (!container) return;
   let html = "";
+  const target = parseFloat(document.getElementById("areaTargetGsm")?.value)||0;
   areaMaterials.forEach((row,i)=>{
-    html += `<div class="row" style="grid-template-columns:1.6fr 0.8fr 0.8fr auto; align-items:end;">
+    const usedByOthers = areaMaterials.reduce((sum,item,j)=>sum+(j===i?0:(item.weightGrams||0)),0);
+    const available = target>0 ? Math.max(0,target-usedByOthers) : "";
+    html += `<div class="material-builder-row"><div class="row" style="grid-template-columns:1.6fr 0.8fr 0.8fr auto; align-items:end;">
       <div><label>Material (yarn or fabric — priced by weight)</label><select onchange="updateAreaMaterialRow(${i},'matIdx',this.value)">
         ${DB.yarns.map((y,yi)=>`<option value="${yi}" ${row.matIdx===yi?"selected":""}>${y.name} — ₹${y.rate}/kg</option>`).join("")}
         <option value="custom" ${row.matIdx==="custom"?"selected":""}>＋ Custom material (this quote only)</option>
       </select></div>
-      <div><label>Weight (kg)</label><input type="number" value="${row.weightKg}" onchange="updateAreaMaterialRow(${i},'weightKg',this.value)"></div>
+      <div><label>GSM / Weight (grams)</label><input type="number" min="0" ${target>0?`max="${available}"`:""} value="${row.weightGrams||0}" onchange="updateAreaMaterialRow(${i},'weightGrams',this.value);renderAreaMaterialRows()"><div class="hint">${target>0?`Maximum available: ${available} g`:`Enter Front GSM / Quality first.`}</div></div>
       <div><label>Wastage %</label><input type="number" value="${row.wastagePct}" onchange="updateAreaMaterialRow(${i},'wastagePct',this.value)"></div>
       <div><button class="del-btn" onclick="removeAreaMaterialRow(${i})">✕</button></div>
     </div>`;
@@ -3119,20 +3450,26 @@ function renderAreaMaterialRows(){
       <div><label class="chk" style="margin-bottom:6px;"><input type="checkbox" ${row.needsDyeing?"checked":""} onchange="updateAreaMaterialRow(${i},'needsDyeing',this.checked)"> Needs dyeing?</label></div>
       ${row.needsDyeing ? `<div><label>Dyeing rate ₹/kg</label><input type="number" onfocus="this.select()" value="${row.dyeRate}" onchange="updateAreaMaterialRow(${i},'dyeRate',this.value)"></div>` : `<div class="hint">Leave unticked if this yarn/fabric is already bought pre-dyed.</div>`}
       <div></div>
-    </div>`;
+    </div></div>`;
   });
   container.innerHTML = html || `<div class="hint">No materials yet — click "+ Add material" below.</div>`;
+  const totalGrams = areaMaterials.reduce((sum,row)=>sum+(row.weightGrams||0),0);
+  const allocatedEl = document.getElementById("areaAllocatedGsm");
+  const remainingEl = document.getElementById("areaRemainingGsm");
+  if (allocatedEl) allocatedEl.textContent = totalGrams.toFixed(0)+" g";
+  if (remainingEl) remainingEl.textContent = target>0 ? Math.max(0,target-totalGrams).toFixed(0)+" g" : "—";
 }
 function areaMaterialTotals(){
-  let totalWeight=0, totalCost=0;
+  let totalGrams=0, totalCost=0;
   areaMaterials.forEach(row=>{
     const rate = row.matIdx==="custom" ? (row.customRate||0) : (DB.yarns[row.matIdx]?.rate||0);
-    totalWeight += row.weightKg||0;
-    const materialCost = (row.weightKg||0) * (1+(row.wastagePct||0)/100) * rate;
-    const dyeCost = row.needsDyeing ? (row.weightKg||0) * (row.dyeRate||0) : 0;
+    const weightKg = (row.weightGrams||0)/1000;
+    totalGrams += row.weightGrams||0;
+    const materialCost = weightKg * (1+(row.wastagePct||0)/100) * rate;
+    const dyeCost = row.needsDyeing ? weightKg * (row.dyeRate||0) : 0;
     totalCost += materialCost + dyeCost;
   });
-  return {totalWeight, totalCost};
+  return {totalGrams, totalWeight:totalGrams/1000, totalCost};
 }
 
 /* ---- Area product: multi-stage construction builder (e.g. weaving + tufting) ---- */
@@ -3153,13 +3490,13 @@ function renderAreaConstructionRows(){
   const sqmTechniques = DB.techniques.filter(t=>t.basis==="sqm");
   let html = "";
   areaConstructionStages.forEach((row,i)=>{
-    html += `<div class="row" style="grid-template-columns:1.5fr 1fr auto; align-items:end;">
+    html += `<div class="construction-builder-row"><div class="row" style="grid-template-columns:1.5fr 1fr auto; align-items:end;">
       <div><label>Stage</label><select class="areaConsSelect" onchange="document.querySelectorAll('#areaConstructionRows .areaConsRate')[${i}].value='';calculate();">
         ${sqmTechniques.map((t,ti)=>`<option value="${ti}" ${row.techIdx===ti?"selected":""}>${t.name} — ₹${t.rate}/sqm</option>`).join("")}
       </select></div>
       <div><label>Rate ₹/sqm</label><input type="number" class="areaConsRate" onfocus="this.select()" value="${sqmTechniques[row.techIdx]?.rate ?? 0}"></div>
       <div><button class="del-btn" onclick="removeAreaConstructionRow(${i})">✕</button></div>
-    </div>`;
+    </div></div>`;
   });
   container.innerHTML = html || `<div class="hint">No construction stage yet — click "+ Add construction stage" below.</div>`;
   container.querySelectorAll(".areaConsRate").forEach(el=>el.addEventListener("input", calculate));
@@ -3174,6 +3511,9 @@ const CONTAINER_DIMENSIONS = {
   "40ft Standard": {L:1203, W:235, H:239},
   "40ft High Cube": {L:1203, W:235, H:270},
 };
+function currentLoadPackMode(){ return document.getElementById("loadPackMode")?.value || ""; }
+function isBalePackingMode(){ return currentLoadPackMode() === "bale"; }
+function currentPackageLabel(){ return currentLoadPackMode()==="pdq" ? "PDQ" : (isBalePackingMode()?"Bale / Roll":"Carton"); }
 function dimensionalFit(containerL, containerW, containerH, cartonL, cartonW, cartonH){
   if (cartonL<=0 || cartonW<=0 || cartonH<=0) return 0;
   // try the carton's footprint both ways round (not rotating height, since packed rolls/cartons
@@ -3218,7 +3558,7 @@ function cartonCostTotal(){
   const sheetAreaSqIn = A_in * B_in;
   const rate = board ? board.rate : 0;
   const total = sheetAreaSqIn * rate * (1 + wastagePct/100);
-  const isBaleMode = document.getElementById("product").value === "carpet_rug";
+  const isBaleMode = isBalePackingMode();
   const pieces = isBaleMode ? 1 : Math.max(1, parseFloat(document.getElementById("loadPiecesPerCarton")?.value)||1);
   const perPiece = total / pieces;
   let rateWarning = "";
@@ -3244,14 +3584,16 @@ document.getElementById("loadPiecesPerCarton").addEventListener("input", ()=>{ c
 });
 
 function updateLoadability(){
-  const product = document.getElementById("product").value;
-  const isBaleMode = product === "carpet_rug"; // rugs/carpets: 1 piece = 1 bale/roll, no grouping into cartons
-  document.getElementById("loadabilityCheckboxLabel").textContent = isBaleMode ? "Bale Dimension:-" : "Packed Carton Dimension:-";
-  document.getElementById("pkgLengthLabel").textContent = isBaleMode ? "Bale length (cm)" : "Carton length (cm)";
-  document.getElementById("pkgWidthLabel").textContent = isBaleMode ? "Bale width (cm)" : "Carton width (cm)";
-  document.getElementById("pkgHeightLabel").textContent = isBaleMode ? "Bale height / roll diameter (cm)" : "Carton height (cm)";
-  document.getElementById("cbmLabel").textContent = isBaleMode ? "CBM per piece" : "CBM per box";
+  const mode = currentLoadPackMode();
+  const isBaleMode = isBalePackingMode();
+  const packageLabel = currentPackageLabel();
+  document.getElementById("loadabilityCheckboxLabel").textContent = mode ? packageLabel+" dimensions:" : "Select packing type above";
+  document.getElementById("pkgLengthLabel").textContent = packageLabel+" length (cm)";
+  document.getElementById("pkgWidthLabel").textContent = packageLabel+" width (cm)";
+  document.getElementById("pkgHeightLabel").textContent = isBaleMode ? "Bale / roll diameter (cm)" : packageLabel+" height (cm)";
+  document.getElementById("cbmLabel").textContent = "CBM per "+packageLabel.toLowerCase();
   document.getElementById("loadPiecesPerCartonRow").style.display = isBaleMode ? "none" : "grid";
+  document.querySelector('#loadPiecesPerCartonRow label').textContent = "Pieces per "+packageLabel.toLowerCase();
   const L = parseFloat(document.getElementById("pkgLength").value)||0;
   const W = parseFloat(document.getElementById("pkgWidth").value)||0;
   const H = parseFloat(document.getElementById("pkgHeight").value)||0;
@@ -3260,7 +3602,7 @@ function updateLoadability(){
   const qty = parseFloat(document.getElementById("qty").value)||0;
   const boxesNeeded = qty>0 ? Math.ceil(qty/ppc) : 0;
   const totalCbm = boxesNeeded * cbmPerBox;
-  document.getElementById("cbmDisplay").value = cbmPerBox>0 ? cbmPerBox.toFixed(6)+(isBaleMode?" CBM/piece":" CBM/box") : "—";
+  document.getElementById("cbmDisplay").value = cbmPerBox>0 ? cbmPerBox.toFixed(6)+" CBM/"+packageLabel.toLowerCase() : "—";
   document.getElementById("totalCbmDisplay").value = (cbmPerBox>0 && qty>0)
     ? totalCbm.toFixed(6)+" CBM"
     : "—";
@@ -3276,11 +3618,11 @@ function updateLoadability(){
       const fitPieces = fitBoxes * ppc;
       const volBoxes = capacities[name] ? Math.floor(capacities[name]/cbmPerBox) : null;
       const volPieces = volBoxes!==null ? volBoxes*ppc : null;
-      html += `<div class="out-line"><span class="lbl"><strong>${name}</strong></span><span>Total Box: ${fitBoxes} &nbsp;|&nbsp; Total Pieces: ${isBaleMode?fitBoxes:fitPieces}</span></div>`;
-      if (volBoxes!==null) html += `<div class="out-line" style="opacity:0.7; font-size:0.8rem;"><span class="lbl">&nbsp;&nbsp;vs. ${capacities[name]} CBM volume estimate</span><span>Total Box: ${volBoxes} &nbsp;|&nbsp; Total Pieces: ${isBaleMode?volBoxes:volPieces}</span></div>`;
+      html += `<div class="out-line"><span class="lbl"><strong>${name}</strong></span><span>Total ${packageLabel}: ${fitBoxes} &nbsp;|&nbsp; Total Pieces: ${isBaleMode?fitBoxes:fitPieces}</span></div>`;
+      if (volBoxes!==null) html += `<div class="out-line" style="opacity:0.7; font-size:0.8rem;"><span class="lbl">&nbsp;&nbsp;vs. ${capacities[name]} CBM volume estimate</span><span>Total ${packageLabel}: ${volBoxes} &nbsp;|&nbsp; Total Pieces: ${isBaleMode?volBoxes:volPieces}</span></div>`;
     });
     if (!isBaleMode && qty>0){
-      html += `<hr class="divider"><div class="out-line total"><span class="lbl">Cartons needed for this order</span><span>${boxesNeeded} cartons</span></div>`;
+      html += `<hr class="divider"><div class="out-line total"><span class="lbl">${packageLabel}s needed for this order</span><span>${boxesNeeded} ${packageLabel.toLowerCase()}s</span></div>`;
     }
   }
   document.getElementById("loadabilityResults").innerHTML = html;
@@ -3295,7 +3637,7 @@ function updateForwardingCalc(force=false){
     return;
   }
   if (!product){ fwdInput.value = "0"; noteEl.textContent = ""; return; }
-  const isBaleMode = product === "carpet_rug";
+  const isBaleMode = isBalePackingMode();
   const L = parseFloat(document.getElementById("pkgLength").value)||0;
   const W = parseFloat(document.getElementById("pkgWidth").value)||0;
   const H = parseFloat(document.getElementById("pkgHeight").value)||0;
@@ -3375,9 +3717,9 @@ function handleQuotePhoto(input){
 }
 
 function collectLoadabilitySnapshot(){
-  const isBale = document.getElementById("product")?.value === "carpet_rug";
+  const isBale = isBalePackingMode();
   return {
-    packageType: isBale ? "Bale" : "Carton",
+    packageType: currentPackageLabel(),
     length: parseFloat(document.getElementById("pkgLength")?.value)||0,
     width: parseFloat(document.getElementById("pkgWidth")?.value)||0,
     height: parseFloat(document.getElementById("pkgHeight")?.value)||0,
@@ -3655,6 +3997,7 @@ function downloadQuote(){
 async function savePackagingCard(){
   const finalCard = document.getElementById("cardFinalActions");
   finalCard.classList.remove("wizard-locked");
+  syncFinalExchangeRate();
   saveCard("cardPackaging", ["cardFinalActions"]);
   await saveToHistory();
 }
@@ -3939,17 +4282,18 @@ function calculate(){
 
     const matTotals = areaMaterialTotals();
     rawMaterial += matTotals.totalCost;
-    document.getElementById("areaMaterialWeightDisplay").value = matTotals.totalWeight.toFixed(3) + " kg";
+    document.getElementById("areaMaterialWeightDisplay").value = matTotals.totalGrams.toFixed(0) + " g ("+matTotals.totalWeight.toFixed(3)+" kg)";
     document.getElementById("areaMaterialCostDisplay").value = "₹" + matTotals.totalCost.toFixed(2);
     areaMaterials.forEach(row=>{
-      if (!row.weightKg) return;
+      if (!row.weightGrams) return;
       const rate = row.matIdx==="custom" ? (row.customRate||0) : (DB.yarns[row.matIdx]?.rate||0);
       const name = row.matIdx==="custom" ? row.customName : (DB.yarns[row.matIdx]?.name||"—");
-      const c = row.weightKg * (1+(row.wastagePct||0)/100) * rate;
-      lineItems.push({label:`Raw material — ${name} (${row.weightKg}kg + ${row.wastagePct||0}% wastage)`, amount:c});
+      const weightKg = row.weightGrams/1000;
+      const c = weightKg * (1+(row.wastagePct||0)/100) * rate;
+      lineItems.push({label:`Raw material — ${name} (${row.weightGrams}g + ${row.wastagePct||0}% wastage)`, amount:c});
       if (row.needsDyeing){
-        const dc = row.weightKg * (row.dyeRate||0);
-        lineItems.push({label:`Dyeing — ${name} (${row.weightKg}kg)`, amount:dc});
+        const dc = weightKg * (row.dyeRate||0);
+        lineItems.push({label:`Dyeing — ${name} (${row.weightGrams}g)`, amount:dc});
       }
     });
 
@@ -4010,7 +4354,7 @@ function calculate(){
   const marginPct = cust.marginPct !== undefined ? cust.marginPct
     : (cust.marginOverridePct ?? {A:DB.settings.marginA,B:DB.settings.marginB,C:DB.settings.marginC,D:DB.settings.marginD}[cust.category] ?? 20);
   const overheadPct = DB.settings.overhead;
-  const fx = DB.settings.exchangeRate;
+  const fx = activeQuoteExchangeRate();
   const testingCost = cust.testingCost || 0;
   if (testingCost>0) lineItems.push({label:"Testing cost", amount:testingCost});
 
@@ -4140,19 +4484,36 @@ function saveQtyCard(){
   warnEl.style.display = "none";
   saveCard("loadabilityCard", ["cardLoadability"]);
 }
+function saveAreaFieldsCard(){
+  const warnEl = document.getElementById("areaFieldsWarn");
+  const target = parseFloat(document.getElementById("areaTargetGsm").value)||0;
+  const total = areaMaterialTotals().totalGrams;
+  const missing = [];
+  if (target<=0) missing.push("Front GSM / Quality");
+  if (total<=0) missing.push("at least one material weight in grams");
+  if (!document.getElementById("backingRequiredChoice").value) missing.push("Backing Yes or No");
+  if (!document.getElementById("bindingRequiredChoice").value) missing.push("Binding Yes or No");
+  if (document.getElementById("backingOn").checked && !document.getElementById("backingType").value) missing.push("Backing type");
+  if (missing.length){ warnEl.style.display="block"; warnEl.textContent="Please fill in: "+missing.join(", ")+" before continuing."; return; }
+  if (total>target){ warnEl.style.display="block"; warnEl.textContent=`Material weight is ${total.toFixed(0)}g, which exceeds the Front GSM / Quality of ${target.toFixed(0)}g.`; return; }
+  warnEl.style.display="none";
+  saveCard("areaFields",["loadabilityCard"]);
+}
 function saveLoadabilityCard(){
   const warnEl = document.getElementById("loadabilityWarn");
-  const product = document.getElementById("product").value;
-  const isBaleMode = product === "carpet_rug";
+  const mode = currentLoadPackMode();
+  const isBaleMode = isBalePackingMode();
+  const packageLabel = currentPackageLabel();
   const L = parseFloat(document.getElementById("pkgLength").value)||0;
   const W = parseFloat(document.getElementById("pkgWidth").value)||0;
   const H = parseFloat(document.getElementById("pkgHeight").value)||0;
   const ppc = parseFloat(document.getElementById("loadPiecesPerCarton").value)||0;
   const missing = [];
-  if (L<=0) missing.push(isBaleMode ? "Bale length" : "Carton length");
-  if (W<=0) missing.push(isBaleMode ? "Bale width" : "Carton width");
-  if (H<=0) missing.push(isBaleMode ? "Bale height" : "Carton height");
-  if (!isBaleMode && ppc<=0) missing.push("Pieces per carton");
+  if (!mode) missing.push("packing type");
+  if (L<=0) missing.push(packageLabel+" length");
+  if (W<=0) missing.push(packageLabel+" width");
+  if (H<=0) missing.push(packageLabel+" height");
+  if (!isBaleMode && ppc<=0) missing.push("Pieces per "+packageLabel.toLowerCase());
   if (missing.length){
     warnEl.style.display = "block";
     warnEl.textContent = "Please fill in: " + missing.join(", ") + " before continuing.";
@@ -4300,20 +4661,21 @@ document.getElementById("monthlyRateImport").addEventListener("change", event=>{
   reader.onload = async loadEvent=>{
     try{
       const workbook = XLSX.read(loadEvent.target.result, {type:"array"});
-      const yarnRows = sheetRows(workbook, "Yarn Monthly Rates") || [];
-      const fabricRows = sheetRows(workbook, "Fabric Monthly Rates") || [];
+      const yarnRows = sheetRows(workbook, "Yarn Monthly Rates");
+      const fabricRows = sheetRows(workbook, "Fabric Monthly Rates");
+      if (!yarnRows || !fabricRows) throw new Error('Use the downloaded monthly template. Required sheets "Yarn Monthly Rates" and "Fabric Monthly Rates" were not found');
       let yarnChanges = 0;
       let fabricChanges = 0;
       yarnRows.forEach(row=>{
         const raw = row["This Month Rate"];
-        if (raw === null || raw === "") return;
+        if (raw === null || raw === undefined || String(raw).trim() === "") return;
         const rate = Number(raw);
         const yarn = DB.yarns.find(item=>item.name.trim().toLowerCase() === String(row["Yarn Name"]||"").trim().toLowerCase());
         if (yarn && Number.isFinite(rate) && rate >= 0 && yarn.rate !== rate){ yarn.rate = rate; yarnChanges++; }
       });
       fabricRows.forEach(row=>{
         const raw = row["This Month Rate"];
-        if (raw === null || raw === "") return;
+        if (raw === null || raw === undefined || String(raw).trim() === "") return;
         const rate = Number(raw);
         const fabric = DB.fabrics.find(item=>item.name.trim().toLowerCase() === String(row["Fabric Name"]||"").trim().toLowerCase());
         if (fabric && Number.isFinite(rate) && rate >= 0 && fabric.sourceRate !== rate){ fabric.sourceRate = rate; fabricChanges++; }
@@ -4323,10 +4685,11 @@ document.getElementById("monthlyRateImport").addEventListener("change", event=>{
         return;
       }
       const cloudSaved = await saveDB();
-      if (!cloudSaved) throw new Error("Firebase sync failed");
       renderAllMasterTables();
       populateCalculatorDropdowns();
-      note.textContent = `Monthly rates updated ✓ — ${yarnChanges} yarn rate(s) and ${fabricChanges} fabric rate(s). Blank and unchanged rows were ignored.`;
+      calculate();
+      note.style.color = cloudSaved ? "#0a7a2f" : "#8b5a00";
+      note.textContent = `Monthly rates updated ✓ — ${yarnChanges} yarn rate(s) and ${fabricChanges} fabric rate(s). Blank and unchanged rows were ignored.${cloudSaved?" Synced with Firebase.":" Saved in this local file session; Firebase sync is currently unavailable."}`;
     }catch(error){
       note.textContent = "Monthly rate upload failed: " + error.message;
     }finally{ event.target.value = ""; }
@@ -4463,6 +4826,66 @@ document.getElementById("excelImport").addEventListener("change", (e)=>{
 /* ================= QUOTE HISTORY ================= */
 let HISTORY = [];
 let CURRENT_COSTING_HISTORY_ID = "";
+function approvalStatusForCurrentUser(){ return CURRENT_PROFILE?.role==="employee" ? "pending" : "approved"; }
+function canReviewRecord(r){ return isSuperAdmin() || (isJuniorAdmin() && String(r.approverId||"")===String(CURRENT_USER?.id||"")); }
+function canSeeHistoryRecord(r){
+  if (isSuperAdmin()) return true;
+  if (isOwnHistoryRecord(r)) return true;
+  if (isJuniorAdmin() && String(r.approverId||"")===String(CURRENT_USER?.id||"")) return true;
+  return false;
+}
+function visibleHistoryRecords(){ return HISTORY.filter(canSeeHistoryRecord); }
+function renderWelcomeDashboard(){
+  if (!CURRENT_PROFILE) return;
+  document.getElementById("welcomeUserName").textContent=CURRENT_PROFILE.full_name||CURRENT_USER?.userId||"Team Member";
+  const roleLabel=isSuperAdmin()?"Super Admin":isJuniorAdmin()?"Junior Admin":"Employee";
+  document.getElementById("welcomeRoleLine").textContent=`${CURRENT_PROFILE.full_name} · ${roleLabel}`+(CURRENT_PROFILE.teamLeadName?` · Team led by ${CURRENT_PROFILE.teamLeadName}`:"")+" — your costing workspace is ready.";
+  const beginBtn=document.getElementById("welcomeBeginBtn");if(beginBtn)beginBtn.childNodes[0].nodeValue=hasPagePermission("calc")?"Begin the Costing ":"Enter Your Workspace ";
+  const cutoff=Date.now()-30*24*60*60*1000;
+  const records=visibleHistoryRecords().filter(r=>new Date(r.ts).getTime()>=cutoff);
+  document.getElementById("welcomeStatCreated").textContent=records.length;
+  document.getElementById("welcomeStatApproved").textContent=records.filter(r=>(r.approvalStatus||"approved")==="approved").length;
+  document.getElementById("welcomeStatPending").textContent=records.filter(r=>r.approvalStatus==="pending").length;
+  document.getElementById("welcomeStatRejected").textContent=records.filter(r=>r.approvalStatus==="rejected").length;
+}
+function welcomeSummaryRecords(kind){
+  const cutoff=Date.now()-30*24*60*60*1000;
+  const records=visibleHistoryRecords().filter(r=>new Date(r.ts).getTime()>=cutoff);
+  return kind==="created" ? records : records.filter(r=>(r.approvalStatus||"approved")===kind);
+}
+function openWelcomeSummary(kind){
+  const titles={created:"Costings Created in the Last 30 Days",approved:"Approved Costings",pending:"Costings Waiting for Approval",rejected:"Rejected / Returned Costings"};
+  const records=welcomeSummaryRecords(kind).slice().reverse();
+  document.querySelector("#view-home .welcome-dashboard").style.display="none";
+  document.getElementById("welcomeSummaryPanel").style.display="block";
+  document.getElementById("welcomeSummaryTitle").textContent=titles[kind]||"Costing Summary";
+  document.getElementById("welcomeSummarySubtitle").textContent=`${records.length} record${records.length===1?"":"s"} visible for ${CURRENT_PROFILE.full_name}.`;
+  let html="<tr><th>When</th><th>Created by</th><th>Buyer</th><th>Article</th><th>Product</th><th>FOB USD</th><th>Status</th><th>Details</th></tr>";
+  records.forEach(r=>{const status=r.approvalStatus||"approved";html+=`<tr><td>${escapeHistoryText(new Date(r.ts).toLocaleString())}</td><td>${escapeHistoryText(r.staff||r.createdByName||"—")}</td><td>${escapeHistoryText(r.customer||"—")}</td><td>${escapeHistoryText(r.articleNo||"—")}</td><td>${escapeHistoryText(String(r.product||"—").replaceAll("_"," "))}</td><td>$${Number(r.fobUsd||0).toFixed(2)}</td><td><span class="approval-status ${status}">${status}</span>${r.rejectionReason?`<div class="hint">${escapeHistoryText(r.rejectionReason)}</div>`:""}</td><td><button class="edit-btn" onclick="viewHistoryQuote('${escapeHistoryText(r.id)}')">View Costing</button></td></tr>`;});
+  document.getElementById("tbl-welcome-summary").innerHTML=records.length?html:html+'<tr><td colspan="8">No costings found in this summary.</td></tr>';
+}
+function closeWelcomeSummary(){
+  const panel=document.getElementById("welcomeSummaryPanel"),dashboard=document.querySelector("#view-home .welcome-dashboard");
+  if(panel)panel.style.display="none";if(dashboard)dashboard.style.display="grid";
+}
+function renderApprovalQueue(){
+  const table=document.getElementById("tbl-approval-queue"); if(!table || !CURRENT_PROFILE)return;
+  const rows=HISTORY.filter(r=>canReviewRecord(r)).slice().reverse();
+  const counts={pending:0,approved:0,rejected:0}; rows.forEach(r=>counts[r.approvalStatus||"approved"]=(counts[r.approvalStatus||"approved"]||0)+1);
+  Object.keys(counts).forEach(key=>{ const el=document.getElementById("approval"+key[0].toUpperCase()+key.slice(1)+"Count"); if(el)el.textContent=counts[key]; });
+  document.getElementById("approvalScopeNote").textContent=isSuperAdmin()?"All teams and costings are visible to Super Admins.":"Only costings submitted by Employees assigned to your team are shown.";
+  let html="<tr><th>When</th><th>Employee</th><th>Customer</th><th>Article</th><th>FOB</th><th>Status</th><th>Decision</th></tr>";
+  rows.forEach(r=>{ const status=r.approvalStatus||"approved"; const decision=status==="pending"?`<button class="save-btn" onclick="reviewCosting('${escapeHistoryText(r.id)}','approved')">Approve</button> <button class="del-btn" onclick="reviewCosting('${escapeHistoryText(r.id)}','rejected')">Reject</button>`:`${r.reviewedBy?`By ${escapeHistoryText(r.reviewedBy)}`:"—"}${r.rejectionReason?`<div class="hint">${escapeHistoryText(r.rejectionReason)}</div>`:""}`; html+=`<tr><td>${escapeHistoryText(new Date(r.ts).toLocaleString())}</td><td>${escapeHistoryText(r.staff)}</td><td>${escapeHistoryText(r.customer)}</td><td>${escapeHistoryText(r.articleNo||"—")}</td><td>$${Number(r.fobUsd||0).toFixed(2)}</td><td><span class="approval-status ${status}">${status}</span></td><td><button class="edit-btn" onclick="viewHistoryQuote('${escapeHistoryText(r.id)}')">View</button> ${decision}</td></tr>`; });
+  table.innerHTML=rows.length?html:html+'<tr><td colspan="7">No team costings are available.</td></tr>';
+}
+async function reviewCosting(id,decision){
+  const record=findHistoryRecord(id); if(!record || !canReviewRecord(record))return;
+  let reason=""; if(decision==="rejected"){ reason=prompt("Enter the compulsory rejection reason:","")?.trim()||""; if(!reason){alert("A rejection reason is required.");return;} }
+  const update={approvalStatus:decision,rejectionReason:reason,reviewedBy:CURRENT_PROFILE.full_name,reviewedById:CURRENT_USER.id,reviewedAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  Object.assign(record,update); try{localStorage.setItem("rc_costing_history",JSON.stringify(HISTORY));}catch(e){}
+  if(FIRESTORE){try{await FIRESTORE.collection("costing_history").doc(String(id)).update(update);}catch(error){document.getElementById("approvalQueueNote").textContent="Saved locally only: "+error.message;}}
+  renderApprovalQueue();renderHistoryTable(document.getElementById("historySearch").value);renderWelcomeDashboard();
+}
 
 async function loadHistory(){
   if (FIRESTORE){
@@ -4483,6 +4906,7 @@ function startHistoryRealtime(){
     HISTORY = snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
     try{ localStorage.setItem("rc_costing_history", JSON.stringify(HISTORY)); }catch(e){}
     renderHistoryTable(document.getElementById("historySearch").value);
+    renderWelcomeDashboard(); renderApprovalQueue();
   }, error=>console.error("Firebase live history sync failed:", error));
 }
 
@@ -4490,6 +4914,11 @@ async function saveToHistory(){
   const note = document.getElementById("historySaveNote");
   if (!CURRENT_USER || !CURRENT_PROFILE){
     note.textContent = "Please sign in before saving history.";
+    return;
+  }
+  if (CURRENT_PROFILE.role==="employee" && !CURRENT_PROFILE.teamLeadId){
+    note.textContent="A Super Admin must assign you to a Junior Admin team before this costing can be submitted.";
+    note.style.display="block";
     return;
   }
   const staff = document.getElementById("staffName").value.trim() || "Unnamed";
@@ -4515,6 +4944,11 @@ async function saveToHistory(){
     photoData: QUOTE_PHOTO_DATA || "",
     photoName: QUOTE_PHOTO_NAME || "",
     quoteSummary: window.lastQuoteSummary ? {...window.lastQuoteSummary, ts:new Date().toISOString(), loadability:collectLoadabilitySnapshot(), calculatorInputs:collectCalculatorInputSnapshot()} : null,
+    approvalStatus: existingRecord?.approvalStatus || approvalStatusForCurrentUser(),
+    approverId: existingRecord?.approverId || (CURRENT_PROFILE.role==="employee" ? CURRENT_PROFILE.teamLeadId : CURRENT_USER.id),
+    approverName: existingRecord?.approverName || (CURRENT_PROFILE.role==="employee" ? CURRENT_PROFILE.teamLeadName : CURRENT_PROFILE.full_name),
+    submittedByRole: CURRENT_PROFILE.role,
+    rejectionReason: existingRecord?.rejectionReason || "",
   };
   note.textContent = "Saving...";
   const recordId = CURRENT_COSTING_HISTORY_ID || (Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8));
@@ -4529,6 +4963,7 @@ async function saveToHistory(){
     catch(error){ console.error("Firebase history save failed:", error); note.textContent = "Saved locally only — cloud sync is unavailable."; return; }
   }
   renderHistoryTable(document.getElementById("historySearch").value);
+  renderWelcomeDashboard(); renderApprovalQueue();
   note.textContent = "Saved ✓";
   setTimeout(()=>{ note.textContent = ""; }, 1800);
 }
@@ -4559,6 +4994,8 @@ function findHistoryRecord(id){ return HISTORY.find(r=>String(r.id)===String(id)
 function isOwnHistoryRecord(r){ return !!CURRENT_USER && String(r?.userId||"")===String(CURRENT_USER.id); }
 function viewHistoryQuote(id){
   const r=findHistoryRecord(id); if(!r)return;
+  const quoteDialog=document.getElementById("historyQuoteDialog");
+  if (quoteDialog && quoteDialog.parentElement!==document.body) document.body.appendChild(quoteDialog);
   const s=summaryFromHistoryRecord(r); const load=s.loadability||{};
   const size=s.H?`${s.L} × ${s.W} × ${s.H} cm`:`${s.L} × ${s.W} cm`;
   const itemRows=(s.lineItems||[]).map((item,index)=>`<tr><td>${index+1}</td><td>${escapeHistoryText(item.label)}</td><td style="text-align:right">₹${Number(item.amount||0).toFixed(2)}</td></tr>`).join("");
@@ -4571,7 +5008,8 @@ function viewHistoryQuote(id){
     <h3>Packing &amp; Container Loadability</h3><table><tr><th>Packing</th><td>${escapeHistoryText(load.packageType||"—")}</td></tr><tr><th>Packed dimensions</th><td>${load.length?`${load.length} × ${load.width} × ${load.height} cm`:"—"}</td></tr><tr><th>CBM / package</th><td>${escapeHistoryText(load.cbmPerPackage||"—")}</td></tr><tr><th>Total CBM</th><td>${escapeHistoryText(load.totalCbm||"—")}</td></tr></table><p>${escapeHistoryText(load.results||"")}</p>
     <div class="quote-preview-price">USD ${Number(s.fobUsd||0).toFixed(2)} / ${s.isSqmMode?"sqm":"piece"}<small>Total order value: USD ${Number(s.totalUsd||0).toFixed(2)}</small></div>`;
   document.getElementById("historyDialogDownloadBtn").onclick=()=>downloadHistoryCosting(id);
-  document.getElementById("historyQuoteDialog").showModal();
+  if (typeof quoteDialog?.showModal==="function") quoteDialog.showModal();
+  else if (quoteDialog){ quoteDialog.setAttribute("open",""); quoteDialog.style.display="block"; }
 }
 function downloadHistoryCosting(id){
   const r=findHistoryRecord(id); if(!r)return;
@@ -4589,23 +5027,31 @@ async function deleteOwnHistoryCosting(id){
   try{ localStorage.setItem("rc_costing_history",JSON.stringify(HISTORY)); }catch(e){}
   renderHistoryTable(document.getElementById("historySearch")?.value||"");
 }
+async function resubmitRejectedCosting(id){
+  const r=findHistoryRecord(id); if(!r || !isOwnHistoryRecord(r) || r.approvalStatus!=="rejected")return;
+  if(!CURRENT_PROFILE.teamLeadId){alert("Ask a Super Admin to assign you to a Junior Admin team before resubmitting.");return;}
+  const update={approvalStatus:"pending",rejectionReason:"",approverId:CURRENT_PROFILE.teamLeadId,approverName:CURRENT_PROFILE.teamLeadName,reviewedBy:"",reviewedById:"",reviewedAt:"",updatedAt:new Date().toISOString()};
+  Object.assign(r,update);try{localStorage.setItem("rc_costing_history",JSON.stringify(HISTORY));}catch(e){}
+  if(FIRESTORE){try{await FIRESTORE.collection("costing_history").doc(String(id)).update(update);}catch(error){alert("Saved locally only: "+error.message);}}
+  renderHistoryTable(document.getElementById("historySearch").value);renderWelcomeDashboard();
+}
 
 function renderHistoryTable(filter=""){
   const tbl = document.getElementById("tbl-history");
   if (!tbl) return;
   const f = (filter||"").toLowerCase();
   const currentId=String(CURRENT_USER?.id||"");
-  const rows = HISTORY.filter(r => (HISTORY_SCOPE==="all" || String(r.userId||"")===currentId || (!r.userId && r.staff===CURRENT_PROFILE?.full_name)) && [r.staff,r.customer,r.articleNo,r.product].some(v=>String(v||"").toLowerCase().includes(f))).slice().reverse();
-  let html = `<tr><th>When</th><th>Merchant</th><th>Customer</th><th>Article No</th><th>Product</th><th>Size</th><th>FOB USD/PCS</th><th>View Costing</th><th>Download Costing</th><th>Action</th></tr>`;
+  const rows = HISTORY.filter(r => canSeeHistoryRecord(r) && (HISTORY_SCOPE==="all" || String(r.userId||"")===currentId || (!r.userId && r.staff===CURRENT_PROFILE?.full_name)) && [r.staff,r.customer,r.articleNo,r.product].some(v=>String(v||"").toLowerCase().includes(f))).slice().reverse();
+  let html = `<tr><th>When</th><th>Merchant</th><th>Customer</th><th>Article No</th><th>Product</th><th>Size</th><th>FOB USD/PCS</th><th>Approval</th><th>View</th><th>Download</th><th>Action</th></tr>`;
   rows.forEach(r=>{
     const when = new Date(r.ts).toLocaleString();
     html += `<tr>
       <td style="font-family:var(--mono); font-size:0.72rem;">${escapeHistoryText(when)}</td>
       <td>${escapeHistoryText(r.staff)}</td><td>${escapeHistoryText(r.customer)}</td><td>${escapeHistoryText(r.articleNo||"—")}</td><td>${escapeHistoryText(String(r.product||"").replace('_',' '))}</td>
-      <td>${Number(r.length)||0}×${Number(r.width)||0}cm</td><td>$${(Number(r.fobUsd)||0).toFixed(2)}</td>
-      <td><button class="edit-btn" onclick="viewHistoryQuote('${escapeHistoryText(r.id)}')">View</button></td><td><button class="save-btn" onclick="downloadHistoryCosting('${escapeHistoryText(r.id)}')">Download PDF</button></td><td>${isOwnHistoryRecord(r)?`<button class="del-btn" onclick="deleteOwnHistoryCosting('${escapeHistoryText(r.id)}')">Delete</button>`:"—"}</td></tr>`;
+      <td>${Number(r.length)||0}×${Number(r.width)||0}cm</td><td>$${(Number(r.fobUsd)||0).toFixed(2)}</td><td><span class="approval-status ${r.approvalStatus||"approved"}">${r.approvalStatus||"approved"}</span>${r.rejectionReason?`<div class="hint">${escapeHistoryText(r.rejectionReason)}</div>`:""}</td>
+      <td><button class="edit-btn" onclick="viewHistoryQuote('${escapeHistoryText(r.id)}')">View</button></td><td><button class="save-btn" onclick="downloadHistoryCosting('${escapeHistoryText(r.id)}')">Download PDF</button></td><td>${isOwnHistoryRecord(r)?`${r.approvalStatus==="rejected"?`<button class="save-btn" onclick="resubmitRejectedCosting('${escapeHistoryText(r.id)}')">Resubmit</button> `:""}<button class="del-btn" onclick="deleteOwnHistoryCosting('${escapeHistoryText(r.id)}')">Delete</button>`:"—"}</td></tr>`;
   });
-  if (!rows.length) html += `<tr><td colspan="10">No costings found in this view.</td></tr>`;
+  if (!rows.length) html += `<tr><td colspan="11">No costings found in this view.</td></tr>`;
   tbl.innerHTML = html;
 }
 document.getElementById("historySearch").addEventListener("input", e=>renderHistoryTable(e.target.value));
