@@ -280,6 +280,14 @@
   .raw-material-grand-total .total-note{font-size:.74rem;color:#d6dadd;margin-top:4px;}
   .raw-material-grand-total strong{font-size:1.55rem;white-space:nowrap;}
   @media(max-width:650px){.final-actions-grid{grid-template-columns:1fr}.card-footer{flex-wrap:wrap}.workflow-back,.workflow-next,.workflow-submit{flex:1}}
+  .history-scope-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px;}
+  .history-scope-tabs button{padding:10px 18px;border:1px solid #aeb5bb;background:#fff;border-radius:6px;cursor:pointer;}
+  .history-scope-tabs button.active{background:#25282b;color:#fff;border-color:#25282b;}
+  #historyQuoteDialog{width:min(900px,94vw);max-height:90vh;border:0;border-radius:10px;padding:0;box-shadow:0 20px 60px rgba(0,0,0,.35);}
+  #historyQuoteDialog::backdrop{background:rgba(0,0,0,.62);}
+  .quote-preview{padding:24px;background:#fff;}
+  .quote-preview-header{display:flex;justify-content:space-between;gap:18px;border-bottom:3px double #222;padding-bottom:12px;margin-bottom:16px;}
+  .quote-preview-photo{max-width:260px;max-height:190px;object-fit:contain;border:1px solid #ccc;border-radius:6px;}
   @media(min-width:901px){#view-calc:not(.calc-page-expanded) .calc-workflow{margin-right:430px;}}
   @media(max-width:900px){.calc-workflow{grid-template-columns:repeat(3,1fr)}.yarn-cost-grid{grid-template-columns:1fr 1fr}.dyeing-row{grid-template-columns:1fr}}
   @media(max-width:520px){.calc-workflow{grid-template-columns:1fr 1fr}.yarn-cost-grid{grid-template-columns:1fr}}
@@ -1088,29 +1096,45 @@
 <div class="view" id="view-history">
   <div class="card">
     <h2>Quote History</h2>
-    <div class="hint">Every quote saved by anyone using this dashboard shows up here.</div>
+    <div class="hint">View your own submitted costings or the full shared costing history.</div>
+    <div class="history-scope-tabs">
+      <button class="active" id="historyMineBtn" onclick="setHistoryScope('mine')">My Costings</button>
+      <button id="historyAllBtn" onclick="setHistoryScope('all')">All Costings</button>
+    </div>
     <div class="row">
       <input class="search" type="text" id="historySearch" placeholder="Search by staff name or customer...">
       <div><button class="addrow" onclick="exportHistoryToExcel()">⬇ Export history to Excel</button></div>
     </div>
     <div class="tablewrap" style="max-height:600px;"><table id="tbl-history"></table></div>
   </div>
+  <dialog id="historyQuoteDialog"><div class="quote-preview"><div id="historyQuotePreview"></div><div class="card-footer"><button class="save-btn" id="historyDialogDownloadBtn">⬇ Download Buyer Quote</button><button class="edit-btn" onclick="document.getElementById('historyQuoteDialog').close()">Close</button></div></div></dialog>
 </div>
 
 <div class="view" id="view-profile">
-  <div class="card" style="max-width:500px;">
+  <div class="card" style="max-width:720px;">
     <h2>My Profile</h2>
     <div class="hint">This is the name that fills in "Costing done by" whenever you log in — set it once here and it'll be correct every time (you can still change it per-quote if you ever need to).</div>
     <div class="row">
       <div><label for="profileFullName">Full name</label><input type="text" id="profileFullName" placeholder="e.g. Priya Sharma"></div>
-      <div><label for="profileEmail">Email (login, not editable here)</label><input type="text" id="profileEmail" disabled></div>
+      <div><label for="profileUsername">Username</label><input type="text" id="profileUsername" disabled></div>
     </div>
     <div class="row">
       <div><label for="profileMobile">Mobile number</label><input type="text" id="profileMobile" placeholder="e.g. 98765 43210"></div>
-      <div></div>
+      <div><label for="profileEmail">Contact email</label><input type="email" id="profileEmail" disabled></div>
     </div>
     <button class="save-btn" onclick="saveMyProfile()">Save Profile</button>
     <div id="profileSaveNote" class="hint" style="display:none;"></div>
+  </div>
+  <div class="card" style="max-width:720px;">
+    <h2>Change Password</h2>
+    <div class="hint">For security, enter your current password first. The new password must contain at least six characters.</div>
+    <div class="row3">
+      <div><label for="profileCurrentPassword">Current password</label><input type="password" id="profileCurrentPassword" autocomplete="current-password"></div>
+      <div><label for="profileNewPassword">New password</label><input type="password" id="profileNewPassword" autocomplete="new-password" minlength="6"></div>
+      <div><label for="profileConfirmPassword">Confirm new password</label><input type="password" id="profileConfirmPassword" autocomplete="new-password" minlength="6"></div>
+    </div>
+    <button class="save-btn" onclick="changeMyPassword()">Update Password</button>
+    <div id="profilePasswordNote" class="hint" style="display:none;"></div>
   </div>
 </div>
 
@@ -1712,15 +1736,17 @@ async function finishAuthenticatedSession(role, cloudProfile=null, firebaseUser=
   let savedProfile = {};
   try{ savedProfile = JSON.parse(localStorage.getItem("rc_profile_" + (firebaseUser?.uid || role)) || "{}"); }catch(e){}
   const username = cloudProfile?.username || LEGACY_USER_ID;
-  CURRENT_USER = {id:firebaseUser?.uid || role, uid:firebaseUser?.uid || null, userId:username};
+  CURRENT_USER = {id:firebaseUser?.uid || role, uid:firebaseUser?.uid || null, userId:username, authEmail:firebaseUser?.email || "", firebaseUser};
   CURRENT_PROFILE = {
     role,
     full_name:cloudProfile?.fullName || savedProfile.full_name || (role === "admin" ? "Administrator" : "Employee"),
-    phone:cloudProfile?.phone || savedProfile.phone || ""
+    phone:cloudProfile?.phone || savedProfile.phone || "",
+    email:cloudProfile?.contactEmail || savedProfile.email || (role === "admin" ? "admin@rugscreation.com" : "")
   };
   applyUserRole(role);
   document.getElementById("profileFullName").value = CURRENT_PROFILE.full_name;
-  document.getElementById("profileEmail").value = username + " (" + (role === "admin" ? "Admin" : "Employee") + ")";
+  document.getElementById("profileUsername").value = username;
+  document.getElementById("profileEmail").value = CURRENT_PROFILE.email || "—";
   document.getElementById("profileMobile").value = CURRENT_PROFILE.phone;
   const staffField = document.getElementById("staffName");
   if (!staffField.value) staffField.value = CURRENT_PROFILE.full_name;
@@ -1733,6 +1759,30 @@ async function finishAuthenticatedSession(role, cloudProfile=null, firebaseUser=
   startMasterRealtime();
   startHistoryRealtime();
   if (role === "admin") startUserDirectoryRealtime();
+}
+
+async function changeMyPassword(){
+  const note = document.getElementById("profilePasswordNote");
+  const currentPassword = document.getElementById("profileCurrentPassword").value;
+  const newPassword = document.getElementById("profileNewPassword").value;
+  const confirmPassword = document.getElementById("profileConfirmPassword").value;
+  note.style.display = "block";
+  if (!CURRENT_USER?.firebaseUser || !CURRENT_USER.authEmail){ note.textContent="No authenticated account is available."; return; }
+  if (CURRENT_USER.userId === LEGACY_USER_ID){ note.textContent="The shared legacy account password is managed by the administrator and cannot be changed here."; return; }
+  if (!currentPassword){ note.textContent="Enter your current password."; return; }
+  if (newPassword.length < 6){ note.textContent="The new password must contain at least six characters."; return; }
+  if (newPassword !== confirmPassword){ note.textContent="The new passwords do not match."; return; }
+  try{
+    note.textContent = "Updating password...";
+    const credential = firebase.auth.EmailAuthProvider.credential(CURRENT_USER.authEmail,currentPassword);
+    await CURRENT_USER.firebaseUser.reauthenticateWithCredential(credential);
+    await CURRENT_USER.firebaseUser.updatePassword(newPassword);
+    ["profileCurrentPassword","profileNewPassword","profileConfirmPassword"].forEach(id=>document.getElementById(id).value="");
+    note.textContent = "✓ Password updated successfully.";
+  }catch(error){
+    const wrong = error.code === "auth/wrong-password" || error.code === "auth/invalid-credential";
+    note.textContent = wrong ? "The current password is incorrect." : "Password update failed: " + (error.message||"Please try again.");
+  }
 }
 
 function ensureAuthenticatedSession(role, cloudProfile=null, firebaseUser=null){
@@ -3275,6 +3325,20 @@ function handleQuotePhoto(input){
   reader.readAsDataURL(file);
 }
 
+function collectLoadabilitySnapshot(){
+  const isBale = document.getElementById("product")?.value === "carpet_rug";
+  return {
+    packageType: isBale ? "Bale" : "Carton",
+    length: parseFloat(document.getElementById("pkgLength")?.value)||0,
+    width: parseFloat(document.getElementById("pkgWidth")?.value)||0,
+    height: parseFloat(document.getElementById("pkgHeight")?.value)||0,
+    piecesPerPackage: isBale ? 1 : (parseFloat(document.getElementById("loadPiecesPerCarton")?.value)||1),
+    cbmPerPackage: document.getElementById("cbmDisplay")?.value || "—",
+    totalCbm: document.getElementById("totalCbmDisplay")?.value || "—",
+    results: document.getElementById("loadabilityResults")?.innerText?.trim() || "",
+  };
+}
+
 function printSummary(){
   const s = window.lastQuoteSummary;
   if (!s){ alert("Calculate a price first."); return; }
@@ -3282,29 +3346,33 @@ function printSummary(){
   const sizeText = s.H ? `${s.L}×${s.W}×${s.H} cm` : `${s.L}×${s.W} cm`;
   const priceLabel = s.isSqmMode ? "Final FOB USD / sqm" : "Final FOB USD / piece";
   const qtyLabel = s.isSqmMode ? "Total sqm" : "Quantity";
+  const pricingRows = `<tr><td>Visible production cost</td><td style="text-align:right;">₹${s.visibleCost.toFixed(2)}</td></tr><tr><td>Overhead</td><td style="text-align:right;">${s.overheadPct}%</td></tr><tr><td>Cost after overhead</td><td style="text-align:right;">₹${s.costWithOH.toFixed(2)}</td></tr><tr><td>Customer category / margin</td><td style="text-align:right;">${s.category} / ${s.marginPct}%</td></tr><tr><td>Commission / buying agency</td><td style="text-align:right;">${s.commissionPct}% / ${s.buyingAgencyPct}%</td></tr><tr><td>Final price INR / FX</td><td style="text-align:right;">₹${s.finalInr.toFixed(2)} / ₹${s.fx}</td></tr>`;
+  const bracketRows=(s.moqTiers||[]).map(t=>`<tr><td>${t.tier} ${s.isAreaTierProduct?"sqm":"pcs"}</td><td style="text-align:right;">${t.buffer>=0?"+":""}$${t.buffer.toFixed(2)}</td><td style="text-align:right;">$${t.fobUsd.toFixed(2)}</td></tr>`).join("");
   const win = window.open("", "_blank");
   win.document.write(`
     <html><head><title>Price Summary</title>
     <style>
       body{ font-family: Georgia, serif; padding: 30px; color:#111111; }
-      h1{ font-size:1.3rem; border-bottom:2px solid #111111; padding-bottom:8px; }
+      .brand{display:flex;justify-content:space-between;align-items:end;border-bottom:3px double #111;padding-bottom:12px}.brand strong{font:700 1.5rem Arial;color:#e65814}.sub{text-transform:uppercase;letter-spacing:1px;color:#666;font-size:.72rem}h2{font-size:.9rem;text-transform:uppercase;letter-spacing:1px;margin-top:22px;border-bottom:1px solid #bbb;padding-bottom:5px}
       table{ width:100%; border-collapse:collapse; margin-top:14px; }
       td, th{ padding:6px 4px; border-bottom:1px solid #ccc; font-size:0.92rem; }
       .meta{ font-size:0.9rem; margin:4px 0; }
       .total{ font-size:1.3rem; font-weight:bold; margin-top:18px; border-top:2px solid #111111; padding-top:10px; }
       .totalpc{ font-size:1rem; color:#555; }
     </style></head><body>
-    <h1>Rugs Creation — Internal Costing</h1>
+    <div class="brand"><strong>RUGS CREATION</strong><div style="text-align:right"><h1 style="border:0;margin:0;padding:0">Quote &amp; Full Costing</h1><div class="sub">Internal — for management use</div></div></div>
     ${QUOTE_PHOTO_DATA ? `<img src="${QUOTE_PHOTO_DATA}" style="max-width:220px;max-height:170px;object-fit:contain;border:1px solid #ccc;margin:8px 0 12px;">` : ""}
     <div class="meta">Date: ${new Date().toLocaleDateString()} &nbsp; | &nbsp; Prepared by: ${s.staff}</div>
     <div class="meta">Customer: <strong>${s.customer}</strong></div>
     <div class="meta">Product: <strong>${s.product.replace('_',' ')}</strong> &nbsp; Size: ${sizeText} &nbsp; ${qtyLabel}: ${s.qty}</div>
-    <table>
+    <h2>Itemized Cost</h2><table>
       <tr><th style="text-align:left;">Item</th><th style="text-align:right;">Amount</th></tr>
       ${rows || '<tr><td colspan="2">No line items</td></tr>'}
     </table>
+    <h2>Pricing Breakdown</h2><table>${pricingRows}</table>
     <div class="total">${priceLabel}: $${s.fobUsd.toFixed(2)}</div>
     <div class="totalpc">Total order value: $${s.totalUsd.toFixed(2)}</div>
+    <h2>Price by Order Quantity Bracket</h2><table><tr><th>Bracket</th><th style="text-align:right">Adjustment</th><th style="text-align:right">FOB USD</th></tr>${bracketRows||'<tr><td colspan="3">No brackets configured</td></tr>'}</table>
     </body></html>
   `);
   win.document.close();
@@ -3347,19 +3415,40 @@ function downloadQuotePdf(){
     rows.slice(0,25).forEach(row=>{ doc.text(`${row[0]}. ${row[1]} — ${row[2]}`,14,y); y+=5; });
     y += 4;
   }
-  if (y > 260){ doc.addPage(); y=20; }
+  if (y > 235){ doc.addPage(); y=20; }
+  const pricingRows = [
+    ["Visible production cost",`INR ${s.visibleCost.toFixed(2)}`],
+    [`Overhead (${s.overheadPct}%)`,`INR ${(s.costWithOH-s.visibleCost).toFixed(2)}`],
+    ["Cost after overhead",`INR ${s.costWithOH.toFixed(2)}`],
+    [`Customer category / margin`,`${s.category} / ${s.marginPct}%`],
+    ["Commission",`${s.commissionPct}%`],
+    ["Buying agency",`${s.buyingAgencyPct}%`],
+    ["Final price",`INR ${s.finalInr.toFixed(2)}`],
+    ["Exchange rate",`INR ${s.fx} / USD`],
+    ["Quantity adjustment",`${s.qtyBuffer>=0?"+":""}USD ${s.qtyBuffer.toFixed(2)}`],
+  ];
+  if (typeof doc.autoTable === "function"){
+    doc.setFontSize(11); doc.text("Pricing Breakdown",14,y); y+=3;
+    doc.autoTable({startY:y,head:[["Calculation","Value"]],body:pricingRows,theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[25,25,25]}});
+    y=doc.lastAutoTable.finalY+8;
+  }
+  if (y > 250){ doc.addPage(); y=20; }
   doc.setFont("helvetica","bold");
   doc.setFontSize(12);
   doc.text(`Final FOB: USD ${s.fobUsd.toFixed(2)} / ${unitLabel}`,14,y);
   doc.text(`Quantity: ${s.qty}`,14,y+7);
   doc.text(`Total order value: USD ${s.totalUsd.toFixed(2)}`,14,y+14);
+  y += 24;
+  if ((s.moqTiers||[]).length && typeof doc.autoTable === "function"){
+    doc.autoTable({startY:y,head:[["Order bracket","Adjustment","FOB USD"]],body:s.moqTiers.map(t=>[`${t.tier} ${s.isAreaTierProduct?"sqm":"pcs"}`,`${t.buffer>=0?"+":""}$${t.buffer.toFixed(2)}`,`$${t.fobUsd.toFixed(2)}`]),theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[25,25,25]}});
+  }
+  doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(110); doc.text("Rugs Creation — Internal Costing Document",14,289);
   doc.save(`${safeName}_Quote.pdf`);
   void saveToHistory();
 }
 
 function downloadInternalCosting(){ downloadQuotePdf(); }
-function downloadBuyerQuotePdf(){
-  const s = window.lastQuoteSummary;
+function downloadBuyerQuotePdfFromSummary(s, photoData="", saveHistory=false){
   if (!s){ alert("Calculate a price first."); return; }
   if (!window.jspdf?.jsPDF){ alert("The PDF library is still loading. Please try again in a moment."); return; }
   const {jsPDF} = window.jspdf;
@@ -3370,12 +3459,34 @@ function downloadBuyerQuotePdf(){
   doc.setFillColor(25,25,25); doc.rect(0,0,210,30,"F");
   doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(19); doc.text("RUGS CREATION",14,19);
   doc.setTextColor(25,25,25); doc.setFontSize(15); doc.text("BUYER QUOTATION",14,43);
-  let y=54; const rows=[["Article No",s.articleNo||"—"],["Buyer",s.customer||"—"],["Product",productLabels[s.product]||s.product||"—"],["Size",sizeText],["Quantity",String(s.qty||0)],["Price",`USD ${s.fobUsd.toFixed(2)} / ${s.isSqmMode?"sqm":"piece"}`],["Total order value",`USD ${s.totalUsd.toFixed(2)}`],["Date",new Date().toLocaleDateString()]];
-  rows.forEach(([label,value])=>{doc.setFont("helvetica","bold");doc.text(label,14,y);doc.setFont("helvetica","normal");doc.text(String(value),62,y);doc.setDrawColor(220);doc.line(14,y+2,196,y+2);y+=10;});
-  if (QUOTE_PHOTO_DATA){ try{doc.addImage(QUOTE_PHOTO_DATA,"JPEG",45,y+5,120,85,undefined,"FAST");}catch(error){} }
-  doc.setFontSize(9); doc.setTextColor(100); doc.text("Thank you for your inquiry.",14,285);
+  let y=43;
+  if (photoData){ try{doc.addImage(photoData,"JPEG",148,39,47,39,undefined,"FAST");}catch(error){} }
+  const rows=[["Buyer",s.customer||"—"],["Article No",s.articleNo||"—"],["Product",productLabels[s.product]||s.product||"—"],["Dimensions",sizeText],["Order quantity",String(s.qty||0)],["Quoted price",`USD ${Number(s.fobUsd||0).toFixed(2)} / ${s.isSqmMode?"sqm":"piece"}`],["Order value",`USD ${Number(s.totalUsd||0).toFixed(2)}`],["Quotation date",new Date(s.ts||Date.now()).toLocaleDateString()]];
+  if (typeof doc.autoTable === "function"){
+    doc.autoTable({startY:y,margin:{right:photoData?68:14},body:rows,theme:"plain",styles:{fontSize:10,cellPadding:2.4},columnStyles:{0:{fontStyle:"bold",cellWidth:38}}});
+    y=Math.max(doc.lastAutoTable.finalY+10,photoData?84:80);
+  } else { rows.forEach(([label,value])=>{doc.setFont("helvetica","bold");doc.text(label,14,y);doc.setFont("helvetica","normal");doc.text(String(value),58,y);y+=8;}); }
+  const load=s.loadability||{};
+  doc.setFont("helvetica","bold");doc.setFontSize(13);doc.text("PACKING & CONTAINER LOADABILITY",14,y); y+=5;
+  const packingRows=[
+    ["Packing type",load.packageType||"—"],
+    ["Packed dimensions",load.length?`${load.length} × ${load.width} × ${load.height} cm`:"—"],
+    ["Pieces per package",String(load.piecesPerPackage||1)],
+    ["CBM per package",load.cbmPerPackage||"—"],
+    ["Total shipment CBM",load.totalCbm||"—"],
+  ];
+  if (typeof doc.autoTable === "function"){
+    doc.autoTable({startY:y,head:[["Loadability detail","Value"]],body:packingRows,theme:"grid",styles:{fontSize:9},headStyles:{fillColor:[230,88,20]}}); y=doc.lastAutoTable.finalY+8;
+  }
+  if (load.results){ doc.setFont("helvetica","bold");doc.text("Container estimates",14,y);y+=5;doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text(doc.splitTextToSize(load.results,180),14,y); }
+  doc.setDrawColor(230,88,20);doc.line(14,276,196,276);doc.setFontSize(9);doc.setTextColor(90);doc.text("Thank you for your inquiry. We look forward to working with you.",14,283);
   doc.save(`${safeName}_Buyer_Quote.pdf`);
-  void saveToHistory();
+  if (saveHistory) void saveToHistory();
+}
+function downloadBuyerQuotePdf(){
+  const s = window.lastQuoteSummary;
+  if (!s){ alert("Calculate a price first."); return; }
+  downloadBuyerQuotePdfFromSummary(s,QUOTE_PHOTO_DATA,true);
 }
 
 function downloadQuote(){
@@ -3512,6 +3623,7 @@ async function submitLockForApproval(){
     fobUsd: s.fobUsd, qty: s.qty,
     photoData: QUOTE_PHOTO_DATA || "",
     photoName: QUOTE_PHOTO_NAME || "",
+    quoteSummary: window.lastQuoteSummary ? {...window.lastQuoteSummary, ts:new Date().toISOString(), loadability:collectLoadabilitySnapshot()} : null,
     status: "Pending Approval",
   });
   warnEl.style.display = "block";
@@ -3921,6 +4033,7 @@ function calculate(){
     commissionPct: cust.commissionPct||0, buyingAgencyPct: cust.buyingAgencyPct||0,
     finalInr, fx, qtyBuffer, isAreaTierProduct,
     moqTiers,
+    loadability: collectLoadabilitySnapshot(),
   };
 }
 
@@ -4328,6 +4441,7 @@ async function saveToHistory(){
     marginPct: document.getElementById("mCat").textContent,
     photoData: QUOTE_PHOTO_DATA || "",
     photoName: QUOTE_PHOTO_NAME || "",
+    quoteSummary: window.lastQuoteSummary ? {...window.lastQuoteSummary, ts:new Date().toISOString(), loadability:collectLoadabilitySnapshot()} : null,
   };
   note.textContent = "Saving...";
   const recordId = Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
@@ -4348,29 +4462,58 @@ function escapeHistoryText(value){
   return String(value ?? "").replace(/[&<>"']/g, char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
 }
 
+let HISTORY_SCOPE = "mine";
+function setHistoryScope(scope){
+  HISTORY_SCOPE = scope === "all" ? "all" : "mine";
+  document.getElementById("historyMineBtn")?.classList.toggle("active",HISTORY_SCOPE==="mine");
+  document.getElementById("historyAllBtn")?.classList.toggle("active",HISTORY_SCOPE==="all");
+  renderHistoryTable(document.getElementById("historySearch")?.value||"");
+}
+function summaryFromHistoryRecord(r){
+  return r.quoteSummary || {
+    ts:r.ts, staff:r.staff, articleNo:r.articleNo||"—", customer:r.customer||"—", product:r.product||"—",
+    L:Number(r.length)||0,W:Number(r.width)||0,H:Number(r.height)||0,qty:Number(r.qty)||0,
+    fobUsd:Number(r.fobUsd)||0,totalUsd:Number(String(r.totalUsd||"").replace(/[^0-9.-]/g,""))||0,
+    isSqmMode:false,loadability:r.loadability||{},lineItems:[]
+  };
+}
+function findHistoryRecord(id){ return HISTORY.find(r=>String(r.id)===String(id)); }
+function viewHistoryQuote(id){
+  const r=findHistoryRecord(id); if(!r)return;
+  const s=summaryFromHistoryRecord(r); const load=s.loadability||{};
+  const size=s.H?`${s.L} × ${s.W} × ${s.H} cm`:`${s.L} × ${s.W} cm`;
+  document.getElementById("historyQuotePreview").innerHTML=`
+    <div class="quote-preview-header"><div><h2>RUGS CREATION</h2><div>Buyer Quotation</div></div>${r.photoData?`<img src="${r.photoData}" alt="Product photo">`:""}</div>
+    <div class="quote-preview-grid"><div><b>Buyer</b><br>${escapeHistoryText(s.customer)}</div><div><b>Merchant</b><br>${escapeHistoryText(s.staff||r.staff)}</div><div><b>Article No</b><br>${escapeHistoryText(s.articleNo)}</div><div><b>Product</b><br>${escapeHistoryText(String(s.product||"").replaceAll("_"," "))}</div><div><b>Dimensions</b><br>${escapeHistoryText(size)}</div><div><b>Quantity</b><br>${Number(s.qty)||0}</div></div>
+    <div class="quote-preview-price">USD ${Number(s.fobUsd||0).toFixed(2)} / ${s.isSqmMode?"sqm":"piece"}<small>Total order value: USD ${Number(s.totalUsd||0).toFixed(2)}</small></div>
+    <h3>Packing &amp; Container Loadability</h3><table><tr><th>Packing</th><td>${escapeHistoryText(load.packageType||"—")}</td></tr><tr><th>Packed dimensions</th><td>${load.length?`${load.length} × ${load.width} × ${load.height} cm`:"—"}</td></tr><tr><th>CBM / package</th><td>${escapeHistoryText(load.cbmPerPackage||"—")}</td></tr><tr><th>Total CBM</th><td>${escapeHistoryText(load.totalCbm||"—")}</td></tr></table><p>${escapeHistoryText(load.results||"")}</p>`;
+  document.getElementById("historyDialogDownloadBtn").onclick=()=>downloadHistoryBuyerQuote(id);
+  document.getElementById("historyQuoteDialog").showModal();
+}
+function downloadHistoryBuyerQuote(id){
+  const r=findHistoryRecord(id); if(!r)return;
+  downloadBuyerQuotePdfFromSummary(summaryFromHistoryRecord(r),r.photoData||"",false);
+}
+
 function renderHistoryTable(filter=""){
   const tbl = document.getElementById("tbl-history");
   if (!tbl) return;
   const f = (filter||"").toLowerCase();
-  const mgmtOn = document.getElementById("mgmtToggle").checked;
-  const rows = HISTORY.filter(r => String(r.staff||"").toLowerCase().includes(f) || String(r.customer||"").toLowerCase().includes(f)).slice().reverse();
-  let html = `<tr><th>When</th><th>Staff</th><th>Customer</th><th>Product</th><th>Size</th><th>Qty</th><th>FOB USD/pc</th><th>Total USD</th>`;
-  if (mgmtOn) html += `<th>Visible Cost ₹</th><th>Margin %</th>`;
-  html += `</tr>`;
+  const currentId=String(CURRENT_USER?.id||"");
+  const rows = HISTORY.filter(r => (HISTORY_SCOPE==="all" || String(r.userId||"")===currentId || (!r.userId && r.staff===CURRENT_PROFILE?.full_name)) && [r.staff,r.customer,r.articleNo,r.product].some(v=>String(v||"").toLowerCase().includes(f))).slice().reverse();
+  let html = `<tr><th>When</th><th>Merchant</th><th>Customer</th><th>Article No</th><th>Product</th><th>Size</th><th>FOB USD/PCS</th><th>View Quote</th><th>Download Quote</th></tr>`;
   rows.forEach(r=>{
     const when = new Date(r.ts).toLocaleString();
     html += `<tr>
       <td style="font-family:var(--mono); font-size:0.72rem;">${escapeHistoryText(when)}</td>
-      <td>${escapeHistoryText(r.staff)}</td><td>${escapeHistoryText(r.customer)}</td><td>${escapeHistoryText(String(r.product||"").replace('_',' '))}</td>
-      <td>${Number(r.length)||0}×${Number(r.width)||0}cm</td><td>${Number(r.qty)||0}</td>
-      <td>$${(Number(r.fobUsd)||0).toFixed(2)}</td><td>${escapeHistoryText(r.totalUsd)}</td>`;
-    if (mgmtOn) html += `<td>${escapeHistoryText(r.visibleCostInr)}</td><td>${escapeHistoryText(r.marginPct)}</td>`;
-    html += `</tr>`;
+      <td>${escapeHistoryText(r.staff)}</td><td>${escapeHistoryText(r.customer)}</td><td>${escapeHistoryText(r.articleNo||"—")}</td><td>${escapeHistoryText(String(r.product||"").replace('_',' '))}</td>
+      <td>${Number(r.length)||0}×${Number(r.width)||0}cm</td><td>$${(Number(r.fobUsd)||0).toFixed(2)}</td>
+      <td><button class="edit-btn" onclick="viewHistoryQuote('${escapeHistoryText(r.id)}')">View</button></td><td><button class="save-btn" onclick="downloadHistoryBuyerQuote('${escapeHistoryText(r.id)}')">Download PDF</button></td></tr>`;
   });
-  tbl.innerHTML = html || "<tr><td>No quotes saved yet.</td></tr>";
+  if (!rows.length) html += `<tr><td colspan="9">No costings found in this view.</td></tr>`;
+  tbl.innerHTML = html;
 }
 document.getElementById("historySearch").addEventListener("input", e=>renderHistoryTable(e.target.value));
-document.getElementById("mgmtToggle").addEventListener("change", ()=>renderHistoryTable(document.getElementById("historySearch").value));
 
 function exportHistoryToExcel(){
   const ws = XLSX.utils.json_to_sheet(HISTORY);
