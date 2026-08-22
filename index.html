@@ -3439,6 +3439,23 @@ function printSummary(){
   setTimeout(()=>win.print(), 300);
 }
 
+function drawBrandedPdfTop(doc,{title,subtitle,photoData,sizeText,details}){
+  const logo=document.querySelector("header img")?.src || "";
+  if (logo){ try{doc.addImage(logo,"PNG",14,9,45,20,undefined,"FAST");}catch(error){console.warn("Logo could not be added to PDF",error);} }
+  if (!logo){doc.setTextColor(230,88,20);doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text("RUGS CREATION",14,21);}
+  doc.setTextColor(25,25,25);doc.setFont("helvetica","bold");doc.setFontSize(16);doc.text(title,196,16,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(105);doc.text(subtitle,196,23,{align:"right"});
+  doc.setDrawColor(230,88,20);doc.setLineWidth(.8);doc.line(14,34,196,34);
+  doc.setFillColor(246,247,248);doc.setDrawColor(190,195,199);doc.setLineWidth(.25);doc.roundedRect(14,41,62,52,2,2,"FD");
+  if (photoData){try{doc.addImage(photoData,"JPEG",17,44,56,46,undefined,"FAST");}catch(error){console.warn("Product photo could not be added to PDF",error);}}
+  else{doc.setTextColor(145);doc.setFont("helvetica","bold");doc.setFontSize(8);doc.text("PRODUCT IMAGE",45,66,{align:"center"});doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("No photo attached",45,72,{align:"center"});}
+  doc.setFillColor(25,25,25);doc.roundedRect(14,97,62,16,2,2,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");doc.setFontSize(7);doc.text("SIZE",18,103);doc.setFontSize(10);doc.text(sizeText||"—",18,109);
+  if (typeof doc.autoTable==="function"){
+    doc.autoTable({startY:41,margin:{left:83,right:14},body:details,theme:"plain",styles:{fontSize:9,cellPadding:2.35,textColor:[35,35,35]},columnStyles:{0:{fontStyle:"bold",cellWidth:31,textColor:[95,95,95]},1:{fontStyle:"bold"}}});
+  } else {let detailY=45;details.forEach(([label,value])=>{doc.setTextColor(90);doc.setFont("helvetica","bold");doc.text(label,83,detailY);doc.setTextColor(25);doc.text(String(value),118,detailY);detailY+=7;});}
+  return 121;
+}
+
 function downloadQuotePdf(summary=window.lastQuoteSummary, photoData=QUOTE_PHOTO_DATA, saveHistory=true){
   const s = summary;
   if (!s){ alert("Calculate a price first."); return; }
@@ -3448,27 +3465,19 @@ function downloadQuotePdf(summary=window.lastQuoteSummary, photoData=QUOTE_PHOTO
   const safeName = (s.customer||"Quote").replace(/[^a-z0-9]+/gi,"_").replace(/^_+|_+$/g,"") || "Quote";
   const sizeText = s.H ? `${s.L} × ${s.W} × ${s.H} cm` : `${s.L} × ${s.W} cm`;
   const unitLabel = s.isSqmMode ? "sqm" : "piece";
-  doc.setFont("helvetica","bold");
-  doc.setFontSize(18);
-  doc.text("RUGS CREATION — COSTING QUOTE", 14, 18);
-  doc.setDrawColor(35);
-  doc.line(14,22,196,22);
-  doc.setFont("helvetica","normal");
-  doc.setFontSize(10);
   const details = [
     ["Article No", s.articleNo || "—"],
     ["Customer", s.customer || "—"],
-    ["Product", s.product || "—"],
-    ["Size", sizeText],
+    ["Product", String(s.product||"—").replaceAll("_"," ")],
     ["Costed by", s.staff || "—"],
+    ["Quantity", String(s.qty||0)],
+    ["FOB", `USD ${Number(s.fobUsd||0).toFixed(2)} / ${unitLabel}`],
     ["Date", new Date(s.ts||Date.now()).toLocaleDateString()],
   ];
-  let y = 30;
-  details.forEach(([label,value])=>{ doc.setFont("helvetica","bold"); doc.text(label+":",14,y); doc.setFont("helvetica","normal"); doc.text(String(value),48,y); y+=6; });
-  if (photoData){ try{ doc.addImage(photoData,"JPEG",145,28,48,40,undefined,"FAST"); }catch(error){ console.warn("Photo could not be added to PDF",error); } }
+  let y=drawBrandedPdfTop(doc,{title:"FULL COSTING",subtitle:"INTERNAL — FOR MANAGEMENT USE",photoData,sizeText,details});
   const rows = s.lineItems.map((item,index)=>[String(index+1),item.label,`INR ${item.amount.toFixed(2)}`]);
   if (typeof doc.autoTable === "function"){
-    doc.autoTable({startY:y+3,head:[["#","Cost component","Amount"]],body:rows,theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[25,25,25]}});
+    doc.autoTable({startY:y,head:[["#","Cost component","Amount"]],body:rows,theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[25,25,25]}});
     y = doc.lastAutoTable.finalY + 9;
   } else {
     rows.slice(0,25).forEach(row=>{ doc.text(`${row[0]}. ${row[1]} — ${row[2]}`,14,y); y+=5; });
@@ -3522,16 +3531,8 @@ function downloadBuyerQuotePdfFromSummary(s, photoData="", saveHistory=false){
   const safeName = (s.customer||"Buyer_Quote").replace(/[^a-z0-9]+/gi,"_").replace(/^_+|_+$/g,"") || "Buyer_Quote";
   const productLabels={cushion_cover:"Cushion Cover",filled_cushion:"Filled Cushion",floor_cushion:"Floor Cushion",chair_pad:"Chair Pad",pouf:"Pouf",throw:"Throw",carpet_rug:"Carpet / Rug",bath_mat:"Bath Mat"};
   const sizeText=s.H?`${s.L} × ${s.W} × ${s.H} cm`:`${s.L} × ${s.W} cm`;
-  doc.setFillColor(25,25,25); doc.rect(0,0,210,30,"F");
-  doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(19); doc.text("RUGS CREATION",14,19);
-  doc.setTextColor(25,25,25); doc.setFontSize(15); doc.text("BUYER QUOTATION",14,43);
-  let y=43;
-  if (photoData){ try{doc.addImage(photoData,"JPEG",148,39,47,39,undefined,"FAST");}catch(error){} }
-  const rows=[["Buyer",s.customer||"—"],["Article No",s.articleNo||"—"],["Product",productLabels[s.product]||s.product||"—"],["Dimensions",sizeText],["Order quantity",String(s.qty||0)],["Quoted price",`USD ${Number(s.fobUsd||0).toFixed(2)} / ${s.isSqmMode?"sqm":"piece"}`],["Order value",`USD ${Number(s.totalUsd||0).toFixed(2)}`],["Quotation date",new Date(s.ts||Date.now()).toLocaleDateString()]];
-  if (typeof doc.autoTable === "function"){
-    doc.autoTable({startY:y,margin:{right:photoData?68:14},body:rows,theme:"plain",styles:{fontSize:10,cellPadding:2.4},columnStyles:{0:{fontStyle:"bold",cellWidth:38}}});
-    y=Math.max(doc.lastAutoTable.finalY+10,photoData?84:80);
-  } else { rows.forEach(([label,value])=>{doc.setFont("helvetica","bold");doc.text(label,14,y);doc.setFont("helvetica","normal");doc.text(String(value),58,y);y+=8;}); }
+  const rows=[["Buyer",s.customer||"—"],["Article No",s.articleNo||"—"],["Product",productLabels[s.product]||s.product||"—"],["Order quantity",String(s.qty||0)],["Quoted price",`USD ${Number(s.fobUsd||0).toFixed(2)} / ${s.isSqmMode?"sqm":"piece"}`],["Order value",`USD ${Number(s.totalUsd||0).toFixed(2)}`],["Quotation date",new Date(s.ts||Date.now()).toLocaleDateString()]];
+  let y=drawBrandedPdfTop(doc,{title:"BUYER QUOTATION",subtitle:"PRODUCT & COMMERCIAL OFFER",photoData,sizeText,details:rows});
   const load=s.loadability||{};
   doc.setFont("helvetica","bold");doc.setFontSize(13);doc.text("PACKING & CONTAINER LOADABILITY",14,y); y+=5;
   const packingRows=[
