@@ -1868,6 +1868,10 @@ async function storageSet(key, value, shared){
 let masterRealtimeUnsubscribe = null;
 function startMasterRealtime(){
   if (!FIRESTORE || masterRealtimeUnsubscribe) return;
+  // Firestore delivers the initial subscription as TWO snapshot events (once from local cache,
+  // once confirmed by the server) — both look identical to a real change. Treat anything in the
+  // first few seconds after subscribing as "just loading", not a teammate's live edit.
+  const listenerStartedAt = Date.now();
   masterRealtimeUnsubscribe = FIRESTORE.collection("rugs_creation").doc(STORAGE_KEY).onSnapshot(snapshot=>{
     if (!snapshot.exists || snapshot.metadata.hasPendingWrites) return;
     const fresh = snapshot.data().value;
@@ -1878,7 +1882,7 @@ function startMasterRealtime(){
     populateCalculatorDropdowns();
     calculate();
     setSyncStatus("live", {syncedNow:true});
-    const wasRemoteChange = Date.now() - LAST_LOCAL_MASTER_SAVE_AT > 4000;
+    const wasRemoteChange = Date.now() - listenerStartedAt > 3000 && Date.now() - LAST_LOCAL_MASTER_SAVE_AT > 4000;
     const note = document.getElementById("saveNote");
     if (note){
       note.textContent = wasRemoteChange ? "Live update received from a teammate ✓" : "Saved ✓ — synced with the team.";
@@ -2526,7 +2530,10 @@ function handleUserDirectoryAction(uid,action){
 }
 function startUserDirectoryRealtime(){
   if (!FIRESTORE || userDirectoryUnsubscribe || !canManageUserAccess()) return;
-  let firstUserSnapshot = true;
+  // See the comment in startMasterRealtime: the initial subscription can fire twice (cache, then
+  // server) before any real change happens, so a single-use "first snapshot" flag isn't enough —
+  // ignore anything in the first few seconds after subscribing.
+  const listenerStartedAt = Date.now();
   userDirectoryUnsubscribe = FIRESTORE.collection("users").onSnapshot(snapshot=>{
     const previousCount = USER_DIRECTORY.length;
     snapshot.docs.forEach(doc=>{
@@ -2545,11 +2552,10 @@ function startUserDirectoryRealtime(){
     renderUserDirectory();
     renderAccessUserPicker();
     setSyncStatus("live", {syncedNow:true});
-    if (!firstUserSnapshot && !snapshot.metadata.hasPendingWrites && USER_DIRECTORY.length > previousCount){
+    if (Date.now() - listenerStartedAt > 3000 && !snapshot.metadata.hasPendingWrites && USER_DIRECTORY.length > previousCount){
       showSyncToast("A new employee just registered — waiting for approval.");
       flashElement(document.getElementById("view-approvals"));
     }
-    firstUserSnapshot = false;
   }, error=>{
     const note = document.getElementById("userApprovalNote");
     if (note) note.textContent = "Unable to load registrations: " + error.message;
@@ -5233,7 +5239,10 @@ async function loadHistory(){
 let historyRealtimeUnsubscribe = null;
 function startHistoryRealtime(){
   if (!FIRESTORE || historyRealtimeUnsubscribe) return;
-  let firstHistorySnapshot = true;
+  // See the comment in startMasterRealtime: the initial subscription can fire twice (cache, then
+  // server) before any real change happens, so a single-use "first snapshot" flag isn't enough —
+  // ignore anything in the first few seconds after subscribing.
+  const listenerStartedAt = Date.now();
   historyRealtimeUnsubscribe = FIRESTORE.collection("costing_history").orderBy("ts","asc").limit(1000).onSnapshot(snapshot=>{
     const previousCount = HISTORY.length;
     HISTORY = snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
@@ -5241,14 +5250,13 @@ function startHistoryRealtime(){
     renderHistoryTable(document.getElementById("historySearch").value);
     renderWelcomeDashboard(); renderApprovalQueue();
     setSyncStatus("live", {syncedNow:true});
-    const wasRemoteChange = !firstHistorySnapshot && !snapshot.metadata.hasPendingWrites && (Date.now() - LAST_LOCAL_HISTORY_SAVE_AT > 4000);
+    const wasRemoteChange = Date.now() - listenerStartedAt > 3000 && !snapshot.metadata.hasPendingWrites && (Date.now() - LAST_LOCAL_HISTORY_SAVE_AT > 4000);
     if (wasRemoteChange){
       const grew = HISTORY.length > previousCount;
       showSyncToast(grew ? "A new costing just synced in from the team." : "A costing was updated by a teammate — refreshed automatically.");
       flashElement(document.getElementById("view-history"));
       flashElement(document.getElementById("tbl-approval-queue"));
     }
-    firstHistorySnapshot = false;
   }, error=>{ console.error("Firebase live history sync failed:", error); setSyncStatus("offline"); });
 }
 
