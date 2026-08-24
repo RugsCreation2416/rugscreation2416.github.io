@@ -2021,6 +2021,13 @@ let CURRENT_USER = null;
 let CURRENT_PROFILE = null;
 let AUTH_MODE = "login";
 let AUTH_SESSION_PROMISE = null;
+/* createUserWithEmailAndPassword auto-signs the browser in as the brand-new account, which fires
+   onAuthStateChanged (below) concurrently with the registration code's own Firestore write below.
+   If that listener's read loses the race, it signed the new account straight back out before the
+   registration write landed — leaving a real Firebase Auth login with no Firestore profile at all
+   (invisible in User Approvals, but "already registered" on any retry). This flag makes the
+   restore-session listener stand down for the moment registration is actually in flight. */
+let REGISTRATION_IN_PROGRESS = false;
 let COSTING_WORKSPACE_ENTERED = false;
 let LOGIN_WELCOME_SPOKEN = false;
 let LOGIN_WELCOME_PENDING = false;
@@ -2362,21 +2369,30 @@ document.getElementById("loginForm").addEventListener("submit", async event=>{
       if (password.length < 6) throw new Error("Password must contain at least 6 characters.");
       if (password !== confirmPassword) throw new Error("The two passwords do not match.");
       error.textContent = "Creating your registration...";
+      REGISTRATION_IN_PROGRESS = true;
       const credential = await FIREBASE_AUTH.createUserWithEmailAndPassword(usernameEmail(usernameKey), password);
-      await FIRESTORE.collection("users").doc(credential.user.uid).set({
-        fullName:usernameDisplay,
-        username:usernameDisplay,
-        usernameKey,
-        contactEmail,
-        role:"employee",
-        permissions:{...ROLE_PERMISSION_DEFAULTS.employee},
-        status:"pending",
-        phone,
-        loginCount:0,
-        loginHistory:[],
-        createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
+      try{
+        await FIRESTORE.collection("users").doc(credential.user.uid).set({
+          fullName:usernameDisplay,
+          username:usernameDisplay,
+          usernameKey,
+          contactEmail,
+          role:"employee",
+          permissions:{...ROLE_PERMISSION_DEFAULTS.employee},
+          status:"pending",
+          phone,
+          loginCount:0,
+          loginHistory:[],
+          createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }catch(profileError){
+        // The Firebase Auth login now exists but has no profile — left as-is this account would be
+        // a permanent orphan (invisible in User Approvals, yet "already registered" on any retry).
+        // Roll it back so the same username can be registered again cleanly.
+        await credential.user.delete().catch(()=>{});
+        throw new Error("Registration could not be completed (" + (profileError.message || "connection issue") + "). Please try again.");
+      }
       await FIREBASE_AUTH.signOut();
       try{ sessionStorage.setItem("rc_prefill_username", usernameDisplay); }catch(e){}
       error.style.color = "#0a7a2f";
@@ -2417,14 +2433,14 @@ document.getElementById("loginForm").addEventListener("submit", async event=>{
     const duplicate = authError.code === "auth/email-already-in-use";
     const invalidLogin = authError.code === "auth/invalid-credential" || authError.code === "auth/wrong-password" || authError.code === "auth/user-not-found";
     error.textContent = duplicate ? "That username is already registered. Please choose another name." : invalidLogin ? "Incorrect username or password." : (authError.message || "Unable to continue.");
-  }finally{ submitButton.disabled = false; endProgress(); }
+  }finally{ submitButton.disabled = false; endProgress(); REGISTRATION_IN_PROGRESS = false; }
 });
 
 /* Firebase keeps the user signed in across refreshes. Restore the dashboard
    instead of showing the login gate again after a successful sign-in. */
 if (FIREBASE_AUTH){
   FIREBASE_AUTH.onAuthStateChanged(async firebaseUser=>{
-    if (!firebaseUser || CURRENT_USER || AUTH_SESSION_PROMISE) return;
+    if (!firebaseUser || CURRENT_USER || AUTH_SESSION_PROMISE || REGISTRATION_IN_PROGRESS) return;
     const email = String(firebaseUser.email || "").toLowerCase();
     try{
       if (email === "admin@rugscreation.com"){
@@ -2629,28 +2645,42 @@ async function adminCreateUser(){
     const uid = credential.user.uid;
     // This create must match the self-registration security rule exactly (role:employee, status:pending) —
     // the admin's own session approves it and sets the real role immediately afterward.
-    await secondaryApp.firestore().collection("users").doc(uid).set({
-      fullName,
-      username: usernameDisplay,
-      usernameKey,
-      contactEmail: "",
-      role: "employee",
-      permissions: {...ROLE_PERMISSION_DEFAULTS.employee},
-      status: "pending",
-      phone: "",
-      loginCount: 0,
-      loginHistory: [],
-      createdByAdmin: true,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    try{
+      await secondaryApp.firestore().collection("users").doc(uid).set({
+        fullName,
+        username: usernameDisplay,
+        usernameKey,
+        contactEmail: "",
+        role: "employee",
+        permissions: {...ROLE_PERMISSION_DEFAULTS.employee},
+        status: "pending",
+        phone: "",
+        loginCount: 0,
+        loginHistory: [],
+        createdByAdmin: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }catch(profileError){
+      // The login now exists but has no profile — roll it back rather than leave an orphaned
+      // account that blocks this username forever with no way to approve it.
+      await credential.user.delete().catch(()=>{});
+      throw new Error("Could not save the new account's profile (" + (profileError.message || "connection issue") + "). Nothing was created — try again.");
+    }
     await secondaryAuth.signOut();
-    await FIRESTORE.collection("users").doc(uid).update({
-      status: "approved",
-      role,
-      permissions: {...ROLE_PERMISSION_DEFAULTS[role]},
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    try{
+      await FIRESTORE.collection("users").doc(uid).update({
+        status: "approved",
+        role,
+        permissions: {...ROLE_PERMISSION_DEFAULTS[role]},
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }catch(approveError){
+      note.style.color = "#a40000";
+      note.textContent = `${fullName} was created but could not be auto-approved (${approveError.message || "connection issue"}). Approve them from Users & Approvals below.`;
+      showSyncToast(`${fullName} was created — approve them from Users & Approvals.`);
+      return;
+    }
     note.style.color = "#0a7a2f";
     note.textContent = `Created and approved ✓ — ${fullName} can sign in now as "${usernameKey}".`;
     document.getElementById("createUserFullName").value = "";
