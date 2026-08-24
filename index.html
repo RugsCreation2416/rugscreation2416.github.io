@@ -1986,7 +1986,17 @@ async function storageSet(key, value, shared){
               try{ base = SECTION_BASELINE[name] === undefined ? null : JSON.parse(SECTION_BASELINE[name]); }catch(e){ base = null; }
               merged[name] = mergeSectionThreeWay(base, changed[name], live[name]);
             });
-            transaction.set(ref, {value:merged, ...stamp}, {merge:true});
+            if (snapshot.exists){
+              /* Replace each changed section wholesale using its own field path. A plain merged
+                 write can only add or change fields, never remove them — so deleting a row from
+                 one of the settings-style sections would appear to work on screen and then come
+                 straight back from the server on the next sync. */
+              const payload = {...stamp};
+              sections.forEach(name=>{ payload["value." + name] = merged[name]; });
+              transaction.update(ref, payload);
+            } else {
+              transaction.set(ref, {value:merged, ...stamp});
+            }
           });
           // Adopt the merged result locally so this screen immediately shows everyone's rows.
           let mergedInSomethingNew = false;
